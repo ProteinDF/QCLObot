@@ -21,7 +21,7 @@
 
 from __future__ import absolute_import
 
-from .qcatom.py import QcAtom
-from .qcfragment.py import QcFragment
-from .qcframe.py import QcFrame
-from .qcorbitaldata.py import QcOrbitalData
+from .qcatom import QcAtom
+from .qcfragment import QcFragment
+from .qcframe import QcFrame
+from .qcorbitaldata import QcOrbitalData
