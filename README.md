@@ -3,31 +3,46 @@ QCLObot
 
 An automatically generating guess file based on QCLO method for quantum chemistry program, ProteinDF.
 
+What you need to use ProteinDF_pytools
+-------------------------------------
 
-## Dependencies
+* Python 2.x or later
+* Python modules
+  * ProteinDF_bridge
+  * ProteinDF_pytools
 
-* ProteinDF bridge
-* ProteinDF pytools
 
-## Installation
+How to install QCLObot
+----------------------
 
-You may install the program as follows:
+Clone a copy of the main QCLObot git repo by running:
 
-+ get sources  
-
-  download and unpack zip file or clone the git repository.
-
+```bash
+git clone git://github.com/ProteinDF/QCLObot.git
 ```
-$ git clone git://github.com/ProteinDF/QCLObot.git
+
+Enter the source directory and run build script:
+
+```bash
 $ cd QCLObot
+$ python setup.py build
+$ python setup.py install
 ```
 
-+ run setup.py script
+Documents
+---------
 
-```
-$ python setup.py
-```
+sorry, in preparation.
 
-## License
+License
+-------
 
-Licensed under the GPL version 3.
+QCLObot is licensed under the GNU GPL v3.
+The source code can be found on the Github.
+
+
+Bugs
+----
+
+If you find any bugs, please let me know.
+And if you have a suggestion for improvement, please let me know.
