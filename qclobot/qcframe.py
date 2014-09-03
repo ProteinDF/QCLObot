@@ -24,7 +24,7 @@ import logging
 import math
 from collections import OrderedDict
 import shelve
-
+import shutil
 
 try:
     import msgpack
