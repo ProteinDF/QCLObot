@@ -96,18 +96,17 @@ class QcFrame(object):
         pdfparam_path = os.path.abspath(os.path.join(self.work_dir,
                                                      self._pdfparam_filename))
 
+        if os.path.exists(pdfparam_path):
+            mpac_file = open(pdfparam_path, 'rb')
+            mpac_data = msgpack.unpackb(mpac_file.read())
+            mpac_data = bridge.Utils.byte2str(mpac_data)
+            mpac_file.close()
+            self._pdfparam = pdf.PdfParam(mpac_data)
+
         if self._pdfparam is None:
-            pdfparam = None
-            if os.path.exists(pdfparam_path):
-                mpac_file = open(pdfparam_path, 'rb')
-                mpac_data = msgpack.unpackb(mpac_file.read())
-                mpac_data = bridge.Utils.byte2str(mpac_data)
-                mpac_file.close()
-                self._pdfparam = pdf.PdfParam(mpac_data)
-            else:
-                pdfsim = pdf.PdfSim()
-                self._pdfparam = pdf.get_default_pdfparam()
-                #self._pdfparam.save(pdfparam_path)
+            pdfsim = pdf.PdfSim()
+            self._pdfparam = pdf.get_default_pdfparam()
+            #self._pdfparam.save(pdfparam_path)
             
         return self._pdfparam
     pdfparam = property(_get_pdfparam)
