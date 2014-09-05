@@ -24,7 +24,7 @@ import logging
 import math
 from collections import OrderedDict
 import shelve
-
+import shutil
 
 try:
     import msgpack
@@ -97,7 +97,6 @@ class QcFrame(object):
                                                      self._pdfparam_filename))
 
         if self._pdfparam is None:
-            pdfparam = None
             if os.path.exists(pdfparam_path):
                 mpac_file = open(pdfparam_path, 'rb')
                 mpac_data = msgpack.unpackb(mpac_file.read())
@@ -108,8 +107,8 @@ class QcFrame(object):
                 pdfsim = pdf.PdfSim()
                 self._pdfparam = pdf.get_default_pdfparam()
                 #self._pdfparam.save(pdfparam_path)
-            
         return self._pdfparam
+
     pdfparam = property(_get_pdfparam)
         
 
@@ -381,10 +380,9 @@ class QcFrame(object):
 
         pdfsim = pdf.PdfSim()
 
-        if self.is_finished_scf != True:
-            for frg_name, frg in self.fragments():
-                frg.set_basisset(self.pdfparam)
-            self.pdfparam.molecule = self.frame_molecule
+        for frg_name, frg in self.fragments():
+            frg.set_basisset(self.pdfparam)
+        self.pdfparam.molecule = self.frame_molecule
 
         #self.output_xyz("{}/model.xyz".format(self.name))
 

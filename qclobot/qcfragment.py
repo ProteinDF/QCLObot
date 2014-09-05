@@ -269,7 +269,6 @@ class QcFragment(object):
         Set QcAtom object.
 
         '''
-        print('set_atom: {}: {}'.format(key, str(value)))
         self._atoms[key] = qclo.QcAtom(value, qc_parent = self)
 
     def atoms(self):
