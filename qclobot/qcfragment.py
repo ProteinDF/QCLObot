@@ -103,8 +103,7 @@ class QcFragment(object):
     def _set_qc_parent(self, qc_parent):
         '''
         '''
-        from qcframe import QcFrame
-        assert(isinstance(qc_parent, (QcFrame, QcFragment)))
+        assert(isinstance(qc_parent, (qclo.QcFrame, QcFragment)))
         if (self.qc_parent != None) and (self.qc_parent != qc_parent):
             self._logger.warn('[{}] qc_parent is overwrite: {} -> {}'.format(
                 self.name,
