@@ -56,10 +56,8 @@ class QcFrame(object):
 
         # mandatory parameter
         self._name = name
-        self._input_fragments = OrderedDict()
-        self._output_fragments = OrderedDict()
+        self._fragments = OrderedDict()
         self._state = {} # 状態保持
-        self._select_fragments()
         
         self._prepare_work_dir()
         self._load()
@@ -159,7 +157,7 @@ class QcFrame(object):
         if self._frame_molecule == None:
             self._logger.info('create frame molecule coordinates.')
             frame_molecule = bridge.AtomGroup()
-            for frg_name, frg in self._input_fragments.items():
+            for frg_name, frg in self._fragments.items():
                 self._logger.info('fragment name={}: {} atoms'.format(frg_name,
                                                                       frg.get_number_of_all_atoms()))
                 frame_molecule[frg_name] = frg.get_AtomGroup()
@@ -686,18 +684,8 @@ class QcFrame(object):
         fragment.name = fragment_name
         if fragment.qc_parent == None:
             fragment.qc_parent = self
-        self._input_fragments[fragment_name] = fragment
+        self._fragments[fragment_name] = fragment
 
-    # select fragments -------------------------------------------------
-    def _select_fragments(self):
-        '''
-        出力用フラグメントを状況に応じて切り替える
-        '''
-        if self.is_finished_scf:
-            self._fragments = self._output_fragments
-        else:
-            self._fragments = self._input_fragments
-        
     # rearangement -----------------------------------------------------
     def _switch_fragments(self):
         '''
@@ -712,9 +700,7 @@ class QcFrame(object):
             new_frg = qclo.QcFragment(frg, qc_parent=self)
             assert(new_frg.qc_parent.name == self.name)
             output_fragments[frg_name] = new_frg
-        self._input_fragments = self._fragments
-        self._output_fragments = output_fragments
-        self._fragments = self._output_fragments
+        self._fragments = output_fragments
 
         self._logger.info('---> switch ')
         for frg_name, frg in self.fragments():
