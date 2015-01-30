@@ -45,7 +45,7 @@ class QcFragment(object):
         self._atoms = OrderedDict()
         self._groups = OrderedDict()
         self._name = kwargs.get('name', '')
-        self._qc_parent = None
+        self._qc_parent = None # isinstance(qclo.QcFrame, QcFragment)
         self._density_matrix_path = None
         self._Clo_path = None
         self._QCLO_matrix_path = None
@@ -55,7 +55,9 @@ class QcFragment(object):
             if isinstance(rhs, QcFragment):
                 self._copy_constructer(args[0])
             elif isinstance(rhs, bridge.AtomGroup):
-                self._transform_atomgroup(args[0])
+                self._construct_by_atomgroup(args[0])
+            elif isinstance(rhs, dict):
+                self.set_by_raw_data(rhs)
 
         if 'qc_parent' in kwargs:
             self.qc_parent = kwargs['qc_parent']
@@ -76,7 +78,7 @@ class QcFragment(object):
         self._Clo_path = rhs._Clo_path
         self._QCLO_matrix_path = rhs._QCLO_matrix_path
 
-    def _transform_atomgroup(self, rhs):
+    def _construct_by_atomgroup(self, rhs):
         '''
         '''
         assert(isinstance(rhs, bridge.AtomGroup))
@@ -91,6 +93,55 @@ class QcFragment(object):
         self._Clo_path = None
         self._QCLO_matrix_path = None
             
+    # state ============================================================
+    def get_raw_data(self):
+        return self.__get_state__()
+
+    def set_by_raw_data(self, raw_data):
+        assert(isinstance(raw_data, dict))
+        self.__set_state__(raw_data)
+
+    def __get_state__(self):
+        state = {}
+
+        tmp_atoms = []
+        for atm_name, atm in self.atoms():
+            tmp_atoms.append((atm_name, atm.get_raw_data()))
+        state['atoms'] = tmp_atoms
+
+        tmp_grps = []
+        for grp_name, grp in self.groups():
+            tmp_grps.append((grp_name, grp.get_raw_data()))
+        state['groups'] = tmp_grps
+
+        state['name'] = self.name
+
+        if self._density_matrix_path != None:
+            state['density_matrix_path'] = str(self._density_matrix_path)
+        if self._Clo_path != None:
+            state['Clo_path'] = str(self._Clo_path)
+        if self._QCLO_matrix_path != None:
+            state['QCLO_matrix_path'] = str(self._QCLO_matrix_path)
+        
+        return state
+
+    def __set_state__(self, state):
+        assert(isinstance(state, dict))
+        self._atoms = OrderedDict()
+        if 'atoms' in state:
+            for (atm_name, atm_raw) in state.get('atoms'):
+                self.set_atom(atm_name, qclo.QcAtom(atm_raw))
+        
+        self._groups = OrderedDict()
+        if 'groups' in state:
+            for (grp_name, grp_raw) in state.get('groups'):
+                self.set_group(grp_name, qclo.QcFragment(grp_raw, qc_parent=self))
+        
+        self._name = state.get('name', '')
+        self._density_matrix_path = state.get('density_matrix_path', None)
+        self._Clo_path = state.get('Clo_path', None)
+        self._QCLO_matrix_path = state.get('QCLO_matrix_path', None)
+
         
     def _prepare_work_dir(self):
         if not os.path.exists(self.work_dir):
@@ -148,6 +199,7 @@ class QcFragment(object):
         return self._name
 
     def _set_name(self, name):
+        assert(isinstance(name, str))
         self._name = name
 
     name = property(_get_name, _set_name)

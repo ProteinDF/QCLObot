@@ -48,6 +48,24 @@ class QcAtom(bridge.Atom):
     def get_Atom(self):
         atm = bridge.Atom(self)
         return atm
+
+    def set_by_raw_data(self, data):
+        super(QcAtom, self).set_by_raw_data(data)
+
+        suffix = "." + self.symbol
+        self.basisset = data.get('basisset', 'O-DZVP2' + suffix)
+        self.basisset_j = data.get('basisset_j', 'A-DZVP2' + suffix)
+        self.basisset_xc = data.get('basisset_xc', 'A-DZVP2' + suffix)
+        self.basisset_gridfree = data.get('basisset_gridfree', 'O-DZVP2' + suffix)
+        
+    def get_raw_data(self):
+        data = super(QcAtom, self).get_raw_data()
+        data['basisset'] = self.basisset
+        data['basisset_j'] = self.basisset_j
+        data['basisset_xc'] = self.basisset_xc
+        data['basisset_gridfree'] = self.basisset_gridfree
+
+        return data
         
     #
     def get_number_of_AOs(self):
