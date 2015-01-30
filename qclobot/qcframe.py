@@ -47,6 +47,12 @@ class QcFrame(object):
         name: name of the frame molecule
         '''
         self._logger = logging.getLogger(__name__)
+        if kwargs.get('debug'):
+            self._logger.addHandler(logging.StreamHandler())
+            self._logger.setLevel(logging.DEBUG)
+        else:
+            self._logger.addHandler(logging.NullHandler())
+            self._logger.setLevel(logging.INFO)
 
         # mandatory parameter
         self._name = name

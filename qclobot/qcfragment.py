@@ -35,6 +35,12 @@ class QcFragment(object):
         constructer
         '''
         self._logger = logging.getLogger(__name__)
+        if kwargs.get('debug'):
+            self._logger.addHandler(logging.StreamHandler())
+            self._logger.setLevel(logging.DEBUG)
+        else:
+            self._logger.addHandler(logging.NullHandler())
+            self._logger.setLevel(logging.INFO)
 
         self._atoms = OrderedDict()
         self._groups = OrderedDict()
