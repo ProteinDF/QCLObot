@@ -62,8 +62,7 @@ class QcFrame(object):
         self._load()
 
         # cache data
-        self._frame_molecule = None
-        self._pdfparam = None
+        self._cache = None
 
         if ((len(args) > 0) and isinstance(args[0], QcFrame)):
             self._copy_constructer(args[0])
@@ -71,7 +70,8 @@ class QcFrame(object):
     # copy constructer
     def _copy_constructer(self, rhs):
         self._name = rhs._name
-        self._pdfparam = rhs._pdfparam
+        self._fragments = copy.deepcopy(rhs._fragments)
+        self._state = copy.deepcopy(rhs._state)
 
     def __del__(self):
         self._save()
@@ -132,17 +132,17 @@ class QcFrame(object):
         pdfparam_path = os.path.abspath(os.path.join(self.work_dir,
                                                      self._pdfparam_filename))
 
-        if self._pdfparam is None:
+        if 'pdfparam' not in self._cache:
             if os.path.exists(pdfparam_path):
                 mpac_file = open(pdfparam_path, 'rb')
                 mpac_data = msgpack.unpackb(mpac_file.read())
                 mpac_data = bridge.Utils.byte2str(mpac_data)
                 mpac_file.close()
-                self._pdfparam = pdf.PdfParam(mpac_data)
+                self._cache['pdfparam'] = pdf.PdfParam(mpac_data)
             else:
                 pdfsim = pdf.PdfSim()
-                self._pdfparam = pdf.get_default_pdfparam()
-        return self._pdfparam
+                self._cache['pdfparam'] = pdf.get_default_pdfparam()
+        return self._cache['pdfparam']
 
     pdfparam = property(_get_pdfparam)
         
@@ -185,16 +185,16 @@ class QcFrame(object):
         '''
         モデリングされた分子構造をAtomGroupオブジェクトで返す
         '''
-        if self._frame_molecule == None:
+        if 'frame_molecule' not in self._cache:
             self._logger.info('create frame molecule coordinates.')
             frame_molecule = bridge.AtomGroup()
             for frg_name, frg in self._fragments.items():
                 self._logger.info('fragment name={}: {} atoms'.format(frg_name,
                                                                       frg.get_number_of_all_atoms()))
                 frame_molecule[frg_name] = frg.get_AtomGroup()
-            self._frame_molecule = frame_molecule
+            self._cache['frame_molecule'] = frame_molecule
             self._logger.info('')
-        return self._frame_molecule
+        return self._cache['frame_molecule']
 
     frame_molecule = property(_get_frame_molecule)
 
@@ -476,7 +476,6 @@ class QcFrame(object):
                   db_path = self.db_path,
                   dry_run = dry_run)
         
-        self._pdfparam = None # cache clear
         self.is_finished_prescf = True
         self._save()
 
@@ -509,7 +508,6 @@ class QcFrame(object):
                   db_path = self.db_path,
                   dry_run = dry_run)
             
-        self._pdfparam = None # cache clear
         self.is_finished_scf = True
         self._switch_fragments()
         self._save()
@@ -803,14 +801,18 @@ class QcFrame(object):
             self._logger.warn('operator[] called after simulation.')
             return
 
-        self._frame_molecule = None # clear molecule cache
+        self._cache = None # clear cache
 
         fragment_name = str(fragment_name)
-        fragment = qclo.QcFragment(fragment)
-        fragment.name = fragment_name
-        if fragment.qc_parent == None:
-            fragment.qc_parent = self
-        self._fragments[fragment_name] = fragment
+
+        if isinstance(fragment, QcFragment):
+            fragment = qclo.QcFragment(fragment)
+            fragment.name = fragment_name
+            if fragment.qc_parent == None:
+                fragment.qc_parent = self
+            self._fragments[fragment_name] = fragment
+        else:
+            raise
 
     # rearangement -----------------------------------------------------
     def _switch_fragments(self):
