@@ -42,9 +42,12 @@ class QcFragment(object):
             self._logger.addHandler(logging.NullHandler())
             self._logger.setLevel(logging.INFO)
 
+        # mandatory variables
         self._atoms = OrderedDict()
         self._groups = OrderedDict()
         self._name = kwargs.get('name', '')
+        self._margin = False
+        # option variables
         self._qc_parent = None # isinstance(qclo.QcFrame, QcFragment)
         self._density_matrix_path = None
         self._Clo_path = None
@@ -61,6 +64,8 @@ class QcFragment(object):
 
         if 'qc_parent' in kwargs:
             self.qc_parent = kwargs['qc_parent']
+        if 'margin' in kwargs:
+            self.margin = kwargs['margin']
                     
     def _copy_constructer(self, rhs):
         '''
@@ -73,6 +78,8 @@ class QcFragment(object):
         for k, v in rhs.groups():
             self.set_group(k, v)
         self._name = rhs._name
+        self._margin = rhs._margin
+        
         self._qc_parent = rhs._qc_parent
         self._density_matrix_path = rhs._density_matrix_path
         self._Clo_path = rhs._Clo_path
@@ -88,6 +95,8 @@ class QcFragment(object):
         for k, v in rhs.groups():
             self.set_group(k, v)
         self._name = rhs.name
+        # self._margin is not a member variable in atomgroup
+        
         self._qc_parent = None
         self._density_matrix_path = None
         self._Clo_path = None
@@ -115,7 +124,8 @@ class QcFragment(object):
         state['groups'] = tmp_grps
 
         state['name'] = self.name
-
+        state['margin'] = self.margin
+        
         if self._density_matrix_path != None:
             state['density_matrix_path'] = str(self._density_matrix_path)
         if self._Clo_path != None:
@@ -138,6 +148,8 @@ class QcFragment(object):
                 self.set_group(grp_name, qclo.QcFragment(grp_raw, qc_parent=self))
         
         self._name = state.get('name', '')
+        self._margin = state.get('margin', False)
+        
         self._density_matrix_path = state.get('density_matrix_path', None)
         self._Clo_path = state.get('Clo_path', None)
         self._QCLO_matrix_path = state.get('QCLO_matrix_path', None)
@@ -169,7 +181,16 @@ class QcFragment(object):
         self._qc_parent = qc_parent
 
     qc_parent = property(_get_qc_parent, _set_qc_parent)
-        
+
+    # margin ----------------------------------------------------------
+    def _get_margin(self):
+        return self._margin
+
+    def _set_margin(self, yn):
+        self._margin = bool(yn)
+
+    margin = property(_get_margin, _set_margin)
+    
     # work_dir ---------------------------------------------------------
     def _get_work_dir(self):
         '''
@@ -357,6 +378,21 @@ class QcFragment(object):
         for k, v in self._groups.items(): # based on collections.OrderedDict
             yield(k, v)
 
+    def _delete_group(self, key):
+        self._groups.pop(key)
+            
+    def merge_subgroups(self):
+        '''
+        子グループを自分の原子リストに組入れ、その子グループを削除する
+        '''
+        for key_subgrp, subgrp in self.groups():
+            subgrp.merge_subgroups()
+            for key_atom, atom in subgrp.atoms():
+                new_key_atom = '[{}/{}]'.format(key_subgrp, key_atom)
+                self.set_atom(new_key_atom, atom)
+            self._delete_group(key_subgrp)
+                
+        
     # ==================================================================
     # guess density
     # ==================================================================
@@ -383,16 +419,22 @@ class QcFragment(object):
         guess_densityに必要な密度行列のパスを返す
         subgroupを持っている場合はマージした密度行列を作成し、そのパスを返す
         '''
+        self._prepare_work_dir()
+
         self._logger.info('>>>> get_guess_density_matrix: {}/{}'.format(self.qc_parent.name, self.name))
         guess_density_matrix_path = os.path.join(self.work_dir,
                                                  'guess.density.{}.{}.mat'.format(run_type, self.name))
         
-        # サブユニットからの行列をこれから追記するので
         # 既存のデータを消去する
         if os.path.exists(guess_density_matrix_path):
             os.remove(guess_density_matrix_path)
-        
+        # create new matrix file
+        mat = pdf.SymmetricMatrix()
+        mat.save(guess_density_matrix_path)
+            
+        # subgroup
         for subgrp_name, subgrp in self.groups():
+            self._logger.info('>>>> subgroup name={}'.format(subgrp_name))
             subgrp_guess_density_matrix_path = subgrp.get_guess_density_matrix(run_type)
             if not os.path.exists(subgrp_guess_density_matrix_path):
                 self._logger.warn('NOT found: subgrp.guess.dens.mat={}'.format(subgrp_guess_density_matrix_path))
@@ -407,7 +449,7 @@ class QcFragment(object):
 
             self._logger.info('(sub) mat-ext -d ')
             self._logger.info('    {}'.format(guess_density_matrix_path))
-            self._logger.info('    {}'.format(subgrp_guess_matrix_path))
+            self._logger.info('    {}'.format(subgrp_guess_density_matrix_path))
             self._logger.info('    {}'.format(guess_density_matrix_path))
             pdf.run_pdf(['mat-ext', '-d',
                          guess_density_matrix_path,
@@ -419,6 +461,7 @@ class QcFragment(object):
             assert(row1 + row2 == row3)
             assert(col1 + col2 == col3)
 
+        # this subgroup
         if self._density_matrix_path != None:
             path = os.path.join(self.work_dir, self._density_matrix_path)
             self._check_path(path)

@@ -62,7 +62,7 @@ class QcFrame(object):
         self._load()
 
         # cache data
-        self._cache = None
+        self._cache = {}
 
         if ((len(args) > 0) and isinstance(args[0], QcFrame)):
             self._copy_constructer(args[0])
@@ -230,7 +230,7 @@ class QcFrame(object):
         self.cd_work_dir() 以前のディレクトリに戻す
         '''
         os.chdir(self._prev_dir)
-        self._logger.info('<<<<\n')
+        self._logger.info('<<<< (prev_dir: {})\n'.format(self._prev_dir))
 
     def _check_path(self, path):
         if not os.path.exists(path):
@@ -383,6 +383,9 @@ class QcFrame(object):
             self._logger.info('guess_density has been calced.')
             return
 
+        if self.is_finished_prescf != True:
+            self.calc_preSCF(dry_run)
+
         self.cd_work_dir('guess_QCLO')
 
         guess_QCLO_matrix_path = 'guess.QCLO.{}.mat'.format(run_type)
@@ -421,12 +424,13 @@ class QcFrame(object):
         # check
         self._check_path(guess_QCLO_matrix_path)
 
-        self._create_occupation_file(run_type)
         
         self.is_finished_guess_QCLO = True
         self._save()
-
         self.restore_cwd()
+
+        # create occ file
+        self._create_occupation_file(run_type)
 
     def _create_occupation_file(self, run_type='rks'):
         self.cd_work_dir('create occ')
@@ -476,6 +480,7 @@ class QcFrame(object):
                   db_path = self.db_path,
                   dry_run = dry_run)
         
+        self._cache.pop('pdfparam')
         self.is_finished_prescf = True
         self._save()
 
@@ -507,7 +512,8 @@ class QcFrame(object):
                   workdir = self.work_dir,
                   db_path = self.db_path,
                   dry_run = dry_run)
-            
+
+        self._cache.pop('pdfparam')
         self.is_finished_scf = True
         self._switch_fragments()
         self._save()
@@ -790,7 +796,7 @@ class QcFrame(object):
         fragment_name = str(fragment_name)
         return self._fragments.get(fragment_name, None)
 
-    def __setitem__(self, fragment_name, fragment):
+    def __setitem__(self, fragment_name, obj):
         '''
         入力用[]演算子
 
@@ -801,13 +807,26 @@ class QcFrame(object):
             self._logger.warn('operator[] called after simulation.')
             return
 
-        self._cache = None # clear cache
+        self._cache = {} # clear cache
 
         fragment_name = str(fragment_name)
 
-        if isinstance(fragment, QcFragment):
-            fragment = qclo.QcFragment(fragment)
+        if isinstance(obj, qclo.QcFragment):
+            fragment = qclo.QcFragment(obj)
             fragment.name = fragment_name
+            if fragment.qc_parent == None:
+                fragment.qc_parent = self
+            self._fragments[fragment_name] = fragment
+        elif isinstance(obj, qclo.QcFrame):
+            self._logger.info('add frame molecule: for {}'.format(fragment_name))
+            fragment = qclo.QcFragment()
+            fragment.name = fragment_name
+            for k, f in obj.fragments():
+                if not f.margin:
+                    self._logger.warn('add fragment: k={} for {}'.format(k, fragment_name))
+                    fragment.set_group(k, f)
+                else:
+                    self._logger.warn('pass fragment: k={} is margin'.format(k))
             if fragment.qc_parent == None:
                 fragment.qc_parent = self
             self._fragments[fragment_name] = fragment
@@ -830,6 +849,10 @@ class QcFrame(object):
             output_fragments[frg_name] = new_frg
         self._fragments = output_fragments
 
+        self._logger.info('merge subgroups')
+        for key, frg in self.fragments():
+            frg.merge_subgroups()
+        
         self._logger.info('---> switch ')
         for frg_name, frg in self.fragments():
             self._logger.info('{}: parent={}'.format(frg_name,
