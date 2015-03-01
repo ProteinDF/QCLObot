@@ -30,6 +30,8 @@ import pdfpytools as pdf
 import qclobot as qclo
 
 class QcFragment(object):
+    _QCLO_matrix_path = 'QCLO.mat'
+
     def __init__(self, *args, **kwargs):
         '''
         constructer
@@ -51,7 +53,7 @@ class QcFragment(object):
         self._qc_parent = None # isinstance(qclo.QcFrame, QcFragment)
         self._density_matrix_path = None
         self._Clo_path = None
-        self._QCLO_matrix_path = None
+        # self._QCLO_matrix_path = 'QCLO.mat'
 
         if len(args) > 0:
             rhs = args[0]
@@ -83,7 +85,7 @@ class QcFragment(object):
         self._qc_parent = rhs._qc_parent
         self._density_matrix_path = rhs._density_matrix_path
         self._Clo_path = rhs._Clo_path
-        self._QCLO_matrix_path = rhs._QCLO_matrix_path
+        # self._QCLO_matrix_path = rhs._QCLO_matrix_path
 
     def _construct_by_atomgroup(self, rhs):
         '''
@@ -100,7 +102,7 @@ class QcFragment(object):
         self._qc_parent = None
         self._density_matrix_path = None
         self._Clo_path = None
-        self._QCLO_matrix_path = None
+        # self._QCLO_matrix_path = None
             
     # state ============================================================
     def get_raw_data(self):
@@ -130,8 +132,8 @@ class QcFragment(object):
             state['density_matrix_path'] = str(self._density_matrix_path)
         if self._Clo_path != None:
             state['Clo_path'] = str(self._Clo_path)
-        if self._QCLO_matrix_path != None:
-            state['QCLO_matrix_path'] = str(self._QCLO_matrix_path)
+        #if self._QCLO_matrix_path != None:
+        #    state['QCLO_matrix_path'] = str(self._QCLO_matrix_path)
         
         return state
 
@@ -152,7 +154,7 @@ class QcFragment(object):
         
         self._density_matrix_path = state.get('density_matrix_path', None)
         self._Clo_path = state.get('Clo_path', None)
-        self._QCLO_matrix_path = state.get('QCLO_matrix_path', None)
+        # self._QCLO_matrix_path = state.get('QCLO_matrix_path', None)
 
         
     def _prepare_work_dir(self):
@@ -182,6 +184,14 @@ class QcFragment(object):
 
     qc_parent = property(_get_qc_parent, _set_qc_parent)
 
+    def get_parent_frame(self):
+        answer = None
+        if isinstance(self.qc_parent, qclo.QcFrame):
+            answer = self.qc_parent
+        elif isinstance(self.qc_parent, QcFragment):
+            answer = self.qc_parent.get_parent_frame()
+        return answer
+    
     # margin ----------------------------------------------------------
     def _get_margin(self):
         return self._margin
@@ -550,34 +560,19 @@ class QcFragment(object):
         
     # QCLO ------------------------------------------------------------
     def set_QCLO_matrix(self, in_path):
-        basename = os.path.basename(in_path)
-
-        input_abs_path = os.path.abspath(in_path)
-        my_abs_path = os.path.abspath(os.path.join(self.work_dir, basename))
-        if input_abs_path != my_abs_path:
+        abs_in_path = os.path.abspath(in_path)
+        QCLO_matrix_path = os.path.abspath(self.QCLO_matrix_path)
+        if abs_in_path != QCLO_matrix_path:
             self._prepare_work_dir()
-            shutil.copy(os.path.abspath(in_path),
-                        os.path.abspath(my_abs_path))
-        self._QCLO_matrix_path = basename
-
-        self._logger.info('set QCLO mat. path: [{name}]/{path}'.format(
-            name = self.name,
-            path = os.path.join(self.work_dir,
-                                self._QCLO_matrix_path)))
+            shutil.copy(abs_in_path,
+                        QCLO_matrix_path)
+        else:
+            self._logger.warning('not set the same QCLO matrix')
         
     def _get_QCLO_matrix_path(self):
-        self._logger.info('_get_QCLO_matrix_path() ')
-        self._logger.info('  work_dir: {}'.format(self.work_dir))
-        self._logger.info('  _QCLO_matrix_path: {}'.format(self._QCLO_matrix_path))
-
-        answer = None
-        if self._QCLO_matrix_path != None:
-            answer = os.path.abspath(os.path.join(self.work_dir, self._QCLO_matrix_path))
-        return answer
+        print('get_QCLO_matrix_path(): ', self.work_dir, self._QCLO_matrix_path)
+        return os.path.join(self.work_dir, self._QCLO_matrix_path)
     
-    #def _set_QCLO_path(self, path):
-    #    self._QCLO_path = str(path)
-    #
     QCLO_matrix_path = property(_get_QCLO_matrix_path)
 
     def prepare_QCLO_matrix(self, run_type, request_frame):
@@ -615,16 +610,17 @@ class QcFragment(object):
             
             
         # 自分のQCLO情報
-        parent_frame = self.qc_parent
+        parent_frame = self.get_parent_frame()
         parent_orbinfo = parent_frame.get_orbital_info()
         request_num_of_AOs = request_frame.get_number_of_AOs()
         parent_num_of_AOs = parent_frame.get_number_of_AOs()
 
         self._logger.info('QCLO_matrix_path: {}, parent={}'.format(self.QCLO_matrix_path,
                                                                    self.qc_parent.name))
-        if self.QCLO_matrix_path != None:
-            QCLO_mat = pdf.Matrix()
+        if len(self._atoms) > 0:
+            assert(os.path.isfile(self.QCLO_matrix_path))
 
+            QCLO_mat = pdf.Matrix()
             self._check_path(self.QCLO_matrix_path)
 
             QCLO_mat.load(self.QCLO_matrix_path)

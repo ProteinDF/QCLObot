@@ -816,6 +816,7 @@ class QcFrame(object):
             fragment.name = fragment_name
             if fragment.qc_parent == None:
                 fragment.qc_parent = self
+            self._logger.info('add fragment: name={}'.format(fragment_name))
             self._fragments[fragment_name] = fragment
         elif isinstance(obj, qclo.QcFrame):
             self._logger.info('add frame molecule: for {}'.format(fragment_name))
@@ -849,9 +850,9 @@ class QcFrame(object):
             output_fragments[frg_name] = new_frg
         self._fragments = output_fragments
 
-        self._logger.info('merge subgroups')
-        for key, frg in self.fragments():
-            frg.merge_subgroups()
+        #self._logger.info('merge subgroups')
+        #for key, frg in self.fragments():
+        #    frg.merge_subgroups()
         
         self._logger.info('---> switch ')
         for frg_name, frg in self.fragments():
