@@ -351,7 +351,7 @@ class QcFrame(object):
             if frg.qc_parent == None:
                 self._logger.warn('guess_density(): qc_parent == None. frg_name={}'.format(frg_name))
 
-            frg_guess_density_matrix_path = frg.get_guess_density_matrix(run_type)
+            frg_guess_density_matrix_path = frg.prepare_guess_density_matrix(run_type)
 
             self._logger.debug('guess_density() [{}@{}] ext: {} from {}'.format(
                 frg_name,
@@ -395,7 +395,7 @@ class QcFrame(object):
         num_of_AOs = 0
         for frg_name, frg in self.fragments():
             self._logger.debug('guess QCLO: frg_name={}, parent={}'.format(frg_name, frg.qc_parent.name))
-            frg_QCLO_matrix_path = frg.prepare_QCLO_matrix(run_type, self)
+            frg_QCLO_matrix_path = frg.prepare_guess_QCLO_matrix(run_type, self)
             if os.path.exists(frg_QCLO_matrix_path):
                 pdf.run_pdf(['mat-ext', '-c',
                              guess_QCLO_matrix_path,
@@ -515,6 +515,7 @@ class QcFrame(object):
 
         self._cache.pop('pdfparam')
         self.is_finished_scf = True
+        self._grouping_fragments()
         self._switch_fragments()
         self._save()
             
@@ -579,7 +580,7 @@ class QcFrame(object):
         self.restore_cwd()
             
     # ------------------------------------------------------------------
-    def calc_lo(self):
+    def calc_lo(self, run_type):
         if self.is_finished_LO:
             self._logger.info('LO has done.')
             return
@@ -594,11 +595,13 @@ class QcFrame(object):
         self.restore_cwd()
 
     # ------------------------------------------------------------------
-    def pickup_lo(self):
+    def pickup_QCLO(self, run_type='rks'):
         if self.is_finished_pickup_LO:
             self._logger.info('pickup LO has been finished.')
             return
 
+        self.calc_lo(run_type)
+            
         self.cd_work_dir('pickup lo')
         
         # debug
@@ -617,6 +620,8 @@ class QcFrame(object):
         self._logger.info('')
             
         # calc S*C
+        if 'pdfparam' in self._cache:
+            self._cache.pop('pdfparam')
         lo_satisfied = self.pdfparam.lo_satisfied
         if lo_satisfied != True:
             self._logger.warn('lo_satisfied: {}'.format(lo_satisfied))
@@ -673,7 +678,7 @@ class QcFrame(object):
             Clo_path = 'Clo_{}.mat'.format(frg_name)
             self._logger.info('fragment C_LO save: {}'.format(Clo_path))
             Clo_frg.save(Clo_path)
-            frg.Clo_path = Clo_path
+            frg.set_LO_matrix(Clo_path, run_type)
         self._logger.info('create C_LO: end')
             
         # trans C_LO
@@ -732,9 +737,9 @@ class QcFrame(object):
         F_path = self.pdfparam.get_Fmat_path(run_type)
         self._logger.info('F matrix: {}'.format(F_path))
         for frg_name, frg in self.fragments():
-            Clo_path = frg.Clo_path
-            if Clo_path is None:
-                continue
+            Clo_path = frg.get_LO_matrix_path(run_type)
+            #if Clo_path is None:
+            #    continue
 
             # calc (C_LO)dagger * F * C_LO => F'
             F_Clo_path = 'F_Clo.{}.mat'.format(frg_name)
@@ -859,7 +864,11 @@ class QcFrame(object):
             self._logger.info('{}: parent={}'.format(frg_name,
                                                      frg.qc_parent.name))
         self._logger.info('<---')
-        
+
+    def _grouping_fragments(self):
+        self._logger.info('grouping fragments.')
+        for frg_name, frg in self.fragments():
+            frg.grouping_subfragments()
 
     # ==================================================================
     # coordinates
