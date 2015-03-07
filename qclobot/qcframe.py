@@ -384,7 +384,7 @@ class QcFrame(object):
             return
 
         if self.is_finished_prescf != True:
-            self.calc_preSCF(dry_run)
+            self.calc_preSCF()
 
         self.cd_work_dir('guess_QCLO')
 
@@ -394,7 +394,7 @@ class QcFrame(object):
         
         num_of_AOs = 0
         for frg_name, frg in self.fragments():
-            self._logger.debug('guess QCLO: frg_name={}, parent={}'.format(frg_name, frg.qc_parent.name))
+            self._logger.info('guess QCLO: frg_name={}, parent={}'.format(frg_name, frg.qc_parent.name))
             frg_QCLO_matrix_path = frg.prepare_guess_QCLO_matrix(run_type, self)
             if os.path.exists(frg_QCLO_matrix_path):
                 pdf.run_pdf(['mat-ext', '-c',
@@ -850,6 +850,7 @@ class QcFrame(object):
         self._logger.info('switch fragment.')
         output_fragments = OrderedDict()
         for frg_name, frg in self.fragments():
+            self._logger.info('fragment_name: {}'.format(frg_name))
             new_frg = qclo.QcFragment(frg, qc_parent=self)
             assert(new_frg.qc_parent.name == self.name)
             output_fragments[frg_name] = new_frg

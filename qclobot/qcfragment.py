@@ -364,7 +364,7 @@ class QcFragment(object):
         This method override the bridge.AtomGroup method.
         '''
         self._groups[key] = QcFragment(fragment)
-        if fragment.qc_parent == None:
+        if self._groups[key].qc_parent == None:
             self._groups[key].qc_parent = self
 
     def groups(self):
@@ -383,7 +383,7 @@ class QcFragment(object):
         for key_subgrp, subgrp in self.groups():
             subgrp.grouping_subfragments()
             for key_atom, atom in subgrp.atoms():
-                new_key_atom = '[{}/{}]'.format(key_subgrp, key_atom)
+                new_key_atom = '{}/{}'.format(key_subgrp, key_atom)
                 self.set_atom(new_key_atom, atom)
             self._delete_group(key_subgrp)
                 
@@ -621,7 +621,7 @@ class QcFragment(object):
 
     # operator == ------------------------------------------------------
     def __eq__(self, rhs):
-        if rhs == None:
+        if (rhs == None) or (isinstance(rhs, QcFragment) == False):
             return False
         return ((self.qc_parent == rhs.qc_parent) and
                 (self.name == rhs.name))
@@ -633,7 +633,7 @@ class QcFragment(object):
     def __str__(self):
         answer = ''
         for key, subgrp in self.groups():
-            answer += '>>>> {}'.format(key)
+            answer += '>>>> {}\n'.format(key)
             answer += str(subgrp) + '\n'
         for key, atom in self.atoms():
             answer += 'k:{} {}\n'.format(key, str(atom))
