@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2002-2014 The ProteinDF project
+# Copyright (C) 2002-2015 The ProteinDF project
 # see also AUTHORS and README.
 #
 # This file is part of ProteinDF.
@@ -26,7 +26,8 @@ try:
     import msgpack
 except:
     import msgpack_pure as msgpack
-
+import jinja2
+    
 import pdfbridge as bridge
 import qclobot as qclo
 
@@ -37,6 +38,8 @@ class QcControl(object):
         self._logger = logging.getLogger(__name__)
         self._senarios = []
         self._cache = {}
+
+        self._vars = {}
         
         self._frames = {}
         self._frames['default'] = {}
@@ -45,9 +48,15 @@ class QcControl(object):
         
     def run(self, path):
         self._load_yaml(path)
+
+        # exec senarios
         for senario in self._senarios:
-            for frame in senario:
-                self._exec_frame(frame)
+            if 'vars' in senario:
+                self._run_vars(senario['vars'])
+            if 'tasks' in senario:
+                tasks = senario['tasks']
+                for task in tasks:
+                    self._run_frame(task)
         
     def _load_yaml(self, path):
         f = open(path)
@@ -66,11 +75,126 @@ class QcControl(object):
         yaml.dump(data, f, encoding='utf8', allow_unicode=True)
         f.close()
 
-
     # ------------------------------------------------------------------
-    def _exec_frame(self, frame_data):
+    # vars
+    # ------------------------------------------------------------------
+    def _run_vars(self, in_vars_data):
+        assert(isinstance(in_vars_data, dict))
+
+        self._vars = dict(in_vars_data)
+        
+    # ------------------------------------------------------------------
+    # task or frame
+    # ------------------------------------------------------------------
+    def _run_frame(self, frame_data):
         assert(isinstance(frame_data, dict))
 
+        # condition ----------------------------------------------------
+        if self._exec_condition_with_items(frame_data):
+            return
+        if self._exec_condition_when(frame_data):
+            return
+        
+        # task ---------------------------------------------------------
+        self._exec_task_debug(frame_data)
+
+        if self._exec_task_mail(frame_data):
+            return
+
+        # frame --------------------------------------------------------
+        if self._exec_frame_default(frame_data):
+            return
+
+        self._exec_frame_object(frame_data)
+        
+    # ------------------------------------------------------------------
+    # condition
+    # ------------------------------------------------------------------
+    def _exec_condition_with_items(self, frame_data):
+        is_break = False
+
+        with_items = frame_data.get('with_items', None)
+        if with_items:
+            iter_items = list(self._vars.get(str(with_items), []))
+
+            new_frame_data = dict(frame_data)
+            new_frame_data.pop('with_items')
+            yaml_str = yaml.dump(new_frame_data)
+            template = jinja2.Template(yaml_str)
+
+            for item in iter_items:
+                yaml_str = template.render(item = item)
+                new_frame_data = yaml.load(yaml_str)
+                self._run_frame(new_frame_data)
+            is_break = True
+
+        return is_break
+
+    def _exec_condition_when(self, task_data):
+        is_break = False
+
+        when_phrase = task_data.get('when', None)
+        if when_phrase:
+            globals_data = self._vars
+            judge = eval(when_phrase, globals_data)
+            if judge:
+                new_task_data = dict(task_data)
+                new_task_data.pop('when')
+                self._run_frame(new_task_data)
+            is_break = True
+        
+        return is_break
+
+    # ------------------------------------------------------------------
+    # task
+    # ------------------------------------------------------------------
+    def _exec_task_debug(self, in_task_data):
+        is_break = False
+
+        return is_break
+        
+    def _exec_task_mail(self, in_task_data):
+        is_break = False
+
+        if 'mail' in in_task_data:
+            mail_data = self._get_value('mail', in_task_data)
+            mailer = bridge.Mail()
+            mailer.smtp_server = mail_data.get('smtp_server')
+            if 'smtp_port' in mail_data:
+                mailer.smtp_port = mail_data.get('smtp_port')
+            if 'use_SSL' in mail_data:
+                mailer.use_SSL = mail_data.get('use_SSL')
+            mailer.smtp_account = mail_data.get('smtp_account')
+            mailer.smtp_password = mail_data.get('smtp_password')
+            mailer.from_address = mail_data.get('from_address')
+            mailer.to_address = mail_data.get('to_address')
+            mailer.subject = mail_data.get('subject')
+            mailer.text = mail_data.get('msg')
+            mailer.send()
+
+            is_break = True
+            
+        return is_break
+        
+    # ------------------------------------------------------------------
+    # frame
+    # ------------------------------------------------------------------
+    def _exec_frame_default(self, in_frame_data):
+        assert(isinstance(in_frame_data, dict))
+        is_break = False
+        
+        name = in_frame_data.get('name', None)
+        if ((name != None) and (name == 'default')):
+            default_data = dict(in_frame_data)
+            default_data.pop('name')
+            self._frames['default'] = default_data
+            is_break = True
+
+        return is_break
+
+    def _exec_frame_object(self, frame_data):
+        assert(isinstance(frame_data, dict))
+        
         # --------------------------------------------------------------
         # setup
         # --------------------------------------------------------------
@@ -78,57 +202,28 @@ class QcControl(object):
         if 'name' not in frame_data:
             self._logger.critical('name is not defined.')
         frame_name = frame_data.get('name')        
+        self._logger.info('--- FRAME: {} ---'.format(frame_name))
         frame = qclo.QcFrame(frame_name)
 
-        self._logger.info('--- FRAME: {} ---'.format(frame_name))
-        
+        # setup default value
+        self._set_default(self._frames['default'], frame_data)
+
         # frame configuration
-        frame_basis_set = frame_data.get('basis_set',
-                                         self._frames['default']['basis_set'])
-        if 'XC_functional' in frame_data:
-            frame.XC_functional = frame_data.get('XC_functional')
-        if 'J_engine' in frame_data:
-            frame.J_engine = frame_data.get('J_engine')
-        if 'K_engine' in frame_data:
-            frame.K_engine = frame_data.get('K_engine')
-        if 'XC_engine' in frame_data:
-            frame.XC_engine = frame_data.get('XC_engine')
+        XC_functional = self._get_value('XC_functional', frame_data)
+        if XC_functional:
+            frame.XC_functional = XC_functional
+        J_engine = self._get_value('J_engine', frame_data)
+        if J_engine:
+            frame.J_engine = J_engine
+        K_engine = self._get_value('K_engine', frame_data)
+        if K_engine:
+            frame.K_engine = K_engine
+        XC_engine = self._get_value('XC_engine', frame_data)
+        if XC_engine:
+            frame.XC_engine = XC_engine
         
-        # coord
-        frame_brd_file = frame_data.get('brd_file',
-                                        self._frames['default']['brd_file'])
-            
-
-        #fragments_data = frame_data.get('fragments', [])
-        #
-        #for frg_data in fragments_data:
-        #    # default parameter
-        #    if 'brd_file' not in frg_data:
-        #        frg_data['brd_file'] = frame_brd_file
-        #    if 'basis_set' not in frg_data:
-        #        frg_data['basis_set'] = frame_basis_set
-        #    
-        #    fragment = None
-        #    if 'add_ACE' in frg_data:
-        #        fragment = self._frg_add_ACE(frg_data)
-        #    elif 'add_NME' in frg_data:
-        #        fragment = self._frg_add_NME(frg_data)
-        #    else:
-        #        fragment = self._frg_default(frg_data)
-        #    assert(fragment != None)
-        #    frame[fragment.name] = fragment
-
-        # --------------------------------------------------------------
-        # default
-        # --------------------------------------------------------------
-        if frame_name == 'default':
-            self._frames['default']['basis_set'] = frame_basis_set
-            self._frames['default']['brd_file'] = frame_brd_file
-            return
-            
         # fragments
         self._logger.info('::make fragments')
-        self._set_default(self._frames['default'], frame_data)
         fragments_list = self._get_fragments(frame_data.get('fragments', []), frame_data)
         for f in fragments_list:
             assert(isinstance(f, qclo.QcFragment))
@@ -163,6 +258,23 @@ class QcControl(object):
         if frame_data.get('sp', False):
             frame.calc_sp()
 
+            
+    # ------------------------------------------------------------------
+    # utils
+    # ------------------------------------------------------------------
+    def _get_value(self, keyword, input_data):
+        '''
+        return a value corresponding to the keyword from the input_data or defaults
+        '''
+        assert(isinstance(keyword, str))
+
+        answer = None
+        if keyword in input_data:
+            answer = input_data.get(keyword)
+        elif keyword in self._frames['default']:
+            answer = self._frames['default'][keyword]
+        return answer
+        
     # ------------------------------------------------------------------
     # fragment
     # ------------------------------------------------------------------
@@ -198,6 +310,9 @@ class QcControl(object):
         return answer
 
     def _set_default(self, default_values, update_values):
+        '''
+        copy default values to variable
+        '''
         keywords = ['brd_file', 'basis_set']
         for keyword in keywords:
                 update_values.setdefault(keyword, default_values.get(keyword, None))
