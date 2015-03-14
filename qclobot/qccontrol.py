@@ -352,7 +352,10 @@ class QcControl(object):
 
         ACE = qclo.QcFragment(ag_ACE)
         ACE.margin = True
-        ACE.name = 'ACE'
+        if 'name' not in frg_data:
+            raise
+        ACE.name = frg_data.get('name')
+        # ACE.name = 'ACE'
 
         self._set_basis_set(ACE, frg_data.get('basis_set'))
 
@@ -367,7 +370,10 @@ class QcControl(object):
         
         NME = qclo.QcFragment(ag_NME)
         NME.margin = True
-        NME.name = 'NME'
+        if 'name' not in frg_data:
+            raise
+        NME.name = frg_data.get('name')
+        # NME.name = 'NME'
 
         self._set_basis_set(NME, frg_data.get('basis_set'))
 
