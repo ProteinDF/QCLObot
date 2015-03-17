@@ -20,4 +20,25 @@
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
 class QcError(Exception):
-    pass
+    """
+    Base class for QCLO module
+    """
+    def __init__(self, errmsg =""):
+        self.errmsg = errmsg
+    
+    def __str__(self):
+        return "QCLObot error: {}".format(self.errmsg)
+
+class ControlError(QcError):
+    """
+    Exception raised for errors in the control input.
+
+    Attributes:
+        expr -- input expression in which the error occurred
+        msg  -- explanation of the error
+    """
+    def __init__(self, expr, msg):
+        super(InputError, self).__init__()
+        self.errmsg = "Input Error: {} ({})".format(msg, str(expr))
+
+

@@ -304,7 +304,8 @@ class QcControl(object):
             elif 'reference' in frg_data:
                 subfrg = self._get_reference_fragment(frg_data)
             else:
-                raise
+                raise qclo.ControlError('unknown fragment:', str(frg_data))
+
             answer.append(subfrg)
 
         return answer
