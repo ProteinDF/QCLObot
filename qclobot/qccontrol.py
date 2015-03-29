@@ -294,6 +294,10 @@ class QcControl(object):
                 subfrg_list = self._get_fragments(frg_data.get('fragments'), default)
                 subfrg = qclo.QcFragment(name=name)
                 for item in subfrg_list:
+                    if item == None:
+                        print('name: {}'.format(name))
+                        print('subfrg_list: {}'.format(str(subfrg_list)))
+                        raise qclo.QcControlError('unknown subfragments:', str(frg_data))
                     subfrg[item.name] = item
             elif 'add_ACE' in frg_data:
                 subfrg = self._get_add_ACE(frg_data)
@@ -304,7 +308,8 @@ class QcControl(object):
             elif 'reference' in frg_data:
                 subfrg = self._get_reference_fragment(frg_data)
             else:
-                raise qclo.ControlError('unknown fragment:', str(frg_data))
+                print(frg_data)
+                raise qclo.QcControlError('unknown fragment:', str(frg_data))
 
             answer.append(subfrg)
 

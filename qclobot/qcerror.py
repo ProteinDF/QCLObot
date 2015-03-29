@@ -29,7 +29,7 @@ class QcError(Exception):
     def __str__(self):
         return "QCLObot error: {}".format(self.errmsg)
 
-class ControlError(QcError):
+class QcControlError(QcError):
     """
     Exception raised for errors in the control input.
 
