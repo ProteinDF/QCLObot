@@ -62,8 +62,7 @@ class QcFrame(object):
         self._load()
 
         # cache data
-        self._frame_molecule = None
-        self._pdfparam = None
+        self._cache = {}
 
         if ((len(args) > 0) and isinstance(args[0], QcFrame)):
             self._copy_constructer(args[0])
@@ -71,7 +70,8 @@ class QcFrame(object):
     # copy constructer
     def _copy_constructer(self, rhs):
         self._name = rhs._name
-        self._pdfparam = rhs._pdfparam
+        self._fragments = copy.deepcopy(rhs._fragments)
+        self._state = copy.deepcopy(rhs._state)
 
     def __del__(self):
         self._save()
@@ -132,17 +132,17 @@ class QcFrame(object):
         pdfparam_path = os.path.abspath(os.path.join(self.work_dir,
                                                      self._pdfparam_filename))
 
-        if self._pdfparam is None:
+        if 'pdfparam' not in self._cache:
             if os.path.exists(pdfparam_path):
                 mpac_file = open(pdfparam_path, 'rb')
                 mpac_data = msgpack.unpackb(mpac_file.read())
                 mpac_data = bridge.Utils.byte2str(mpac_data)
                 mpac_file.close()
-                self._pdfparam = pdf.PdfParam(mpac_data)
+                self._cache['pdfparam'] = pdf.PdfParam(mpac_data)
             else:
                 pdfsim = pdf.PdfSim()
-                self._pdfparam = pdf.get_default_pdfparam()
-        return self._pdfparam
+                self._cache['pdfparam'] = pdf.get_default_pdfparam()
+        return self._cache['pdfparam']
 
     pdfparam = property(_get_pdfparam)
         
@@ -185,16 +185,16 @@ class QcFrame(object):
         '''
         モデリングされた分子構造をAtomGroupオブジェクトで返す
         '''
-        if self._frame_molecule == None:
+        if 'frame_molecule' not in self._cache:
             self._logger.info('create frame molecule coordinates.')
             frame_molecule = bridge.AtomGroup()
             for frg_name, frg in self._fragments.items():
                 self._logger.info('fragment name={}: {} atoms'.format(frg_name,
                                                                       frg.get_number_of_all_atoms()))
                 frame_molecule[frg_name] = frg.get_AtomGroup()
-            self._frame_molecule = frame_molecule
+            self._cache['frame_molecule'] = frame_molecule
             self._logger.info('')
-        return self._frame_molecule
+        return self._cache['frame_molecule']
 
     frame_molecule = property(_get_frame_molecule)
 
@@ -230,7 +230,7 @@ class QcFrame(object):
         self.cd_work_dir() 以前のディレクトリに戻す
         '''
         os.chdir(self._prev_dir)
-        self._logger.info('<<<<\n')
+        self._logger.info('<<<< (prev_dir: {})\n'.format(self._prev_dir))
 
     def _check_path(self, path):
         if not os.path.exists(path):
@@ -351,7 +351,7 @@ class QcFrame(object):
             if frg.qc_parent == None:
                 self._logger.warn('guess_density(): qc_parent == None. frg_name={}'.format(frg_name))
 
-            frg_guess_density_matrix_path = frg.get_guess_density_matrix(run_type)
+            frg_guess_density_matrix_path = frg.prepare_guess_density_matrix(run_type)
 
             self._logger.debug('guess_density() [{}@{}] ext: {} from {}'.format(
                 frg_name,
@@ -383,6 +383,9 @@ class QcFrame(object):
             self._logger.info('guess_density has been calced.')
             return
 
+        if self.is_finished_prescf != True:
+            self.calc_preSCF()
+
         self.cd_work_dir('guess_QCLO')
 
         guess_QCLO_matrix_path = 'guess.QCLO.{}.mat'.format(run_type)
@@ -391,8 +394,8 @@ class QcFrame(object):
         
         num_of_AOs = 0
         for frg_name, frg in self.fragments():
-            self._logger.debug('guess QCLO: frg_name={}, parent={}'.format(frg_name, frg.qc_parent.name))
-            frg_QCLO_matrix_path = frg.prepare_QCLO_matrix(run_type, self)
+            self._logger.info('guess QCLO: frg_name={}, parent={}'.format(frg_name, frg.qc_parent.name))
+            frg_QCLO_matrix_path = frg.prepare_guess_QCLO_matrix(run_type, self)
             if os.path.exists(frg_QCLO_matrix_path):
                 pdf.run_pdf(['mat-ext', '-c',
                              guess_QCLO_matrix_path,
@@ -421,12 +424,13 @@ class QcFrame(object):
         # check
         self._check_path(guess_QCLO_matrix_path)
 
-        self._create_occupation_file(run_type)
         
         self.is_finished_guess_QCLO = True
         self._save()
-
         self.restore_cwd()
+
+        # create occ file
+        self._create_occupation_file(run_type)
 
     def _create_occupation_file(self, run_type='rks'):
         self.cd_work_dir('create occ')
@@ -476,7 +480,7 @@ class QcFrame(object):
                   db_path = self.db_path,
                   dry_run = dry_run)
         
-        self._pdfparam = None # cache clear
+        self._cache.pop('pdfparam')
         self.is_finished_prescf = True
         self._save()
 
@@ -508,9 +512,10 @@ class QcFrame(object):
                   workdir = self.work_dir,
                   db_path = self.db_path,
                   dry_run = dry_run)
-            
-        self._pdfparam = None # cache clear
+
+        self._cache.pop('pdfparam')
         self.is_finished_scf = True
+        self._grouping_fragments()
         self._switch_fragments()
         self._save()
             
@@ -575,7 +580,7 @@ class QcFrame(object):
         self.restore_cwd()
             
     # ------------------------------------------------------------------
-    def calc_lo(self):
+    def calc_lo(self, run_type):
         if self.is_finished_LO:
             self._logger.info('LO has done.')
             return
@@ -590,11 +595,13 @@ class QcFrame(object):
         self.restore_cwd()
 
     # ------------------------------------------------------------------
-    def pickup_lo(self):
+    def pickup_QCLO(self, run_type='rks'):
         if self.is_finished_pickup_LO:
             self._logger.info('pickup LO has been finished.')
             return
 
+        self.calc_lo(run_type)
+            
         self.cd_work_dir('pickup lo')
         
         # debug
@@ -613,6 +620,8 @@ class QcFrame(object):
         self._logger.info('')
             
         # calc S*C
+        if 'pdfparam' in self._cache:
+            self._cache.pop('pdfparam')
         lo_satisfied = self.pdfparam.lo_satisfied
         if lo_satisfied != True:
             self._logger.warn('lo_satisfied: {}'.format(lo_satisfied))
@@ -669,7 +678,7 @@ class QcFrame(object):
             Clo_path = 'Clo_{}.mat'.format(frg_name)
             self._logger.info('fragment C_LO save: {}'.format(Clo_path))
             Clo_frg.save(Clo_path)
-            frg.Clo_path = Clo_path
+            frg.set_LO_matrix(Clo_path, run_type)
         self._logger.info('create C_LO: end')
             
         # trans C_LO
@@ -728,9 +737,9 @@ class QcFrame(object):
         F_path = self.pdfparam.get_Fmat_path(run_type)
         self._logger.info('F matrix: {}'.format(F_path))
         for frg_name, frg in self.fragments():
-            Clo_path = frg.Clo_path
-            if Clo_path is None:
-                continue
+            Clo_path = frg.get_LO_matrix_path(run_type)
+            #if Clo_path is None:
+            #    continue
 
             # calc (C_LO)dagger * F * C_LO => F'
             F_Clo_path = 'F_Clo.{}.mat'.format(frg_name)
@@ -792,7 +801,7 @@ class QcFrame(object):
         fragment_name = str(fragment_name)
         return self._fragments.get(fragment_name, None)
 
-    def __setitem__(self, fragment_name, fragment):
+    def __setitem__(self, fragment_name, obj):
         '''
         入力用[]演算子
 
@@ -803,14 +812,32 @@ class QcFrame(object):
             self._logger.warn('operator[] called after simulation.')
             return
 
-        self._frame_molecule = None # clear molecule cache
+        self._cache = {} # clear cache
 
         fragment_name = str(fragment_name)
-        fragment = qclo.QcFragment(fragment)
-        fragment.name = fragment_name
-        if fragment.qc_parent == None:
-            fragment.qc_parent = self
-        self._fragments[fragment_name] = fragment
+
+        if isinstance(obj, qclo.QcFragment):
+            fragment = qclo.QcFragment(obj)
+            fragment.name = fragment_name
+            if fragment.qc_parent == None:
+                fragment.qc_parent = self
+            self._logger.info('add fragment: name={}'.format(fragment_name))
+            self._fragments[fragment_name] = fragment
+        elif isinstance(obj, qclo.QcFrame):
+            self._logger.info('add frame molecule: for {}'.format(fragment_name))
+            fragment = qclo.QcFragment()
+            fragment.name = fragment_name
+            for k, f in obj.fragments():
+                if not f.margin:
+                    self._logger.warn('add fragment: k={} for {}'.format(k, fragment_name))
+                    fragment.set_group(k, f)
+                else:
+                    self._logger.warn('pass fragment: k={} is margin'.format(k))
+            if fragment.qc_parent == None:
+                fragment.qc_parent = self
+            self._fragments[fragment_name] = fragment
+        else:
+            raise
 
     # rearangement -----------------------------------------------------
     def _switch_fragments(self):
@@ -823,17 +850,26 @@ class QcFrame(object):
         self._logger.info('switch fragment.')
         output_fragments = OrderedDict()
         for frg_name, frg in self.fragments():
+            self._logger.info('fragment_name: {}'.format(frg_name))
             new_frg = qclo.QcFragment(frg, qc_parent=self)
             assert(new_frg.qc_parent.name == self.name)
             output_fragments[frg_name] = new_frg
         self._fragments = output_fragments
 
+        #self._logger.info('merge subgroups')
+        #for key, frg in self.fragments():
+        #    frg.merge_subgroups()
+        
         self._logger.info('---> switch ')
         for frg_name, frg in self.fragments():
             self._logger.info('{}: parent={}'.format(frg_name,
                                                      frg.qc_parent.name))
         self._logger.info('<---')
-        
+
+    def _grouping_fragments(self):
+        self._logger.info('grouping fragments.')
+        for frg_name, frg in self.fragments():
+            frg.grouping_subfragments()
 
     # ==================================================================
     # coordinates
