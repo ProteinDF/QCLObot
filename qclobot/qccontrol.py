@@ -299,6 +299,8 @@ class QcControl(object):
                         print('subfrg_list: {}'.format(str(subfrg_list)))
                         raise qclo.QcControlError('unknown subfragments:', str(frg_data))
                     subfrg[item.name] = item
+            elif 'add_CH3' in frg_data:
+                subfrg = self._get_add_CH3(frg_data)
             elif 'add_ACE' in frg_data:
                 subfrg = self._get_add_ACE(frg_data)
             elif 'add_NME' in frg_data:
@@ -348,6 +350,23 @@ class QcControl(object):
         ref_fragment = frg_data['reference']['fragment']
 
         return self._frames[ref_frame][ref_fragment]
+
+    def _get_add_CH3(self, frg_data):
+        assert(isinstance(frg_data, dict))
+        brd_file_path = frg_data.get('brd_file')
+        brd_select = frg_data.get('brd_select')
+        atomgroup = self._select_atomgroup(brd_file_path, brd_select)
+        ag_CH3 = self._modeling.add_methyl(C1, C2)
+
+        CH3 = qclo.QcFragment(ag_CH3)
+        CH3.margin = True
+        if 'name' not in frg_data:
+            raise
+        CH3.name = frg_data.get('name')
+
+        self._set_basis_set(CH3, frg_data.get('basis_set'))
+
+        return CH3
         
     def _get_add_ACE(self, frg_data):
         assert(isinstance(frg_data, dict))
@@ -361,7 +380,6 @@ class QcControl(object):
         if 'name' not in frg_data:
             raise
         ACE.name = frg_data.get('name')
-        # ACE.name = 'ACE'
 
         self._set_basis_set(ACE, frg_data.get('basis_set'))
 
