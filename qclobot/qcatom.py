@@ -42,6 +42,12 @@ class QcAtom(bridge.Atom):
         self.basisset_xc = kwargs.get('basisset_xc', 'A-DZVP2' + suffix)
         self.basisset_gridfree = kwargs.get('basisset_gridfree', 'O-DZVP2' + suffix)
 
+        if isinstance(args[0], QcAtom):
+            self.basisset = args[0].basisset
+            self.basisset_j = args[0].basisset_j
+            self.basisset_xc = args[0].basisset_xc
+            self.basisset_gridfree = args[0].basisset_gridfree
+        
         self._qc_parent = kwargs.get('qc_parent', None)
 
     # transform to bridge.Atom

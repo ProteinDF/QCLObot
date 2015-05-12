@@ -56,6 +56,7 @@ class QcFrame(object):
         # mandatory parameter
         self._name = name
         self._fragments = OrderedDict()
+        self._charge = 0
         self._state = {} # 状態保持
         
         self._prepare_work_dir()
@@ -71,6 +72,7 @@ class QcFrame(object):
     def _copy_constructer(self, rhs):
         self._name = rhs._name
         self._fragments = copy.deepcopy(rhs._fragments)
+        self._charge = rhs._charge
         self._state = copy.deepcopy(rhs._state)
 
     def __del__(self):
@@ -112,6 +114,7 @@ class QcFrame(object):
         for k, frg in self.fragments():
             tmp_frgs.append((k, frg.get_raw_data()))
         state['fragments'] = tmp_frgs
+        state['charge'] = self.charge
         state['state'] = self._state
         return state
 
@@ -122,6 +125,7 @@ class QcFrame(object):
         if 'fragments' in state:
             for (k, frg) in state.get('fragments'):
                 self._fragments[k] = qclo.QcFragment(frg, qc_parent=self)
+        self.charge = state.get('charge', 0)
         self._state = state.get('state', {})
         
     # pdfparam ---------------------------------------------------------
@@ -235,7 +239,16 @@ class QcFrame(object):
     def _check_path(self, path):
         if not os.path.exists(path):
             self._logger.warn('NOT FOUND: {}'.format(path))
-        
+
+    # charge -----------------------------------------------------------
+    def _get_charge(self):
+        return int(self._charge)
+
+    def _set_charge(self, charge):
+        self._charge = int(charge)
+
+    charge = property(_get_charge, _set_charge)
+            
     # num_of_AOs -------------------------------------------------------
     def get_number_of_AOs(self):
         '''
@@ -474,6 +487,15 @@ class QcFrame(object):
             frg.set_basisset(self.pdfparam)
         self.pdfparam.molecule = self.frame_molecule
 
+        # num_of_electrons
+        num_of_electrons = self.pdfparam.num_of_electrons # calc from the molecule data
+        self._logger.info('the number of electrons = {}'.format(num_of_electrons))
+        if self.charge != 0:
+            self._logger.info('specify the charge => {}'.format(self.charge))
+            num_of_electrons -= self.charge # 電子(-)数と電荷(+)の正負が逆なことに注意
+            self.pdfparam.num_of_electrons = num_of_electrons
+            self._logger.info('update the number of electrons => {}'.format(self.pdfparam.num_of_electrons))
+        
         self.pdfparam.step_control = 'integral'
         pdfsim.sp(self.pdfparam,
                   workdir = self.work_dir,
@@ -505,6 +527,15 @@ class QcFrame(object):
             frg.set_basisset(self.pdfparam)
         self.pdfparam.molecule = self.frame_molecule
 
+        # num_of_electrons
+        num_of_electrons = self.pdfparam.num_of_electrons # calc from the molecule data
+        self._logger.info('the number of electrons = {}'.format(num_of_electrons))
+        if self.charge != 0:
+            self._logger.info('specify the charge => {}'.format(self.charge))
+            num_of_electrons -= self.charge # 電子(-)数と電荷(+)の正負が逆なことに注意
+            self.pdfparam.num_of_electrons = num_of_electrons
+            self._logger.info('update the number of electrons => {}'.format(self.pdfparam.num_of_electrons))
+        
         #self.output_xyz("{}/model.xyz".format(self.name))
 
         self.pdfparam.step_control = 'guess scf'

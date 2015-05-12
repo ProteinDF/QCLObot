@@ -188,6 +188,7 @@ class QcControl(object):
             default_data = dict(in_frame_data)
             default_data.pop('name')
             self._frames['default'] = default_data
+            self._logger.debug(str(self._frames))
             is_break = True
 
         return is_break
@@ -209,6 +210,9 @@ class QcControl(object):
         self._set_default(self._frames['default'], frame_data)
 
         # frame configuration
+        charge = self._get_value('charge', frame_data)
+        if charge:
+            frame.charge = charge
         XC_functional = self._get_value('XC_functional', frame_data)
         if XC_functional:
             frame.XC_functional = XC_functional
@@ -280,13 +284,17 @@ class QcControl(object):
     # ------------------------------------------------------------------
     def _get_fragments(self, fragments_data, default):
         assert(isinstance(fragments_data, list))
-
+        self._logger.debug(">>>> _get_fragments()")
+        self._logger.debug(str(default))
+        
         fragment = qclo.QcFragment()
         answer = []
         for frg_data in fragments_data:
             assert(isinstance(frg_data, dict))
 
             self._set_default(default, frg_data)
+            self._logger.debug(">>>> _get_fragments(): loop")
+            self._logger.debug(frg_data)
             name = frg_data.get('name', '')
 
             subfrg = None
@@ -295,10 +303,12 @@ class QcControl(object):
                 subfrg = qclo.QcFragment(name=name)
                 for item in subfrg_list:
                     if item == None:
-                        print('name: {}'.format(name))
-                        print('subfrg_list: {}'.format(str(subfrg_list)))
+                        self._logger.debug('name: {}'.format(name))
+                        self._logger.debug('subfrg_list: {}'.format(str(subfrg_list)))
                         raise qclo.QcControlError('unknown subfragments:', str(frg_data))
                     subfrg[item.name] = item
+            elif 'add_H' in frg_data:
+                subfrg = self._get_add_H(frg_data)
             elif 'add_CH3' in frg_data:
                 subfrg = self._get_add_CH3(frg_data)
             elif 'add_ACE' in frg_data:
@@ -310,7 +320,7 @@ class QcControl(object):
             elif 'reference' in frg_data:
                 subfrg = self._get_reference_fragment(frg_data)
             else:
-                print(frg_data)
+                self.critical(str(frg_data))
                 raise qclo.QcControlError('unknown fragment:', str(frg_data))
 
             answer.append(subfrg)
@@ -351,13 +361,47 @@ class QcControl(object):
 
         return self._frames[ref_frame][ref_fragment]
 
+    def _get_add_H(self, frg_data):
+        assert(isinstance(frg_data, dict))
+        brd_file_path = frg_data.get('brd_file')
+        brd_select_H = frg_data.get('displacement')
+        atomgroup_H = self._select_atomgroup(brd_file_path, brd_select_H)
+        atomgroup_H = atomgroup_H.get_atomlist()
+        assert(atomgroup_H.get_number_of_atoms() > 0)
+        (key_H, atom_H) = list(atomgroup_H.atoms())[0]
+        atom_H.symbol = 'H'
+        
+        ag_H = bridge.AtomGroup()
+        ag_H.set_atom('H*', atom_H)
+        
+        H = qclo.QcFragment(ag_H)
+        H.margin = True
+        if 'name' not in frg_data:
+            raise
+        H.name = frg_data.get('name')
+
+        self._set_basis_set(H, frg_data.get('basis_set'))
+
+        return H
+        
     def _get_add_CH3(self, frg_data):
         assert(isinstance(frg_data, dict))
         brd_file_path = frg_data.get('brd_file')
-        brd_select = frg_data.get('brd_select')
-        atomgroup = self._select_atomgroup(brd_file_path, brd_select)
-        ag_CH3 = self._modeling.add_methyl(C1, C2)
+        brd_select_C1 = frg_data.get('displacement')
+        brd_select_C2 = frg_data.get('root')
 
+        atomgroup_C1 = self._select_atomgroup(brd_file_path, brd_select_C1)
+        atomgroup_C1 = atomgroup_C1.get_atomlist()
+        assert(atomgroup_C1.get_number_of_atoms() > 0)
+        (key_C1, atom_C1) = list(atomgroup_C1.atoms())[0]
+
+        atomgroup_C2 = self._select_atomgroup(brd_file_path, brd_select_C2)
+        atomgroup_C2 = atomgroup_C2.get_atomlist()
+        assert(atomgroup_C2.get_number_of_atoms() > 0)
+        (key_C2, atom_C2) = list(atomgroup_C2.atoms())[0]
+        ag_CH3 = self._modeling.add_methyl(atom_C1, atom_C2)
+        ag_CH3.set_atom('C', atom_C1)
+        
         CH3 = qclo.QcFragment(ag_CH3)
         CH3.margin = True
         if 'name' not in frg_data:
@@ -430,7 +474,10 @@ class QcControl(object):
             for subfrg_name, subfrg in obj.groups():
                 self._set_basis_set(subfrg, basis_set_name)
             for atm_name, atm in obj.atoms():
-                atm.basisset = '{}.{}'.format(basis_set_name, atm.symbol)
+                atm.basisset = 'O-{}.{}'.format(basis_set_name, atm.symbol)
+                atm.basisset_j = 'A-{}.{}'.format(basis_set_name, atm.symbol)
+                atm.basisset_xc = 'A-{}.{}'.format(basis_set_name, atm.symbol)
+                atm.basisset_gridfree = 'O-{}.{}'.format(basis_set_name, atm.symbol)
         else:
             raise
         
