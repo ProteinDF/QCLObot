@@ -138,10 +138,15 @@ class QcFrame(object):
                 mpac_data = msgpack.unpackb(mpac_file.read())
                 mpac_data = bridge.Utils.byte2str(mpac_data)
                 mpac_file.close()
+                self._logger.debug('pdfparam({}) is loaded.'.format(pdfparam_path))
                 self._cache['pdfparam'] = pdf.PdfParam(mpac_data)
             else:
                 pdfsim = pdf.PdfSim()
                 self._cache['pdfparam'] = pdf.get_default_pdfparam()
+                self._logger.debug('use default pdfparam.')
+        else:
+            self._logger.debug('pdfparam is cached.')
+
         return self._cache['pdfparam']
 
     pdfparam = property(_get_pdfparam)
@@ -812,7 +817,8 @@ class QcFrame(object):
             self._logger.warn('operator[] called after simulation.')
             return
 
-        self._cache = {} # clear cache
+        if 'frame_molecule' in self._cache:
+            self._cache.pop('frame_molecule')
 
         fragment_name = str(fragment_name)
 
