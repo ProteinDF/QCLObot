@@ -30,29 +30,47 @@ import pdfpytools as pdf
 import qclobot as qclo
 
 class QcFragment(object):
+    # fragmentの密度行列
+    _density_matrix_path = 'density.{run_type}.mat' 
+    # fragmentのLO行列
+    _LO_matrix_path = 'LO.{run_type}.mat' 
+    # fragmentのQCLO行列
+    _QCLO_matrix_path = 'QCLO.{run_type}.mat' 
+    
+    
     def __init__(self, *args, **kwargs):
         '''
         constructer
         '''
         self._logger = logging.getLogger(__name__)
+        if kwargs.get('debug'):
+            self._logger.addHandler(logging.StreamHandler())
+            self._logger.setLevel(logging.DEBUG)
+        else:
+            self._logger.addHandler(logging.NullHandler())
+            self._logger.setLevel(logging.INFO)
 
+        # mandatory variables
         self._atoms = OrderedDict()
         self._groups = OrderedDict()
         self._name = kwargs.get('name', '')
-        self._qc_parent = None
-        self._density_matrix_path = None
-        self._Clo_path = None
-        self._QCLO_matrix_path = None
+        self._margin = False
+        # option variables
+        self._qc_parent = None # isinstance(qclo.QcFrame, QcFragment)
 
         if len(args) > 0:
             rhs = args[0]
             if isinstance(rhs, QcFragment):
                 self._copy_constructer(args[0])
             elif isinstance(rhs, bridge.AtomGroup):
-                self._transform_atomgroup(args[0])
+                self._construct_by_atomgroup(args[0])
+            elif isinstance(rhs, dict):
+                self.set_by_raw_data(rhs)
 
         if 'qc_parent' in kwargs:
             self.qc_parent = kwargs['qc_parent']
+        if 'margin' in kwargs:
+            self.margin = kwargs['margin']
                     
     def _copy_constructer(self, rhs):
         '''
@@ -65,12 +83,11 @@ class QcFragment(object):
         for k, v in rhs.groups():
             self.set_group(k, v)
         self._name = rhs._name
+        self._margin = rhs._margin
+        
         self._qc_parent = rhs._qc_parent
-        self._density_matrix_path = rhs._density_matrix_path
-        self._Clo_path = rhs._Clo_path
-        self._QCLO_matrix_path = rhs._QCLO_matrix_path
 
-    def _transform_atomgroup(self, rhs):
+    def _construct_by_atomgroup(self, rhs):
         '''
         '''
         assert(isinstance(rhs, bridge.AtomGroup))
@@ -80,11 +97,50 @@ class QcFragment(object):
         for k, v in rhs.groups():
             self.set_group(k, v)
         self._name = rhs.name
+        
         self._qc_parent = None
-        self._density_matrix_path = None
-        self._Clo_path = None
-        self._QCLO_matrix_path = None
             
+    # state ============================================================
+    def get_raw_data(self):
+        return self.__get_state__()
+
+    def set_by_raw_data(self, raw_data):
+        assert(isinstance(raw_data, dict))
+        self.__set_state__(raw_data)
+
+    def __get_state__(self):
+        state = {}
+
+        tmp_atoms = []
+        for atm_name, atm in self.atoms():
+            tmp_atoms.append((atm_name, atm.get_raw_data()))
+        state['atoms'] = tmp_atoms
+
+        tmp_grps = []
+        for grp_name, grp in self.groups():
+            tmp_grps.append((grp_name, grp.get_raw_data()))
+        state['groups'] = tmp_grps
+
+        state['name'] = self.name
+        state['margin'] = self.margin
+        
+        return state
+
+    def __set_state__(self, state):
+        assert(isinstance(state, dict))
+        self._atoms = OrderedDict()
+        if 'atoms' in state:
+            for (atm_name, atm_raw) in state.get('atoms'):
+                self.set_atom(atm_name, qclo.QcAtom(atm_raw))
+        
+        self._groups = OrderedDict()
+        if 'groups' in state:
+            for (grp_name, grp_raw) in state.get('groups'):
+                self.set_group(grp_name, qclo.QcFragment(grp_raw, qc_parent=self))
+        
+        self._name = state.get('name', '')
+        self._margin = state.get('margin', False)
+        
         
     def _prepare_work_dir(self):
         if not os.path.exists(self.work_dir):
@@ -103,8 +159,7 @@ class QcFragment(object):
     def _set_qc_parent(self, qc_parent):
         '''
         '''
-        from qcframe import QcFrame
-        assert(isinstance(qc_parent, (QcFrame, QcFragment)))
+        assert(isinstance(qc_parent, (qclo.QcFrame, QcFragment)))
         if (self.qc_parent != None) and (self.qc_parent != qc_parent):
             self._logger.warn('[{}] qc_parent is overwrite: {} -> {}'.format(
                 self.name,
@@ -113,7 +168,24 @@ class QcFragment(object):
         self._qc_parent = qc_parent
 
     qc_parent = property(_get_qc_parent, _set_qc_parent)
-        
+
+    def get_parent_frame(self):
+        answer = None
+        if isinstance(self.qc_parent, qclo.QcFrame):
+            answer = self.qc_parent
+        elif isinstance(self.qc_parent, QcFragment):
+            answer = self.qc_parent.get_parent_frame()
+        return answer
+    
+    # margin ----------------------------------------------------------
+    def _get_margin(self):
+        return self._margin
+
+    def _set_margin(self, yn):
+        self._margin = bool(yn)
+
+    margin = property(_get_margin, _set_margin)
+    
     # work_dir ---------------------------------------------------------
     def _get_work_dir(self):
         '''
@@ -143,6 +215,7 @@ class QcFragment(object):
         return self._name
 
     def _set_name(self, name):
+        assert(isinstance(name, str))
         self._name = name
 
     name = property(_get_name, _set_name)
@@ -291,7 +364,7 @@ class QcFragment(object):
         This method override the bridge.AtomGroup method.
         '''
         self._groups[key] = QcFragment(fragment)
-        if fragment.qc_parent == None:
+        if self._groups[key].qc_parent == None:
             self._groups[key].qc_parent = self
 
     def groups(self):
@@ -300,43 +373,61 @@ class QcFragment(object):
         for k, v in self._groups.items(): # based on collections.OrderedDict
             yield(k, v)
 
+    def _delete_group(self, key):
+        self._groups.pop(key)
+            
+    def grouping_subfragments(self):
+        '''
+        子グループを自分の原子リストに組入れ、その子グループを削除する
+        '''
+        for key_subgrp, subgrp in self.groups():
+            subgrp.grouping_subfragments()
+            for key_atom, atom in subgrp.atoms():
+                new_key_atom = '{}/{}'.format(key_subgrp, key_atom)
+                self.set_atom(new_key_atom, atom)
+            self._delete_group(key_subgrp)
+                
+        
     # ==================================================================
     # guess density
     # ==================================================================
     # set corresponding density matrix ---------------------------------
-    def set_density_matrix(self, in_path):
-        basename = os.path.basename(in_path)
-
-        input_abs_path = os.path.abspath(in_path)
-        my_abs_path = os.path.abspath(os.path.join(self.work_dir, basename))
-        if input_abs_path != my_abs_path:
+    def set_density_matrix(self, in_path, run_type='rks'):
+        abs_in_path = os.path.abspath(in_path)
+        density_matrix_path = os.path.abspath(self._get_density_matrix_path(run_type))
+        if abs_in_path != density_matrix_path:
             self._prepare_work_dir()
-            shutil.copy(os.path.abspath(in_path),
-                        os.path.abspath(my_abs_path))
-        self._density_matrix_path = basename
+            shutil.copy(abs_in_path,
+                        density_matrix_path)
+        else:
+            self._logger.warning('not set the same density matrix')
 
-        self._logger.info('set dens. mat. path: [{name}]/{path}'.format(
-            name = self.name,
-            path = os.path.join(self.work_dir,
-                                self._density_matrix_path)))
-        
+    def _get_density_matrix_path(self, run_type):
+        return os.path.join(self.work_dir, self._density_matrix_path.format(run_type=run_type))
+
     # create density matrix ---------------------------------------------
-    def get_guess_density_matrix(self, run_type):
+    def prepare_guess_density_matrix(self, run_type):
         '''
         guess_densityに必要な密度行列のパスを返す
         subgroupを持っている場合はマージした密度行列を作成し、そのパスを返す
         '''
+        self._prepare_work_dir()
+
         self._logger.info('>>>> get_guess_density_matrix: {}/{}'.format(self.qc_parent.name, self.name))
         guess_density_matrix_path = os.path.join(self.work_dir,
                                                  'guess.density.{}.{}.mat'.format(run_type, self.name))
         
-        # サブユニットからの行列をこれから追記するので
         # 既存のデータを消去する
         if os.path.exists(guess_density_matrix_path):
             os.remove(guess_density_matrix_path)
-        
+        # create new matrix file
+        mat = pdf.SymmetricMatrix()
+        mat.save(guess_density_matrix_path)
+            
+        # subgroup
         for subgrp_name, subgrp in self.groups():
-            subgrp_guess_density_matrix_path = subgrp.get_guess_density_matrix(run_type)
+            self._logger.info('>>>> subgroup name={}'.format(subgrp_name))
+            subgrp_guess_density_matrix_path = subgrp.prepare_guess_density_matrix(run_type)
             if not os.path.exists(subgrp_guess_density_matrix_path):
                 self._logger.warn('NOT found: subgrp.guess.dens.mat={}'.format(subgrp_guess_density_matrix_path))
                 continue
@@ -348,10 +439,10 @@ class QcFragment(object):
             (is_loadable, row2, col2) = pdf.SymmetricMatrix.is_loadable(subgrp_guess_density_matrix_path)
             assert(is_loadable == True)
 
-            self._logger.info('(sub) mat-ext -d ')
-            self._logger.info('    {}'.format(guess_density_matrix_path))
-            self._logger.info('    {}'.format(subgrp_guess_matrix_path))
-            self._logger.info('    {}'.format(guess_density_matrix_path))
+            self._logger.debug('(sub) mat-ext -d ')
+            self._logger.debug('    {}'.format(guess_density_matrix_path))
+            self._logger.debug('    {}'.format(subgrp_guess_density_matrix_path))
+            self._logger.debug('    {}'.format(guess_density_matrix_path))
             pdf.run_pdf(['mat-ext', '-d',
                          guess_density_matrix_path,
                          subgrp_guess_density_matrix_path,
@@ -362,150 +453,78 @@ class QcFragment(object):
             assert(row1 + row2 == row3)
             assert(col1 + col2 == col3)
 
-        if self._density_matrix_path != None:
-            path = os.path.join(self.work_dir, self._density_matrix_path)
-            self._check_path(path)
-            self._logger.info('mat-ext -d ')
-            self._logger.info('    {}'.format(guess_density_matrix_path))
-            self._logger.info('    {}'.format(path))
-            self._logger.info('    {}'.format(guess_density_matrix_path))
+        # this subgroup
+        if len(self._atoms) > 0:
+            my_density_matrix_path = self._get_density_matrix_path(run_type)
+            if os.path.isfile(my_density_matrix_path) != True:
+                self.get_parent_frame().pickup_density_matrix(run_type)
+            
+            self._logger.info('density_matrix_path: {}, parent={}'.format(my_density_matrix_path,
+                                                                          self.qc_parent.name))
+            self._check_path(my_density_matrix_path)
+
+            self._logger.debug('mat-ext -d ')
+            self._logger.debug('    {}'.format(guess_density_matrix_path))
+            self._logger.debug('    {}'.format(my_density_matrix_path))
+            self._logger.debug('    {}'.format(guess_density_matrix_path))
             pdf.run_pdf(['mat-ext', '-d',
                          guess_density_matrix_path,
-                         path,
+                         my_density_matrix_path,
                          guess_density_matrix_path])
 
         self._check_path(guess_density_matrix_path)
         self._logger.info('<<<< get_guess_density_matrix: {}/{}'.format(self.qc_parent.name, self.name))
         return guess_density_matrix_path
 
-
-    def get_guess_density_matrix0(self, run_type):
-        '''
-        guess_densityに必要な密度行列のパスを返す
-        subgroupを持っている場合はマージした密度行列を作成し、そのパスを返す
-        '''
-        guess_matrix_path = os.path.join(self.work_dir,
-                                         'guess.Ppq.{}.{}.mat'.format(run_type, self.name))
-        
-        # サブユニットからの行列をこれから追記するので
-        # 既存のデータを消去する
-        if os.path.exists(guess_matrix_path):
-            os.remove(guess_matrix_path)
-        
-        for subgrp_name, subgrp in self.groups():
-            self._logger.info('{} merge {} from the subgroup, {}'.format(
-                __name__,
-                guess_matrix_path,
-                subgrp_guess_matrix_path))
-
-            subgrp_guess_matrix_path = subgrp.get_guess_density_matrix(run_type)
-
-            (is_loadable, row1, col1) = pdf.SymmetricMatrix.is_loadable(density_matrix_path)
-            assert(is_loadable == True)
-            (is_loadable, row2, col2) = pdf.SymmetricMatrix.is_loadable(subgrp_density_matrix_path)
-            assert(is_loadable == True)
-
-            self._logger.info('mat-ext -d ')
-            self._logger.info('    {}'.format(guess_matrix_path))
-            self._logger.info('    {}'.format(subgrp_guess_matrix_path))
-            self._logger.info('    {}'.format(guess_matrix_path))
-            pdf.run_pdf(['mat-ext', '-d',
-                         guess_matrix_path,
-                         subgrp_guess_matrix_path,
-                         guess_matrix_path])
-            (is_loadable, row3, col3) = pdf.SymmetricMatrix.is_loadable(density_matrix_path)
-            assert(is_loadable == True)
-            assert(row1 + row2 == row3)
-            assert(col1 + col2 == col3)
-
-        if self._density_matrix_path != None:
-            path = os.path.join(self.work_dir, self._density_matrix_path)
-            #self._logger.info('{} ext(self): {} copy from {}'.format(
-            #    __name__,
-            #    guess_matrix_path,
-            #    path))
-            self._logger.info('mat-ext -d ')
-            self._logger.info('    {}'.format(guess_matrix_path))
-            self._logger.info('    {}'.format(path))
-            self._logger.info('    {}'.format(guess_matrix_path))
-            pdf.run_pdf(['mat-ext', '-d',
-                         guess_matrix_path,
-                         path,
-                         guess_matrix_path])
-
-        return guess_matrix_path
-
     # LO --------------------------------------------------------------
-    def _get_Clo_path(self):
-        path = self._Clo_path
-        if path != None:
-            if ((self.qc_parent) and (self.qc_parent.work_dir)):
-                path = os.path.join(self.qc_parent.work_dir, path)
-        return path
-
-    def _set_Clo_path(self, path):
-        self._Clo_path = str(path)
-
-    Clo_path = property(_get_Clo_path, _set_Clo_path)
-        
-    # QCLO ------------------------------------------------------------
-    def set_QCLO_matrix(self, in_path):
-        basename = os.path.basename(in_path)
-
-        input_abs_path = os.path.abspath(in_path)
-        my_abs_path = os.path.abspath(os.path.join(self.work_dir, basename))
-        if input_abs_path != my_abs_path:
+    def set_LO_matrix(self, in_path, run_type='rks'):
+        abs_in_path = os.path.abspath(in_path)
+        LO_matrix_path = os.path.abspath(self.get_LO_matrix_path(run_type))
+        if abs_in_path != LO_matrix_path:
             self._prepare_work_dir()
-            shutil.copy(os.path.abspath(in_path),
-                        os.path.abspath(my_abs_path))
-        self._QCLO_matrix_path = basename
+            shutil.copy(abs_in_path,
+                        LO_matrix_path)
+        else:
+            self._logger.warning('not set the same LO matrix')
 
-        self._logger.info('set QCLO mat. path: [{name}]/{path}'.format(
-            name = self.name,
-            path = os.path.join(self.work_dir,
-                                self._QCLO_matrix_path)))
+    def get_LO_matrix_path(self, run_type):
+        return os.path.join(self.work_dir, self._LO_matrix_path.format(run_type=run_type))
+
+    # QCLO ------------------------------------------------------------
+    def set_QCLO_matrix(self, in_path, run_type='rks'):
+        abs_in_path = os.path.abspath(in_path)
+        QCLO_matrix_path = os.path.abspath(self._get_QCLO_matrix_path(run_type))
+        if abs_in_path != QCLO_matrix_path:
+            self._prepare_work_dir()
+            shutil.copy(abs_in_path,
+                        QCLO_matrix_path)
+        else:
+            self._logger.warning('not set the same QCLO matrix')
         
-    def _get_QCLO_matrix_path(self):
-        self._logger.info('_get_QCLO_matrix_path() ')
-        self._logger.info('  work_dir: {}'.format(self.work_dir))
-        self._logger.info('  _QCLO_matrix_path: {}'.format(self._QCLO_matrix_path))
-
-        answer = None
-        if self._QCLO_matrix_path != None:
-            answer = os.path.abspath(os.path.join(self.work_dir, self._QCLO_matrix_path))
-        return answer
+    def _get_QCLO_matrix_path(self, run_type):
+        return os.path.join(self.work_dir, self._QCLO_matrix_path.format(run_type=run_type))
     
-    #def _set_QCLO_path(self, path):
-    #    self._QCLO_path = str(path)
-    #
-    QCLO_matrix_path = property(_get_QCLO_matrix_path)
-
-    def prepare_QCLO_matrix(self, run_type, request_frame):
+    def prepare_guess_QCLO_matrix(self, run_type, request_frame):
         '''
         prepare QCLO matrix
         '''
         self._prepare_work_dir()
-        guess_QCLO_matrix_path = os.path.join(self.work_dir, 'guess_QCLO.mat')
+        guess_QCLO_matrix_path = qclo.get_tmpfile_path()
 
-        self._logger.info('>>>> prepare QCLO: {}/{}'.format(self.qc_parent.name, self.name))
-        self._logger.info('     for {}'.format(guess_QCLO_matrix_path))
-
-        # サブユニットからの行列をこれから追記するので
-        # 既存のデータを消去する
-        if os.path.exists(guess_QCLO_matrix_path):
-            os.remove(guess_QCLO_matrix_path)
+        self._logger.info('>>>> prepare QCLO: {}/{} for {}'.format(
+            self.qc_parent.name, self.name, guess_QCLO_matrix_path))
 
         request_orbinfo = request_frame.get_orbital_info()
 
         # subgroup
         for subgrp_name, subgrp in self.groups():
-            subgrp_guess_QCLO_matrix_path = subgrp.prepare_QCLO_matrix(run_type, request_frame)
+            subgrp_guess_QCLO_matrix_path = subgrp.prepare_guess_QCLO_matrix(run_type, request_frame)
             
             self._check_path(subgrp_guess_QCLO_matrix_path)
-            self._logger.info('mat-ext -c ')
-            self._logger.info('    {}'.format(guess_QCLO_matrix_path))
-            self._logger.info('    {}'.format(subgrp_guess_QCLO_matrix_path))
-            self._logger.info('    {}'.format(guess_QCLO_matrix_path))
+            self._logger.debug('mat-ext -c ')
+            self._logger.debug('    {}'.format(guess_QCLO_matrix_path))
+            self._logger.debug('    {}'.format(subgrp_guess_QCLO_matrix_path))
+            self._logger.debug('    {}'.format(guess_QCLO_matrix_path))
             pdf.run_pdf(['mat-ext', '-c',
                          guess_QCLO_matrix_path,
                          subgrp_guess_QCLO_matrix_path,
@@ -515,19 +534,22 @@ class QcFragment(object):
             
             
         # 自分のQCLO情報
-        parent_frame = self.qc_parent
+        parent_frame = self.get_parent_frame()
         parent_orbinfo = parent_frame.get_orbital_info()
         request_num_of_AOs = request_frame.get_number_of_AOs()
         parent_num_of_AOs = parent_frame.get_number_of_AOs()
 
-        self._logger.info('QCLO_matrix_path: {}, parent={}'.format(self.QCLO_matrix_path,
-                                                                   self.qc_parent.name))
-        if self.QCLO_matrix_path != None:
+        if len(self._atoms) > 0:
+            my_qclo_matrix_path = self._get_QCLO_matrix_path(run_type)
+            if os.path.isfile(my_qclo_matrix_path) != True:
+                self.get_parent_frame().pickup_QCLO(run_type)
+            
+            self._logger.info('QCLO_matrix_path: {}, parent={}'.format(my_qclo_matrix_path,
+                                                                       self.qc_parent.name))
+            self._check_path(my_qclo_matrix_path)
+
             QCLO_mat = pdf.Matrix()
-
-            self._check_path(self.QCLO_matrix_path)
-
-            QCLO_mat.load(self.QCLO_matrix_path)
+            QCLO_mat.load(my_qclo_matrix_path)
             assert(QCLO_mat.rows == parent_num_of_AOs)
             num_of_MOs = QCLO_mat.cols
             guess_QCLO_mat = pdf.Matrix(request_num_of_AOs,
@@ -543,10 +565,10 @@ class QcFragment(object):
                                                      'guess_QCLO.part.mat')
             guess_QCLO_mat.save(my_guess_QCLO_matrix_path)
 
-            self._logger.info('mat-ext -c ')
-            self._logger.info('    {}'.format(guess_QCLO_matrix_path))
-            self._logger.info('    {}'.format(my_guess_QCLO_matrix_path))
-            self._logger.info('    {}'.format(guess_QCLO_matrix_path))
+            self._logger.debug('mat-ext -c ')
+            self._logger.debug('    {}'.format(guess_QCLO_matrix_path))
+            self._logger.debug('    {}'.format(my_guess_QCLO_matrix_path))
+            self._logger.debug('    {}'.format(guess_QCLO_matrix_path))
             pdf.run_pdf(['mat-ext', '-c',
                          guess_QCLO_matrix_path,
                          my_guess_QCLO_matrix_path,
@@ -599,7 +621,7 @@ class QcFragment(object):
 
     # operator == ------------------------------------------------------
     def __eq__(self, rhs):
-        if rhs == None:
+        if (rhs == None) or (isinstance(rhs, QcFragment) == False):
             return False
         return ((self.qc_parent == rhs.qc_parent) and
                 (self.name == rhs.name))
@@ -611,7 +633,7 @@ class QcFragment(object):
     def __str__(self):
         answer = ''
         for key, subgrp in self.groups():
-            answer += '>>>> {}'.format(key)
+            answer += '>>>> {}\n'.format(key)
             answer += str(subgrp) + '\n'
         for key, atom in self.atoms():
             answer += 'k:{} {}\n'.format(key, str(atom))

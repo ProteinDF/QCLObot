@@ -19,24 +19,59 @@
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 import pdfbridge as bridge
 import pdfpytools as pdf
 
 class QcAtom(bridge.Atom):
     def __init__(self, *args, **kwargs):
         super(QcAtom, self).__init__(*args, **kwargs)
+
+        self._logger = logging.getLogger(__name__)
+        if kwargs.get('debug'):
+            self._logger.addHandler(logging.StreamHandler())
+            self._logger.setLevel(logging.DEBUG)
+        else:
+            self._logger.addHandler(logging.NullHandler())
+            self._logger.setLevel(logging.INFO)
+
         suffix = "." + self.symbol
         self.basisset = kwargs.get('basisset', 'O-DZVP2' + suffix)
         self.basisset_j = kwargs.get('basisset_j', 'A-DZVP2' + suffix)
         self.basisset_xc = kwargs.get('basisset_xc', 'A-DZVP2' + suffix)
         self.basisset_gridfree = kwargs.get('basisset_gridfree', 'O-DZVP2' + suffix)
 
+        if isinstance(args[0], QcAtom):
+            self.basisset = args[0].basisset
+            self.basisset_j = args[0].basisset_j
+            self.basisset_xc = args[0].basisset_xc
+            self.basisset_gridfree = args[0].basisset_gridfree
+        
         self._qc_parent = kwargs.get('qc_parent', None)
 
     # transform to bridge.Atom
     def get_Atom(self):
         atm = bridge.Atom(self)
         return atm
+
+    def set_by_raw_data(self, data):
+        super(QcAtom, self).set_by_raw_data(data)
+
+        suffix = "." + self.symbol
+        self.basisset = data.get('basisset', 'O-DZVP2' + suffix)
+        self.basisset_j = data.get('basisset_j', 'A-DZVP2' + suffix)
+        self.basisset_xc = data.get('basisset_xc', 'A-DZVP2' + suffix)
+        self.basisset_gridfree = data.get('basisset_gridfree', 'O-DZVP2' + suffix)
+        
+    def get_raw_data(self):
+        data = super(QcAtom, self).get_raw_data()
+        data['basisset'] = self.basisset
+        data['basisset_j'] = self.basisset_j
+        data['basisset_xc'] = self.basisset_xc
+        data['basisset_gridfree'] = self.basisset_gridfree
+
+        return data
         
     #
     def get_number_of_AOs(self):

@@ -19,8 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 class QcOrbitalData(object):
-    def __init__(self, atom, basisset_name, CGTO_index, basis_type):
+    def __init__(self, atom, basisset_name, CGTO_index, basis_type, *args, **kwargs):
+        self._logger = logging.getLogger(__name__)
+        if kwargs.get('debug'):
+            self._logger.addHandler(logging.StreamHandler())
+            self._logger.setLevel(logging.DEBUG)
+        else:
+            self._logger.addHandler(logging.NullHandler())
+            self._logger.setLevel(logging.INFO)
+
         self._atom = atom
         self._basisset_name = basisset_name
         self._CGTO_index = CGTO_index
