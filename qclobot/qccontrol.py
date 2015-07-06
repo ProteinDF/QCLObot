@@ -88,7 +88,7 @@ class QcControl(object):
     # ------------------------------------------------------------------
     def _run_frame(self, frame_data):
         assert(isinstance(frame_data, dict))
-
+        
         # condition ----------------------------------------------------
         if self._exec_condition_with_items(frame_data):
             return
@@ -187,8 +187,7 @@ class QcControl(object):
         if ((name != None) and (name == 'default')):
             default_data = dict(in_frame_data)
             default_data.pop('name')
-            self._frames['default'] = default_data
-            self._logger.debug(str(self._frames))
+            self._frames['default'].update(default_data)
             is_break = True
 
         return is_break
@@ -215,17 +214,17 @@ class QcControl(object):
             frame.charge = charge
         XC_functional = self._get_value('XC_functional', frame_data)
         if XC_functional:
-            frame.XC_functional = XC_functional
+            frame.pdfparam.xc_functional = XC_functional
         J_engine = self._get_value('J_engine', frame_data)
         if J_engine:
-            frame.J_engine = J_engine
+            frame.pdfparam.j_engine = J_engine
         K_engine = self._get_value('K_engine', frame_data)
         if K_engine:
-            frame.K_engine = K_engine
+            frame.pdfparam.k_engine = K_engine
         XC_engine = self._get_value('XC_engine', frame_data)
         if XC_engine:
-            frame.XC_engine = XC_engine
-        
+            frame.pdfparam.xc_engine = XC_engine
+
         # fragments
         self._logger.info('::make fragments')
         fragments_list = self._get_fragments(frame_data.get('fragments', []), frame_data)
@@ -331,9 +330,15 @@ class QcControl(object):
         '''
         copy default values to variable
         '''
-        keywords = ['brd_file', 'basis_set']
+        keywords = ['brd_file',
+                    'basis_set',
+                    'guess',
+                    'XC_functional',
+                    'J_engine',
+                    'K_engine',
+                    'XC_engine']
         for keyword in keywords:
-                update_values.setdefault(keyword, default_values.get(keyword, None))
+            update_values.setdefault(keyword, default_values.get(keyword, None))
         
     def _get_default_fragment(self, frg_data):
         assert(isinstance(frg_data, dict))
