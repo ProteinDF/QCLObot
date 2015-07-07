@@ -38,7 +38,6 @@ class QcControlError(QcError):
         msg  -- explanation of the error
     """
     def __init__(self, expr, msg):
-        super(InputError, self).__init__()
         self.errmsg = "Input Error: {} ({})".format(msg, str(expr))
 
 

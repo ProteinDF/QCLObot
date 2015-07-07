@@ -828,7 +828,15 @@ class QcFrame(object):
         '''
         for k in self._fragments.keys():
             yield(k, self._fragments[k])
-    
+
+    def has_fragment(self, fragment_name):
+        '''
+        フラグメントを持っていればTrueを返す
+        '''
+        fragment_name = str(fragment_name)
+
+        return fragment_name in self._fragments.keys()
+            
     # operator[] -------------------------------------------------------
     def __getitem__(self, fragment_name):
         '''

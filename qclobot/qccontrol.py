@@ -226,7 +226,7 @@ class QcControl(object):
             frame.pdfparam.xc_engine = XC_engine
 
         # fragments
-        self._logger.info('::make fragments')
+        self._logger.info('::make fragments: name={}'.format(frame_name))
         fragments_list = self._get_fragments(frame_data.get('fragments', []), frame_data)
         for f in fragments_list:
             assert(isinstance(f, qclo.QcFragment))
@@ -301,10 +301,6 @@ class QcControl(object):
                 subfrg_list = self._get_fragments(frg_data.get('fragments'), default)
                 subfrg = qclo.QcFragment(name=name)
                 for item in subfrg_list:
-                    if item == None:
-                        self._logger.debug('name: {}'.format(name))
-                        self._logger.debug('subfrg_list: {}'.format(str(subfrg_list)))
-                        raise qclo.QcControlError('unknown subfragments:', str(frg_data))
                     subfrg[item.name] = item
             elif 'add_H' in frg_data:
                 subfrg = self._get_add_H(frg_data)
@@ -322,6 +318,12 @@ class QcControl(object):
                 self.critical(str(frg_data))
                 raise qclo.QcControlError('unknown fragment:', str(frg_data))
 
+            if subfrg == None:
+                frg_data_str = pprint.pformat(frg_data)
+                self._logger.critical('unknown sub-fragment:')
+                self._logger.critical('  sub-fragment information >')
+                self._logger.critical(frg_data_str)
+                raise qclo.QcControlError('unknown subfragment:', frg_data_str)
             answer.append(subfrg)
 
         return answer
@@ -361,9 +363,25 @@ class QcControl(object):
     def _get_reference_fragment(self, frg_data):
         assert(isinstance(frg_data, dict))
 
-        ref_frame = frg_data['reference']['frame']
-        ref_fragment = frg_data['reference']['fragment']
+        if not 'frame' in frg_data['reference']:
+            raise qclo.QcControlError('not found frame key in the reference item',
+                                      pprint.pformat(frg_data))
+        if not 'fragment' in frg_data['reference']:
+            raise qclo.QcControlError('not found fragment key in the reference item',
+                                      pprint.pformat(frg_data))
+        
+        ref_frame = str(frg_data['reference']['frame'])
+        ref_fragment = str(frg_data['reference']['fragment'])
 
+        if ref_frame not in self._frames:
+            raise qclo.QcControlError('unknown frame',
+                                      ref_frame)
+
+        if not self._frames[ref_frame].has_fragment(ref_fragment):
+            raise qclo.QcControlError('unknown fragment',
+                                      '{} in {}'.format(ref_fragment,
+                                                        ref_frame))
+        
         return self._frames[ref_frame][ref_fragment]
 
     def _get_add_H(self, frg_data):
