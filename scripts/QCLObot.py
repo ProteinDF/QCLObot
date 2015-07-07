@@ -37,7 +37,11 @@ def main():
     parser.add_argument('senario_file_path',
                         nargs=1,
                         help='QCLO senario file (YAML_format)')
-    parser.add_argument('-l', '--logconfig',
+    parser.add_argument('-l', '--logfile',
+                        nargs=1,
+                        action='store',
+                        help='logconfig file')
+    parser.add_argument('-L', '--logconfig',
                         nargs=1,
                         action='store',
                         help='logconfig file')
@@ -51,35 +55,52 @@ def main():
 
     # setting
     verbose = args.verbose
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
+    is_debug = args.debug
+
     senario_file_path = args.senario_file_path[0]
-    logconfig_path = ''
+
     if args.logconfig:
+        # logging module setup by config-file
         logconfig_path = args.logconfig[0]
+        logging.config.fileConfig(logconfig_path)
+    else:
+        # logging module setup
+        logfile_path = ''
+        if args.logfile:
+            logfile_path = args.logfile[0]
+        setup_logging(logfile_path, is_debug)
 
-    setup_logconfig(logconfig_path)
+    app_logger = logging.getLogger(__name__)
+    app_logger.info('loading senario: {}'.format(senario_file_path))
 
-    print(senario_file_path)
     qcctrl = qclo.QcControl()
     qcctrl.run(senario_file_path)
     
         
-def setup_logconfig(logconfig_path):
-    if logconfig_path:
-        logging.config.fileConfig(logconfig_path)
-    else:
-        logging.basicConfig(
-            level=logging.WARNING,
-            format='%(asctime)s[%(levelname)s]%(name)s %(message)s'
-        )
-        logfile = logging.FileHandler('qclobot.log')
-        logfile.setLevel(logging.INFO)
-        logging.getLogger().addHandler(logfile)
+def setup_logging(logfile_path = '', is_debug = False):
+    if len(logfile_path) == 0:
+        logfile_path = 'qclobot.log'
 
-        console = logging.StreamHandler()
-        console.setLevel(logging.WARNING)
-        logging.getLogger().addHandler(console)
+    logging_level = logging.INFO
+    format_str = '%(asctime)s [%(levelname)s] %(message)s'
+    date_format = '%Y-%m-%d %H:%M:%S'
+    if is_debug:
+        logging_level = logging.DEBUG
+        format_str ='%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
+
+    logging.basicConfig(
+        filename = logfile_path,
+        level=logging_level,
+        format=format_str,
+        datefmt=date_format
+    )
+    
+    formatter = logging.Formatter(format_str, date_format)
+    
+    console = logging.StreamHandler()
+    console.setLevel(logging.WARNING)
+    console.setFormatter(formatter)
+    logging.getLogger().addHandler(console)
 
         
 def load_brdfile(brdfile_path):
