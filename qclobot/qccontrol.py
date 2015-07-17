@@ -312,6 +312,8 @@ class QcControl(object):
                 subfrg = self._get_add_NME(frg_data)
             elif 'brd_select' in frg_data:
                 subfrg = self._get_default_fragment(frg_data)
+            elif 'atomlist' in frg_data:
+                subfrg = self._getfrg_atomlist(frg_data)
             elif 'reference' in frg_data:
                 subfrg = self._get_reference_fragment(frg_data)
             else:
@@ -470,6 +472,34 @@ class QcControl(object):
 
         return NME
 
+    def _getfrg_atomlist(self, frg_data):
+        assert(isinstance(frg_data, dict))
+        atomlist = frg_data.get('atomlist')
+
+        atomgroup = bridge.AtomGroup()
+        index = 1
+        if isinstance(atomlist, list):
+            for line in atomlist:
+                if isinstance(line, str):
+                    line = line.split()
+                if isinstance(line, list):
+                    if len(line) == 4:
+                        atom = bridge.Atom()
+                        atom.symbol = line[0]
+                        atom.xyz = bridge.Position(line[1], line[2], line[3])
+                        atomgroup.set_atom(index, atom)
+                        index += 1
+                    else:
+                        self._logger.error("mismatch atom data size: {}".format(str(line)))
+                else:
+                    self._logger.error("atomlist item shuld be array or string: {}".format(str(line)))
+        else:
+            self._logger.error("atomlist shuld be list: {}".format(str(atomlist)))
+                    
+        frg = qclo.QcFragment(atomgroup)
+        self._set_basis_set(frg, frg_data.get('basis_set'))
+        return frg
+        
     def _select_atomgroup(self, brd_file_path, brd_select):
         assert(isinstance(brd_file_path, str))
         assert(isinstance(brd_select, str))
