@@ -11,9 +11,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   10_introduction
-   20_setup_model
-              
+  10_introduction
+  20_setup_model
+  90_API
+  qclobot.rst
 
 Indices and tables
 ==================
@@ -21,4 +22,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
