@@ -75,6 +75,8 @@ def main():
 
     qcctrl = qclo.QcControl()
     qcctrl.run(senario_file_path)
+
+    app_logger.info('QCLObot done.')
     
         
 def setup_logging(logfile_path = '', is_debug = False):

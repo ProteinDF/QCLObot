@@ -57,6 +57,8 @@ class QcControl(object):
                 tasks = senario['tasks']
                 for task in tasks:
                     self._run_frame(task)
+            else:
+                self._logger.warn('NOT FOUND "tasks" section')
         
     def _load_yaml(self, path):
         f = open(path)
@@ -380,7 +382,7 @@ class QcControl(object):
         frg = qclo.QcFragment(atomgroup)
         frg.margin = False
         if 'name' not in frg_data:
-            raise
+            raise qclo.QcControlError('name keyword NOT FOUND', str(frg_data))
         frg.name = frg_data.get('name')
 
         self._set_basis_set(frg, frg_data.get('basis_set'))
@@ -391,21 +393,21 @@ class QcControl(object):
         assert(isinstance(frg_data, dict))
 
         if not 'frame' in frg_data['reference']:
-            raise qclo.QcControlError('not found frame key in the reference item',
+            raise qclo.QcControlError('NOT FOUND frame key in reference fragment',
                                       pprint.pformat(frg_data))
         if not 'fragment' in frg_data['reference']:
-            raise qclo.QcControlError('not found fragment key in the reference item',
+            raise qclo.QcControlError('NOT FOUND fragment key in reference fragment',
                                       pprint.pformat(frg_data))
         
         ref_frame = str(frg_data['reference']['frame'])
         ref_fragment = str(frg_data['reference']['fragment'])
 
         if ref_frame not in self._frames:
-            raise qclo.QcControlError('unknown frame',
+            raise qclo.QcControlError('UNKNOWN FRAME',
                                       ref_frame)
 
         if not self._frames[ref_frame].has_fragment(ref_fragment):
-            raise qclo.QcControlError('unknown fragment',
+            raise qclo.QcControlError('UNKNOWN FRAGMENT',
                                       '{} in {}'.format(ref_fragment,
                                                         ref_frame))
         
@@ -427,7 +429,7 @@ class QcControl(object):
         H = qclo.QcFragment(ag_H)
         H.margin = True
         if 'name' not in frg_data:
-            raise
+            raise qclo.QcControlError('NOT FOUND name key in add_H', str(frg_data))
         H.name = frg_data.get('name')
 
         self._set_basis_set(H, frg_data.get('basis_set'))
@@ -442,12 +444,17 @@ class QcControl(object):
 
         atomgroup_C1 = self._select_atomgroup(brd_file_path, brd_select_C1)
         atomgroup_C1 = atomgroup_C1.get_atomlist()
-        assert(atomgroup_C1.get_number_of_atoms() > 0)
+        if atomgroup_C1.get_number_of_atoms() == 0:
+            self._logger.critical('cannnot find displacement atom: key={}'.format(brd_select_C1))
+            raise qclo.QcControlError('No atoms found for "displacement" in add_CH3',
+                                      brd_select_C1)
         (key_C1, atom_C1) = list(atomgroup_C1.atoms())[0]
 
         atomgroup_C2 = self._select_atomgroup(brd_file_path, brd_select_C2)
         atomgroup_C2 = atomgroup_C2.get_atomlist()
-        assert(atomgroup_C2.get_number_of_atoms() > 0)
+        if atomgroup_C2.get_number_of_atoms() == 0:
+            self._logger.critical('cannnot find displacement atom: key={}'.format(brd_select_C2))
+            raise qclo.QcControlError('No atoms found for "root" in add_CH3')
         (key_C2, atom_C2) = list(atomgroup_C2.atoms())[0]
         ag_CH3 = self._modeling.add_methyl(atom_C1, atom_C2)
         ag_CH3.set_atom('C', atom_C1)
@@ -455,7 +462,7 @@ class QcControl(object):
         CH3 = qclo.QcFragment(ag_CH3)
         CH3.margin = True
         if 'name' not in frg_data:
-            raise
+            raise qclo.QcControlError('NOT FOUND name key in add_CH3', str(frg_data))
         CH3.name = frg_data.get('name')
 
         self._set_basis_set(CH3, frg_data.get('basis_set'))
@@ -472,7 +479,7 @@ class QcControl(object):
         ACE = qclo.QcFragment(ag_ACE)
         ACE.margin = True
         if 'name' not in frg_data:
-            raise
+            raise qclo.QcControlError('NOT FOUND name key in add_ACE', str(frg_data))
         ACE.name = frg_data.get('name')
 
         self._set_basis_set(ACE, frg_data.get('basis_set'))
@@ -489,7 +496,7 @@ class QcControl(object):
         NME = qclo.QcFragment(ag_NME)
         NME.margin = True
         if 'name' not in frg_data:
-            raise
+            raise qclo.QcControlError('NOT FOUND name key in add_NME', str(frg_data))
         NME.name = frg_data.get('name')
         # NME.name = 'NME'
 
@@ -557,7 +564,7 @@ class QcControl(object):
                 atm.basisset_xc = 'A-{}.{}'.format(basis_set_name, atm.symbol)
                 atm.basisset_gridfree = 'O-{}.{}'.format(basis_set_name, atm.symbol)
         else:
-            raise
+            raise qclo.QcControlError('TYPE MISMATCH in basis_set', str(obj))
         
         
 if __name__ == '__main__':
