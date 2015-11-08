@@ -213,15 +213,16 @@ class QcControl(object):
         if charge:
             frame.charge = charge
 
-        orbital_independence_threshold = self._get_value('orbital_independence_threshold', frame_data)
-        if orbital_independence_threshold != None:
-            frame.pdfparam.orbital_independence_threshold = orbital_independence_threshold
-        orbital_independence_threshold_canonical = self._get_value('orbital_independence_threshold/canonical', frame_data)
-        if orbital_independence_threshold_canonical != None:
-            frame.pdfparam.orbital_independence_threshold_canonical = orbital_independence_threshold_canonical
-        orbital_independence_threshold_lowdin = self._get_value('orbital_independence_threshold/lowdin', frame_data)
-        if orbital_independence_threshold_lowdin != None:
-            frame.pdfparam.orbital_independence_threshold_lowdin = orbital_independence_threshold_lowdin
+        frame.pdfparam.CDAM_tau = self._get_value('CDAM_tau', frame_data)
+        frame.pdfparam.CD_epsilon = self._get_value('CD_epsilon', frame_data)
+
+        frame.pdfparam.convergence_threshold_energy = self._get_value('convergence/threshold_energy', frame_data)
+        frame.pdfparam.convergence_threshold = self._get_value('convergence/threshold', frame_data)
+        frame.pdfparam.convergence_type = self._get_value('convergence/type', frame_data)
+        
+        frame.pdfparam.orbital_independence_threshold = self._get_value('orbital_independence_threshold', frame_data)
+        frame.pdfparam.orbital_independence_threshold_canonical = self._get_value('orbital_independence_threshold/canonical', frame_data)
+        frame.pdfparam.orbital_independence_threshold_lowdin = self._get_value('orbital_independence_threshold/lowdin', frame_data)
             
         XC_functional = self._get_value('XC_functional', frame_data)
         if XC_functional:
