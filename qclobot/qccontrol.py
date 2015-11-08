@@ -212,9 +212,21 @@ class QcControl(object):
         charge = self._get_value('charge', frame_data)
         if charge:
             frame.charge = charge
+
+        orbital_independence_threshold = self._get_value('orbital_independence_threshold', frame_data)
+        if orbital_independence_threshold != None:
+            frame.pdfparam.orbital_independence_threshold = orbital_independence_threshold
+        orbital_independence_threshold_canonical = self._get_value('orbital_independence_threshold/canonical', frame_data)
+        if orbital_independence_threshold_canonical != None:
+            frame.pdfparam.orbital_independence_threshold_canonical = orbital_independence_threshold_canonical
+        orbital_independence_threshold_lowdin = self._get_value('orbital_independence_threshold/lowdin', frame_data)
+        if orbital_independence_threshold_lowdin != None:
+            frame.pdfparam.orbital_independence_threshold_lowdin = orbital_independence_threshold_lowdin
+            
         XC_functional = self._get_value('XC_functional', frame_data)
         if XC_functional:
             frame.pdfparam.xc_functional = XC_functional
+
         J_engine = self._get_value('J_engine', frame_data)
         if J_engine:
             frame.pdfparam.j_engine = J_engine
@@ -244,7 +256,7 @@ class QcControl(object):
         # pre-SCF
         if frame_data.get('pre_scf', False):
             frame.calc_preSCF()
-        
+            
         # guess
         self._logger.info('::GUESS')
         guess = frame_data.get('guess', 'harris')
@@ -337,6 +349,9 @@ class QcControl(object):
         keywords = ['brd_file',
                     'basis_set',
                     'guess',
+                    'orbital_independence_threshold',
+                    'orbital_independence_threshold/canonical',
+                    'orbital_independence_threshold/lowdin',
                     'XC_functional',
                     'J_engine',
                     'K_engine',
