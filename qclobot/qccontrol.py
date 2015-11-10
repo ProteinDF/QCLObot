@@ -217,13 +217,20 @@ class QcControl(object):
         frame.pdfparam.CD_epsilon = self._get_value('CD_epsilon', frame_data)
 
         frame.pdfparam.convergence_threshold_energy = self._get_value('convergence/threshold_energy', frame_data)
+        print('ENE: ', frame.pdfparam.convergence_threshold_energy)
         frame.pdfparam.convergence_threshold = self._get_value('convergence/threshold', frame_data)
         frame.pdfparam.convergence_type = self._get_value('convergence/type', frame_data)
         
         frame.pdfparam.orbital_independence_threshold = self._get_value('orbital_independence_threshold', frame_data)
         frame.pdfparam.orbital_independence_threshold_canonical = self._get_value('orbital_independence_threshold/canonical', frame_data)
         frame.pdfparam.orbital_independence_threshold_lowdin = self._get_value('orbital_independence_threshold/lowdin', frame_data)
-            
+
+        frame.pdfparam.scf_acceleration = self._get_value('scf_acceleration', frame_data)
+        frame.pdfparam.scf_acceleration_damping_start_number = self._get_value('scf_acceleration/damping/start_number', frame_data)
+        frame.pdfparam.scf_acceleration_damping_damping_factor = self._get_value('scf_acceleration/damping/damping_factor', frame_data)
+        frame.pdfparam.scf_acceleration_anderson_start_number = self._get_value('scf_acceleration/anderson/start_number', frame_data)
+        frame.pdfparam.scf_acceleration_anderson_damping_factor = self._get_value('scf_acceleration/anderson/damping_factor', frame_data)
+        
         XC_functional = self._get_value('XC_functional', frame_data)
         if XC_functional:
             frame.pdfparam.xc_functional = XC_functional
