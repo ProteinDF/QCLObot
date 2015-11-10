@@ -311,6 +311,18 @@ class QcFrame(object):
     is_finished_scf = property(_get_state_finished_scf,
                                _set_state_finished_scf)
 
+    # Force ------------------------------------------------------------
+    def _get_state_finished_force(self):
+        self._state.setdefault('is_finished_force', False)
+        return self._state['is_finished_force']
+
+    def _set_state_finished_force(self, yn):
+        self._state['is_finished_force'] = bool(yn)
+        
+    is_finished_force = property(_get_state_finished_force,
+                                 _set_state_finished_force)
+    
+    
     # pick density matrix  ---------------------------------------------
     def _get_state_finished_pickup_density_matrix(self):
         self._state.setdefault('is_finished_pickup_density_matrix', False)
@@ -557,6 +569,47 @@ class QcFrame(object):
             
         self.restore_cwd()
 
+    # force ------------------------------------------------------------
+    def calc_force(self, dry_run=False):
+        '''
+        calculate force (energy gradient)
+        '''
+        if self.is_finished_force:
+            self._logger.info('force has been calced.')
+            return
+            
+        if self.is_finished_scf != True:
+            self.calc_sp(dry_run)
+
+        self.cd_work_dir('calc force')
+
+        pdfsim = pdf.PdfSim()
+        for frg_name, frg in self.fragments():
+            frg.set_basisset(self.pdfparam)
+        self.pdfparam.molecule = self.frame_molecule
+
+        # num_of_electrons
+        num_of_electrons = self.pdfparam.num_of_electrons # calc from the molecule data
+        self._logger.info('the number of electrons = {}'.format(num_of_electrons))
+        if self.charge != 0:
+            self._logger.info('specify the charge => {}'.format(self.charge))
+            num_of_electrons -= self.charge # 電子(-)数と電荷(+)の正負が逆なことに注意
+            self.pdfparam.num_of_electrons = num_of_electrons
+            self._logger.info('update the number of electrons => {}'.format(self.pdfparam.num_of_electrons))
+
+        self.pdfparam.step_control = 'force'
+        pdfsim.sp(self.pdfparam,
+                  workdir = self.work_dir,
+                  db_path = self.db_path,
+                  dry_run = dry_run)
+
+        self._cache.pop('pdfparam')
+        self.is_finished_force = True
+        self._save()
+            
+        self.restore_cwd()
+
+        
     # ------------------------------------------------------------------
     # ==================================================================
     # PICKUP

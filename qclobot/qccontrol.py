@@ -217,7 +217,6 @@ class QcControl(object):
         frame.pdfparam.CD_epsilon = self._get_value('CD_epsilon', frame_data)
 
         frame.pdfparam.convergence_threshold_energy = self._get_value('convergence/threshold_energy', frame_data)
-        print('ENE: ', frame.pdfparam.convergence_threshold_energy)
         frame.pdfparam.convergence_threshold = self._get_value('convergence/threshold', frame_data)
         frame.pdfparam.convergence_type = self._get_value('convergence/type', frame_data)
         
@@ -281,6 +280,9 @@ class QcControl(object):
         if frame_data.get('sp', False):
             frame.calc_sp()
 
+        # force
+        if frame_data.get('force', False):
+            frame.calc_force()
             
     # ------------------------------------------------------------------
     # utils
