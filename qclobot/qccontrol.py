@@ -246,6 +246,11 @@ class QcControl(object):
         if XC_engine:
             frame.pdfparam.xc_engine = XC_engine
 
+        frame.pdfparam.gridfree_dual_level = self._get_value('gridfree/dual_level', frame_data)
+        frame.pdfparam.gridfree_orthogonalize_method = self._get_value('gridfree/orthogonalize_method', frame_data)
+        frame.pdfparam.gridfree_CDAM_tau = self._get_value('gridfree/CDAM_tau', frame_data)
+        frame.pdfparam.gridfree_CD_epsilon = self._get_value('gridfree/CD_epsilon', frame_data)
+        
         # fragments
         self._logger.info('::make fragments: name={}'.format(frame_name))
         fragments_list = self._get_fragments(frame_data.get('fragments', []), frame_data)
@@ -360,10 +365,24 @@ class QcControl(object):
         '''
         keywords = ['brd_file',
                     'basis_set',
+                    'basis_set_gridfree',
                     'guess',
+                    'cut_value',
+                    'CDAM_tau',
+                    'CD_epsilon',
                     'orbital_independence_threshold',
                     'orbital_independence_threshold/canonical',
                     'orbital_independence_threshold/lowdin',
+                    'gridfree/dual_level',
+                    'gridfree/orthogonalize_method',
+                    'gridfree/CDAM_tau',
+                    'gridfree/CD_epsilon',
+                    'scf_acceleration',
+                    'scf_acceleration/damping/damping_factor',
+                    'scf_acceleration/anderson/start_number',
+                    'scf_acceleration/anderson/damping_factor',
+                    'convergence/threshold_energy',
+                    'convergence/threshold',
                     'XC_functional',
                     'J_engine',
                     'K_engine',
@@ -385,7 +404,9 @@ class QcControl(object):
             raise qclo.QcControlError('name keyword NOT FOUND', str(frg_data))
         frg.name = frg_data.get('name')
 
-        self._set_basis_set(frg, frg_data.get('basis_set'))
+        self._set_basis_set(frg,
+                            frg_data.get('basis_set'),
+                            frg_data.get('basis_set_gridfree', None))
         
         return frg
 
@@ -432,7 +453,9 @@ class QcControl(object):
             raise qclo.QcControlError('NOT FOUND name key in add_H', str(frg_data))
         H.name = frg_data.get('name')
 
-        self._set_basis_set(H, frg_data.get('basis_set'))
+        self._set_basis_set(H,
+                            frg_data.get('basis_set'),
+                            frg_data.get('basis_set_gridfree', None))
 
         return H
         
@@ -465,7 +488,9 @@ class QcControl(object):
             raise qclo.QcControlError('NOT FOUND name key in add_CH3', str(frg_data))
         CH3.name = frg_data.get('name')
 
-        self._set_basis_set(CH3, frg_data.get('basis_set'))
+        self._set_basis_set(CH3,
+                            frg_data.get('basis_set'),
+                            frg_data.get('basis_set_gridfree', None))
 
         return CH3
         
@@ -482,7 +507,9 @@ class QcControl(object):
             raise qclo.QcControlError('NOT FOUND name key in add_ACE', str(frg_data))
         ACE.name = frg_data.get('name')
 
-        self._set_basis_set(ACE, frg_data.get('basis_set'))
+        self._set_basis_set(ACE,
+                            frg_data.get('basis_set'),
+                            frg_data.get('basis_set_gridfree', None))
 
         return ACE
         
@@ -500,7 +527,9 @@ class QcControl(object):
         NME.name = frg_data.get('name')
         # NME.name = 'NME'
 
-        self._set_basis_set(NME, frg_data.get('basis_set'))
+        self._set_basis_set(NME,
+                            frg_data.get('basis_set'),
+                            frg_data.get('basis_set_gridfree', None))
 
         return NME
 
@@ -529,7 +558,9 @@ class QcControl(object):
             self._logger.error("atomlist shuld be list: {}".format(str(atomlist)))
                     
         frg = qclo.QcFragment(atomgroup)
-        self._set_basis_set(frg, frg_data.get('basis_set'))
+        self._set_basis_set(frg,
+                            frg_data.get('basis_set'),
+                            frg_data.get('basis_set_gridfree', None))
         return frg
         
     def _select_atomgroup(self, brd_file_path, brd_select):
@@ -552,7 +583,9 @@ class QcControl(object):
 
         return answer
 
-    def _set_basis_set(self, obj, basis_set_name):
+    def _set_basis_set(self, obj,
+                       basis_set_name,
+                       basis_set_name_gridfree = None):
         assert(isinstance(basis_set_name, str))
 
         if isinstance(obj, qclo.QcFragment):
@@ -562,10 +595,14 @@ class QcControl(object):
                 atm.basisset = 'O-{}.{}'.format(basis_set_name, atm.symbol)
                 atm.basisset_j = 'A-{}.{}'.format(basis_set_name, atm.symbol)
                 atm.basisset_xc = 'A-{}.{}'.format(basis_set_name, atm.symbol)
-                atm.basisset_gridfree = 'O-{}.{}'.format(basis_set_name, atm.symbol)
+                if basis_set_name_gridfree:
+                    atm.basisset_gridfree = 'O-{}.{}'.format(basis_set_name_gridfree, atm.symbol)
+                else:
+                    atm.basisset_gridfree = 'O-{}.{}'.format(basis_set_name, atm.symbol)
         else:
             raise qclo.QcControlError('TYPE MISMATCH in basis_set', str(obj))
-        
+
+
         
 if __name__ == '__main__':
     pass
