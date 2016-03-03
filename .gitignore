@@ -1,3 +1,6 @@
+# System
+.python-version
+
 # Compiled Object files
 *.slo
 *.lo
@@ -20,6 +23,6 @@
 *.out
 *.app
 
-# for python
-build/
+# for Sphinx
+_build/
 
