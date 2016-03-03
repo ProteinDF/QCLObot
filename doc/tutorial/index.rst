@@ -9,12 +9,12 @@ Welcome to QCLObot tutorial's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+  :maxdepth: 2
 
-  10_introduction
+  10_Introduction
   20_setup_model
+  80_keyword
   90_API
-  qclobot.rst
 
 Indices and tables
 ==================
