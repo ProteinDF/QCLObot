@@ -573,6 +573,8 @@ class QcFrame(object):
     def calc_force(self, dry_run=False):
         '''
         calculate force (energy gradient)
+
+        absolute: force -> gradient
         '''
         if self.is_finished_force:
             self._logger.info('force has been calced.')
