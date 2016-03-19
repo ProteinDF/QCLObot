@@ -30,6 +30,8 @@ from .qcfragment import QcFragment
 from .qcframe import QcFrame
 from .qcorbitaldata import QcOrbitalData
 
+from .qcopt import QcOpt
+
 # copy from ProteinDF_pytools
 from .process import Process
 

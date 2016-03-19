@@ -45,6 +45,8 @@ class QcControl(object):
         self._frames['default'] = {}
         self._frames['default']['basis_set'] = 'DZVP2'
         self._frames['default']['brd_file'] = ''
+
+        self._last_frame_name = ''
         
     def run(self, path):
         self._load_yaml(path)
@@ -77,6 +79,18 @@ class QcControl(object):
         yaml.dump(data, f, encoding='utf8', allow_unicode=True)
         f.close()
 
+    # ------------------------------------------------------------------
+    # property
+    # ------------------------------------------------------------------
+    @property
+    def last_frame_name(self):
+        ''' return the last frame name
+        '''
+        return self._last_frame_name
+
+    def get_frame(self, name):
+        return self._frames.get(name, None)
+    
     # ------------------------------------------------------------------
     # vars
     # ------------------------------------------------------------------
@@ -261,7 +275,8 @@ class QcControl(object):
         # --------------------------------------------------------------
         self._logger.info('::action')
         self._frames[frame_name] = frame
-
+        self._last_frame_name = frame_name
+        
         # pre-SCF
         if frame_data.get('pre_scf', False):
             frame.calc_preSCF()
