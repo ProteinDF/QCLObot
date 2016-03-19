@@ -118,7 +118,7 @@ class QcControl(object):
         with_items = frame_data.get('with_items', None)
         if with_items:
             iter_items = list(self._vars.get(str(with_items), []))
-
+            
             new_frame_data = dict(frame_data)
             new_frame_data.pop('with_items')
             yaml_str = yaml.dump(new_frame_data)
@@ -195,6 +195,10 @@ class QcControl(object):
         return is_break
 
     def _exec_frame_object(self, frame_data):
+        '''
+        execute something to frame object
+        '''
+
         assert(isinstance(frame_data, dict))
         
         # --------------------------------------------------------------
@@ -250,6 +254,9 @@ class QcControl(object):
         frame.pdfparam.gridfree_orthogonalize_method = self._get_value('gridfree/orthogonalize_method', frame_data)
         frame.pdfparam.gridfree_CDAM_tau = self._get_value('gridfree/CDAM_tau', frame_data)
         frame.pdfparam.gridfree_CD_epsilon = self._get_value('gridfree/CD_epsilon', frame_data)
+
+        frame.pdfparam.extra_keywords = self._get_value('pdf_extra_keywords', frame_data)
+        print(repr(frame.pdfparam.extra_keywords))
         
         # fragments
         self._logger.info('::make fragments: name={}'.format(frame_name))
@@ -290,6 +297,19 @@ class QcControl(object):
         # force
         if frame_data.get('force', False):
             frame.calc_force()
+
+        # summary
+        summary_act = frame_data.get('summary', False)
+        if isinstance(summary_act, dict):
+            format_str = summary_act.get('format', None)
+            filepath = summary_act.get('filepath', None)
+            frame.summary(format_str=format_str,
+                          filepath=filepath)
+        elif isinstance(summary_act, str):
+            frame.summary(format_str=summary_act)
+        elif isinstance(summary_act, bool):
+            if summary_act:
+                frame.summary()
             
     # ------------------------------------------------------------------
     # utils
@@ -365,6 +385,7 @@ class QcControl(object):
         '''
         keywords = ['brd_file',
                     'basis_set',
+                    'basis_set_aux',
                     'basis_set_gridfree',
                     'guess',
                     'cut_value',
@@ -386,7 +407,8 @@ class QcControl(object):
                     'XC_functional',
                     'J_engine',
                     'K_engine',
-                    'XC_engine']
+                    'XC_engine',
+                    'pdf_extra_keywords']
         for keyword in keywords:
             update_values.setdefault(keyword, default_values.get(keyword, None))
         
@@ -406,6 +428,7 @@ class QcControl(object):
 
         self._set_basis_set(frg,
                             frg_data.get('basis_set'),
+                            frg_data.get('basis_set_aux', None),
                             frg_data.get('basis_set_gridfree', None))
         
         return frg
@@ -455,6 +478,7 @@ class QcControl(object):
 
         self._set_basis_set(H,
                             frg_data.get('basis_set'),
+                            frg_data.get('basis_set_aux', None),
                             frg_data.get('basis_set_gridfree', None))
 
         return H
@@ -509,6 +533,7 @@ class QcControl(object):
 
         self._set_basis_set(ACE,
                             frg_data.get('basis_set'),
+                            frg_data.get('basis_set_aux', None),
                             frg_data.get('basis_set_gridfree', None))
 
         return ACE
@@ -529,6 +554,7 @@ class QcControl(object):
 
         self._set_basis_set(NME,
                             frg_data.get('basis_set'),
+                            frg_data.get('basis_set_aux', None),
                             frg_data.get('basis_set_gridfree', None))
 
         return NME
@@ -560,6 +586,7 @@ class QcControl(object):
         frg = qclo.QcFragment(atomgroup)
         self._set_basis_set(frg,
                             frg_data.get('basis_set'),
+                            frg_data.get('basis_set_aux', None),
                             frg_data.get('basis_set_gridfree', None))
         return frg
         
@@ -585,6 +612,7 @@ class QcControl(object):
 
     def _set_basis_set(self, obj,
                        basis_set_name,
+                       basis_set_name_aux = None,
                        basis_set_name_gridfree = None):
         assert(isinstance(basis_set_name, str))
 
@@ -593,8 +621,12 @@ class QcControl(object):
                 self._set_basis_set(subfrg, basis_set_name)
             for atm_name, atm in obj.atoms():
                 atm.basisset = 'O-{}.{}'.format(basis_set_name, atm.symbol)
-                atm.basisset_j = 'A-{}.{}'.format(basis_set_name, atm.symbol)
-                atm.basisset_xc = 'A-{}.{}'.format(basis_set_name, atm.symbol)
+                if basis_set_name_aux:
+                    atm.basisset_j = 'A-{}.{}'.format(basis_set_name_aux, atm.symbol)
+                    atm.basisset_xc = 'A-{}.{}'.format(basis_set_name_aux, atm.symbol)
+                else:
+                    atm.basisset_j = 'A-{}.{}'.format(basis_set_name, atm.symbol)
+                    atm.basisset_xc = 'A-{}.{}'.format(basis_set_name, atm.symbol)
                 if basis_set_name_gridfree:
                     atm.basisset_gridfree = 'O-{}.{}'.format(basis_set_name_gridfree, atm.symbol)
                 else:
