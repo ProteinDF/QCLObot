@@ -117,7 +117,7 @@ class QcOptRecord(object):
             for k, subgrp in atomgroup.groups():
                 update_coord(subgrp, alpha)
             for k, atom in atomgroup.atoms():
-                atom.xyz = atom.xyz + ANG_PER_AU * alpha * atom.force
+                atom.xyz = atom.xyz - ANG_PER_AU * alpha * atom.force
         update_coord_SD(molecule, alpha)
         return molecule
 
@@ -196,7 +196,7 @@ class QcOpt(object):
             
             self.calc_single_point()
 
-            if self.is_converged():
+            if self.is_converged() and self._step > 1:
                 self._logger.info('opt condition is satisfied.')
                 break
             else:
@@ -268,7 +268,7 @@ class QcOpt(object):
 
         forces = []
         for atom_id in range(num_of_atoms):
-            force = pdfparam.get_force(atom_id)
+            force = pdfparam.get_gradient(atom_id)
             forces.append(copy.copy(force))
 
         num_of_forces = self._insert_forces(self._molecule, forces, 0)
