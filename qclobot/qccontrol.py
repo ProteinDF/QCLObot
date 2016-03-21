@@ -625,31 +625,48 @@ class QcControl(object):
 
         return answer
 
-    def _set_basis_set(self, obj,
-                       basis_set_name,
-                       basis_set_name_aux = None,
-                       basis_set_name_gridfree = None):
-        assert(isinstance(basis_set_name, str))
-
-        if isinstance(obj, qclo.QcFragment):
-            for subfrg_name, subfrg in obj.groups():
-                self._set_basis_set(subfrg, basis_set_name)
-            for atm_name, atm in obj.atoms():
-                atm.basisset = 'O-{}.{}'.format(basis_set_name, atm.symbol)
-                if basis_set_name_aux:
-                    atm.basisset_j = 'A-{}.{}'.format(basis_set_name_aux, atm.symbol)
-                    atm.basisset_xc = 'A-{}.{}'.format(basis_set_name_aux, atm.symbol)
+    def _set_basis_set(self, fragment,
+                       basis_set,
+                       basis_set_aux = None,
+                       basis_set_gridfree = None):
+        """
+        set basis set to the fragment object.
+        """
+        if isinstance(fragment, qclo.QcFragment):
+            for subfrg_name, subfrg in fragment.groups():
+                self._set_basis_set(subfrg, basis_set, basis_set_aux, basis_set_name_gridfree)
+            for atm_name, atm in fragment.atoms():
+                atm.basisset = 'O-{}.{}'.format(self._find_basis_set_name(atm, basis_set), atm.symbol)
+                if basis_set_aux:
+                    atm.basisset_j = 'A-{}.{}'.format(self._find_basis_set_name(atm, basis_set_aux), atm.symbol)
+                    atm.basisset_xc = 'A-{}.{}'.format(self._find_basis_set_name(atm, basis_set_aux), atm.symbol)
                 else:
-                    atm.basisset_j = 'A-{}.{}'.format(basis_set_name, atm.symbol)
-                    atm.basisset_xc = 'A-{}.{}'.format(basis_set_name, atm.symbol)
-                if basis_set_name_gridfree:
-                    atm.basisset_gridfree = 'O-{}.{}'.format(basis_set_name_gridfree, atm.symbol)
+                    atm.basisset_j = 'A-{}.{}'.format(self._find_basis_set_name(atm, basis_set), atm.symbol)
+                    atm.basisset_xc = 'A-{}.{}'.format(self._find_basis_set_name(atm, basis_set), atm.symbol)
+                if basis_set_gridfree:
+                    atm.basisset_gridfree = 'O-{}.{}'.format(self._find_basis_set_name(atm, basis_set_gridfree), atm.symbol)
                 else:
-                    atm.basisset_gridfree = 'O-{}.{}'.format(basis_set_name, atm.symbol)
+                    atm.basisset_gridfree = 'O-{}.{}'.format(self._find_basis_set_name(atm, basis_set), atm.symbol)
         else:
-            raise qclo.QcControlError('TYPE MISMATCH in basis_set', str(obj))
+            raise qclo.QcControlError('Program Error: ', str(fragment))
 
-
+    def _find_basis_set_name(self, atom, input_obj):
+        """ 
+        find suitable basis set name for the atom.
+        
+        """
+        assert(isinstance(atom, bridge.Atom))
+        ans = ''
+        if isinstance(input_obj, str):
+            ans = input_obj
+        elif isinstance(input_obj, dict):
+            if atom.name in input_obj:
+                ans = input_obj[atom.name]
+            elif atom.symbol in input_obj:
+                ans = input_obj[atom.symbol]
+            else:
+                raise qclo.QcControlError('type mismatch.', str(input_obj))
+        return ans
         
 if __name__ == '__main__':
     pass
