@@ -89,7 +89,7 @@ class QcFrame(object):
             f.close()
             self.set_by_raw_data(state_dat)
         else:
-            self._logger.info('not found the state file')
+            self._logger.debug('not found the state file')
         
     def _save(self):
         path = os.path.join(self.work_dir, 'qcframe.mpac')
@@ -573,6 +573,8 @@ class QcFrame(object):
     def calc_force(self, dry_run=False):
         '''
         calculate force (energy gradient)
+
+        absolute: force -> gradient
         '''
         if self.is_finished_force:
             self._logger.info('force has been calced.')
@@ -609,8 +611,68 @@ class QcFrame(object):
             
         self.restore_cwd()
 
+    # summary ------------------------------------------------------------------
+    def summary(self, dry_run=False, format_str=None, filepath=None):
+        '''
+        Format: 
+            {NUM_OF_ATOMS}: number of atoms
+            {NUM_OF_AO}:    number of AOs
+            {NUM_OF_MO}:    number of MOs
+            {METHOD}:       method
+            {IS_CONVERGED}: Whether the SCF is converged or not
+            {ITERATION}:    iteration
+            {TOTAL_ENERGY}: total energy
+            {GRADIENT_RMS}: gradient RMS
+        '''
+        if self.is_finished_scf != True:
+            self.calc_sp(dry_run)
+
+        self.cd_work_dir('summary')
+
+        values = {}
+        pdfarc = self.get_pdfarchive()
+        values['NUM_OF_ATOMS'] = pdfarc.num_of_atoms
+        values['NUM_OF_AO'] = pdfarc.num_of_AOs
+        values['NUM_OF_MO'] = pdfarc.num_of_MOs
+        values['METHOD'] = pdfarc.method
+        values['IS_CONVERGED'] = pdfarc.scf_converged
+        itr = pdfarc.iterations
+        values['ITERATION'] = itr
+        values['TOTAL_ENERGY'] = pdfarc.get_total_energy(itr)
+        values['GRADIENT_RMS'] = pdfarc.get_gradient_rms()
+
+        if format_str == None:
+            format_str = 'total energy: {TOTAL_ENERGY} at {ITERATION}'
+        output = format_str.format(**values)
+
+        if output[-1] != "\n":
+            output += "\n"
         
+        self._logger.info(output)
+        if isinstance(filepath, str):
+            with open(filepath, 'a') as f:
+                f.write(output)
+
+        self.restore_cwd()
+        return output
+
+    
+    def get_gradient(self):
+        '''
+        '''
+        self.cd_work_dir('get_gradient')
+
+        pdfarc = self.get_pdfarchive()
+        num_of_atoms = pdfarc.num_of_atoms
+        grad =[ [] * num_of_atoms]
+        for atom_index in range(num_of_atoms):
+            grad[atom_index] = pdfarc.get_force(atom_index)
+        
+        self.restore_cwd()
+    
     # ------------------------------------------------------------------
+    
+
     # ==================================================================
     # PICKUP
     # ==================================================================
