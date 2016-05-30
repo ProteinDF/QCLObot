@@ -22,7 +22,7 @@
 from __future__ import absolute_import
 
 from .qccommon import get_tmpfile_path
-from .qcerror import QcError, QcControlError
+from .qcerror import QcError, QcControlError, QcScriptRunningError
 
 from .qccontrol import QcControl
 from .qcatom import QcAtom

@@ -1,4 +1,4 @@
-#!/home/hirano/.pyenv/versions/2.7.8/bin/python
+#!/usrbin/env python
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2015 The ProteinDF development team.
@@ -33,6 +33,7 @@ except:
     import msgpack_pure as msgpack
 
 import pdfbridge
+import qclobot
 
 def main():
     """
@@ -759,7 +760,7 @@ class Relax(object):
         pdb_f.write(str(biopdb))
         pdb_f.close()
 
-        #
+        # 
         self._logger.info('calc charges...')
         antechamber_cmd = '{ANTECHAMBER} -fi pdb -i {LIG}.pdb -fo prepi -o {LIG}.prep -at gaff -c bcc -nc 0 -rn {LIG}'.format(
             ANTECHAMBER = self._antechamber_cmd,
@@ -790,8 +791,10 @@ class Relax(object):
         retcode = proc.returncode
         
         if retcode == 1:
-            raise ScriptRunningError('This script could not run $ %s\n%s' %
-                                     (str(cmd), str(stderr)))
+            output = stdout
+            output += '\n'
+            output += stderr
+            raise qclobot.QcScriptRunningError(cmd, output)
         else:
             return True
 

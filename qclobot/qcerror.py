@@ -40,4 +40,15 @@ class QcControlError(QcError):
     def __init__(self, expr, msg):
         self.errmsg = "Input Error: {} ({})".format(msg, str(expr))
 
+class QcScriptRunningError(QcError):
+    """
+    Exception raised for errors to run script.
 
+    Attributes:
+        cmd_name -- command name
+        err_msg  -- error message on running
+    """
+    def __init__(self, cmd_name, err_msg):
+        if isinstance(cmd_name, list):
+            cmd_name = ' '.join(cmd_name)
+        self.errmsg = 'The following script could not run: "{}"\nerr_msg:{}'.format(cmd_name, err_msg)

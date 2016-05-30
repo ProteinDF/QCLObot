@@ -1,4 +1,4 @@
-#!/home/hirano/.pyenv/versions/2.7.8/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import argparse
