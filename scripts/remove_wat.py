@@ -38,11 +38,16 @@ def main():
     answer = pdfbridge.AtomGroup(mpac_data)
     #print(atomgroup)
 
-    # search
+    # search 'HOH'
     HOH_selecter = pdfbridge.Select_Name('HOH')
     HOH_grp = answer.select(HOH_selecter)
     answer ^= HOH_grp
     
+    # search 'WAT'
+    WAT_selecter = pdfbridge.Select_Name('WAT')
+    WAT_grp = answer.select(WAT_selecter)
+    answer ^= WAT_grp
+
     # output
     if output:
         if (verbose == True):
@@ -61,6 +66,9 @@ def remove_wat(atomgroup):
         print(grp.name)
         if grpkey == 'HOH':
             print("remove HOH")
+            continue
+        elif grpkey == 'WAT':
+            print("remove WAT")
             continue
 
         tmpgrp = remove_wat(grp)
