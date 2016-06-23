@@ -131,7 +131,7 @@ class QcControl(object):
 
         with_items = frame_data.get('with_items', None)
         if with_items:
-            iter_items = list(self._vars.get(str(with_items), []))
+            iter_items = list(self._vars.get(bridge.Utils.to_unicode(with_items), []))
             
             new_frame_data = dict(frame_data)
             new_frame_data.pop('with_items')
@@ -139,6 +139,7 @@ class QcControl(object):
             template = jinja2.Template(yaml_str)
 
             for item in iter_items:
+                self._logger.info('template render: item={}'.format(repr(item)))
                 yaml_str = template.render(item = item)
                 new_frame_data = yaml.load(yaml_str)
                 self._run_frame(new_frame_data)
@@ -270,7 +271,7 @@ class QcControl(object):
         frame.pdfparam.gridfree_CD_epsilon = self._get_value('gridfree/CD_epsilon', frame_data)
 
         frame.pdfparam.extra_keywords = self._get_value('pdf_extra_keywords', frame_data)
-        print(repr(frame.pdfparam.extra_keywords))
+        # print(repr(frame.pdfparam.extra_keywords))
         
         # fragments
         self._logger.info('::make fragments: name={}'.format(frame_name))
@@ -333,8 +334,8 @@ class QcControl(object):
         '''
         return a value corresponding to the keyword from the input_data or defaults
         '''
-        assert(isinstance(keyword, str))
-
+        keyword = bridge.Utils.to_unicode(keyword)
+        
         answer = None
         if keyword in input_data:
             answer = input_data.get(keyword)
@@ -359,12 +360,14 @@ class QcControl(object):
             self._logger.debug(">>>> _get_fragments(): loop")
             self._logger.debug(frg_data)
             name = frg_data.get('name', '')
+            self._logger.info('>> name: {}'.format(name))
 
             subfrg = None
             if 'fragments' in frg_data:
                 subfrg_list = self._get_fragments(frg_data.get('fragments'), default)
                 subfrg = qclo.QcFragment(name=name)
                 for item in subfrg_list:
+                    self._logger.info('>>>> list name: {}'.format(item.name))
                     subfrg[item.name] = item
             elif 'add_H' in frg_data:
                 subfrg = self._get_add_H(frg_data)
@@ -381,7 +384,7 @@ class QcControl(object):
             elif 'reference' in frg_data:
                 subfrg = self._get_reference_fragment(frg_data)
             else:
-                self.critical(str(frg_data))
+                self._logger.critical(str(frg_data))
                 raise qclo.QcControlError('unknown fragment:', str(frg_data))
 
             if subfrg == None:
@@ -390,6 +393,8 @@ class QcControl(object):
                 self._logger.critical('  sub-fragment information >')
                 self._logger.critical(frg_data_str)
                 raise qclo.QcControlError('unknown subfragment:', frg_data_str)
+
+            self._logger.info("subfrg append: {}".format(name))
             answer.append(subfrg)
 
         return answer
@@ -458,18 +463,20 @@ class QcControl(object):
             raise qclo.QcControlError('NOT FOUND fragment key in reference fragment',
                                       pprint.pformat(frg_data))
         
-        ref_frame = str(frg_data['reference']['frame'])
-        ref_fragment = str(frg_data['reference']['fragment'])
+        ref_frame = bridge.Utils.to_unicode(frg_data['reference']['frame'])
+        ref_fragment = bridge.Utils.to_unicode(frg_data['reference']['fragment'])
 
         if ref_frame not in self._frames:
             raise qclo.QcControlError('UNKNOWN FRAME',
                                       ref_frame)
 
         if not self._frames[ref_frame].has_fragment(ref_fragment):
+            self._logger.critical(str(self._frames[ref_frame]))
             raise qclo.QcControlError('UNKNOWN FRAGMENT',
                                       '{} in {}'.format(ref_fragment,
                                                         ref_frame))
-        
+
+        self._logger.info("reference: {}.{}".format(ref_frame, ref_fragment))
         return self._frames[ref_frame][ref_fragment]
 
     def _get_add_H(self, frg_data):
@@ -579,16 +586,45 @@ class QcControl(object):
         atomlist = frg_data.get('atomlist')
 
         atomgroup = bridge.AtomGroup()
+        if 'name' not in frg_data:
+            raise qclo.QcControlError('NOT FOUND name key in atomlist', str(frg_data))
+        atomgroup.name = frg_data.get('name')
+        
         index = 1
         if isinstance(atomlist, list):
             for line in atomlist:
-                if isinstance(line, str):
-                    line = line.split()
+                if isinstance(line, (str, unicode)):
+                    if line[0] == '/':
+                        # case '/model/...'
+                        brd_select = line
+                        brd_file_path = frg_data.get('brd_file')
+                        selected_atomgroup = self._select_atomgroup(brd_file_path, brd_select)
+                        #self._logger.debug('select path: {}'.format(brd_select))
+                        #self._logger.debug('selected: {}'.format(str(selected_atomgroup)))
+                        if selected_atomgroup.get_number_of_all_atoms() > 0:
+                            for dummy_atomindex, selected_atom in selected_atomgroup.get_atomlist().atoms():
+                                atomgroup.set_atom(index, selected_atom)
+                                index += 1
+                        else:
+                            self._logger.warn("not math: {}".format(brd_select))
+                        continue
+                    else:
+                        # case: "H 1.00 2.00 3.00"
+                        line = line.split()
                 if isinstance(line, list):
                     if len(line) == 4:
+                        # case [H, 1.00, 2.00, 3.00]
                         atom = bridge.Atom()
                         atom.symbol = line[0]
                         atom.xyz = bridge.Position(line[1], line[2], line[3])
+                        atomgroup.set_atom(index, atom)
+                        index += 1
+                    elif len(line) == 5:
+                        # case [X, 1,00, 2.00, 3.00, -1.0] for dummy charge
+                        atom = bridge.Atom()
+                        atom.symbol = line[0]
+                        atom.xyz = bridge.Position(line[1], line[2], line[3])
+                        atom.charge = line[4]
                         atomgroup.set_atom(index, atom)
                         index += 1
                     else:
@@ -606,8 +642,8 @@ class QcControl(object):
         return frg
         
     def _select_atomgroup(self, brd_file_path, brd_select):
-        assert(isinstance(brd_file_path, str))
-        assert(isinstance(brd_select, str))
+        brd_file_path = bridge.Utils.to_unicode(brd_file_path)
+        brd_select = bridge.Utils.to_unicode(brd_select)
         # self._logger.debug('_get_atomgroup(): brd_path={}, select={}'.format(brd_file_path, brd_select))
 
         self._cache.setdefault('brdfile', {})
@@ -620,6 +656,7 @@ class QcControl(object):
             self._cache['brdfile'][brd_file_path]['atomgroup'] = bridge.AtomGroup(brd_data)
         
         atomgroup = self._cache['brdfile'][brd_file_path]['atomgroup']
+        # selecter = bridge.Select_PathRegex(brd_select)
         selecter = bridge.Select_Path(brd_select)
         answer = atomgroup.select(selecter)
 
@@ -634,7 +671,7 @@ class QcControl(object):
         """
         if isinstance(fragment, qclo.QcFragment):
             for subfrg_name, subfrg in fragment.groups():
-                self._set_basis_set(subfrg, basis_set, basis_set_aux, basis_set_name_gridfree)
+                self._set_basis_set(subfrg, basis_set, basis_set_aux, basis_set_gridfree)
             for atm_name, atm in fragment.atoms():
                 atm.basisset = 'O-{}.{}'.format(self._find_basis_set_name(atm, basis_set), atm.symbol)
                 if basis_set_aux:
@@ -657,7 +694,7 @@ class QcControl(object):
         """
         assert(isinstance(atom, bridge.Atom))
         ans = ''
-        if isinstance(input_obj, str):
+        if isinstance(input_obj, (str, unicode)):
             ans = input_obj
         elif isinstance(input_obj, dict):
             if atom.name in input_obj:

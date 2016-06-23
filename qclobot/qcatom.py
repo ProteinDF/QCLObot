@@ -84,7 +84,7 @@ class QcAtom(bridge.Atom):
         return self._basisset
 
     def _set_basisset(self, name):
-        self._basisset = bridge.Utils.byte2str(name)
+        self._basisset = bridge.Utils.to_unicode(name)
 
     basisset = property(_get_basisset, _set_basisset)
 
@@ -93,7 +93,7 @@ class QcAtom(bridge.Atom):
         return self._basisset_j
 
     def _set_basisset_j(self, name):
-        self._basisset_j = bridge.Utils.byte2str(name)
+        self._basisset_j = bridge.Utils.to_unicode(name)
 
     basisset_j = property(_get_basisset_j, _set_basisset_j)
 
@@ -102,7 +102,7 @@ class QcAtom(bridge.Atom):
         return self._basisset_xc
 
     def _set_basisset_xc(self, name):
-        self._basisset_xc = bridge.Utils.byte2str(name)
+        self._basisset_xc = bridge.Utils.to_unicode(name)
 
     basisset_xc = property(_get_basisset_xc, _set_basisset_xc)
 
@@ -111,7 +111,7 @@ class QcAtom(bridge.Atom):
         return self._basisset_gridfree
 
     def _set_basisset_gridfree(self, name):
-        self._basisset_gridfree = bridge.Utils.byte2str(name)
+        self._basisset_gridfree = bridge.Utils.to_unicode(name)
 
     basisset_gridfree = property(_get_basisset_gridfree, _set_basisset_gridfree)
 

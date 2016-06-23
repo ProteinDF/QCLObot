@@ -251,6 +251,10 @@ class Relax(object):
         self._neutralize()
         self._check_ionpairs()
 
+        self._save_pdb('md2_neutralize.pdb')
+        self._model = self._reorder_ions_for_amber(self._model)
+        self._logger.debug(str(self._model))
+        
         md2_input_pdb_filepath = 'md2_input.pdb'
         self._save_pdb(md2_input_pdb_filepath)
 
@@ -489,7 +493,8 @@ class Relax(object):
                         # N-term
                         ag = modeling.neutralize_Nterm(res)
                         self._logger.info("add ion for N-term: {}".format(ag))
-                        self._add_ions_to_new_chain(ag)
+                        # self._add_ions_to_new_chain(ag)
+                        self._add_ions(res, ag)
                     else:
                         self._logger.info('exempt adding ion: {}/{} Nterm'.format(chain_name, resname))
                 if res.has_atom('OXT'):
@@ -497,7 +502,8 @@ class Relax(object):
                         # C-term
                         ag = modeling.neutralize_Cterm(res)
                         self._logger.info("add ion for C-term: {}".format(ag))
-                        self._add_ions_to_new_chain(ag)
+                        # self._add_ions_to_new_chain(ag)
+                        self._add_ions(res, ag)
                     else:
                         self._logger.info('exempt adding ion: {}/{} Cterm'.format(chain_name, resname))
 
@@ -505,21 +511,24 @@ class Relax(object):
                     if (chain_name, resid, 'GLU') not in exempt_list:
                         ag = modeling.neutralize_GLU(res)
                         self._logger.info("add ion for GLU({}): {}".format(resid, ag))
-                        self._add_ions_to_new_chain(ag)
+                        # self._add_ions_to_new_chain(ag)
+                        self._add_ions(res, ag)                        
                     else:
                         self._logger.info('exempt adding ion: {}/{} GLU'.format(chain_name, resname))
                 elif resname == 'ASP':
                     if (chain_name, resid, 'ASP') not in exempt_list:
                         ag = modeling.neutralize_ASP(res)
                         self._logger.info("add ion for ASP({}): {}".format(resid, ag))
-                        self._add_ions_to_new_chain(ag)
+                        # self._add_ions_to_new_chain(ag)
+                        self._add_ions(res, ag)
                     else:
                         self._logger.info('exempt adding ion: {}/{} ASP'.format(chain_name, resname))
                 elif resname == 'LYS':
                     if (chain_name, resid, 'LYS') not in exempt_list:
                         ag = modeling.neutralize_LYS(res)
                         self._logger.info("add ion for LYS({}): {}".format(resid, ag))
-                        self._add_ions_to_new_chain(ag)
+                        # self._add_ions_to_new_chain(ag)
+                        self._add_ions(res, ag)
                     else:
                         self._logger.info('exempt adding ion: {}/{} LYS'.format(chain_name, resname))
                 elif resname == 'ARG':
@@ -528,29 +537,54 @@ class Relax(object):
                         ((chain_name, resid, 'ARG2') not in exempt_list)):
                         ag = modeling.neutralize_ARG(res)
                         self._logger.info("add ion for ARG({}): {}".format(resid, ag))
-                        self._add_ions_to_new_chain(ag)
+                        # self._add_ions_to_new_chain(ag)
+                        self._add_ions(res, ag)
                     else:
                         self._logger.info('exempt adding ion: {}/{} ARG'.format(chain_name, resname))
 
-    def _add_ions_to_new_chain(self, atomgroup):
-        # for Amber PDB format
-        chain = pdfbridge.AtomGroup()
+                elif resname == 'FAD':
+                    ag = modeling.neutralize_FAD(res)
+                    self._logger.info("add ion for FAD({}): {}".format(resid, ag))
+                    # self._add_ions_to_new_chain(ag)
+                    self._add_ions(res, ag)
+
+    #def _add_ions_to_new_chain(self, atomgroup):
+    #    # for Amber PDB format
+    #    chain = pdfbridge.AtomGroup()
+    #    
+    #    for atom_name, atom in atomgroup.atoms():
+    #        num_of_residues = self._get_num_of_residues()
+    #        if atom.symbol == 'Na':
+    #            res = pdfbridge.AtomGroup(name = 'Na+')
+    #            res.set_atom('Na+ ', atom)
+    #            chain.set_group(num_of_residues +1, res)
+    #        elif atom.symbol == 'Cl':
+    #            res = pdfbridge.AtomGroup(name = 'Cl-')
+    #            res.set_atom('Cl- ', atom)
+    #            chain.set_group(num_of_residues +1, res)
+    #        else:
+    #            raise
+    #    # num_of_chains = self._model.get_number_of_groups()
+    #    # self._model.set_group(chr(ord('A') +((num_of_chains +1) % 26)), chain)
+    #    self._model.set_group('Z', chain)
+
+    def _add_ions(self, atomgroup, ions):
+        assert isinstance(atomgroup, pdfbridge.AtomGroup)
+        assert isinstance(ions, pdfbridge.AtomGroup)
+
+        count = 0
+        for atom_name, atom in ions.atoms():
+            # check collision of the ion index
+            new_name = ''
+            while True:
+                new_name = '{atom_name}{count}'.format(atom_name=atom_name,
+                                                       count=count)
+                if not atomgroup.has_atomkey(new_name):
+                    break
+                count += 1
+            atomgroup.set_atom(new_name, atom)
+
         
-        for atom_name, atom in atomgroup.atoms():
-            num_of_residues = self._get_num_of_residues()
-            if atom.symbol == 'Na':
-                res = pdfbridge.AtomGroup(name = 'Na+')
-                res.set_atom('Na+ ', atom)
-                chain.set_group(num_of_residues +1, res)
-            elif atom.symbol == 'Cl':
-                res = pdfbridge.AtomGroup(name = 'Cl-')
-                res.set_atom('Cl- ', atom)
-                chain.set_group(num_of_residues +1, res)
-            else:
-                raise
-        num_of_chains = self._model.get_number_of_groups()
-        self._model.set_group(chr(ord('A') +num_of_chains +1), chain)
-                        
     def _get_num_of_residues(self):
         answer = 0
         for chain_name, chain in self._model.groups():
@@ -602,6 +636,45 @@ class Relax(object):
             self._logger.info('pair> {} <-> {}'.format(anion_path, cation_path))
         
 
+    def _reorder_ions_for_amber(self, atomgroup):
+        assert isinstance(atomgroup, pdfbridge.AtomGroup)
+        self._logger.debug(str(atomgroup))
+
+        def reorder_ions_core(atomgroup):
+            ions = []
+            for key, subgrp in atomgroup.groups():
+                new_ions = reorder_ions_core(subgrp)
+                ions.extend(new_ions)
+            for key, atom in atomgroup.atoms():
+                if atom.symbol not in ('Na', 'Cl'):
+                    self._logger.debug("pass>'{}':'{}'@{}".format(key, atom.symbol, atomgroup.name))
+                else:
+                    self._logger.debug("FOUND>'{}':'{}'@{}".format(key, atom.symbol, atomgroup.name))
+                    atomgroup.erase_atom(key)
+                    ions.append(atom)
+            return ions
+
+        new_atomgroup = pdfbridge.AtomGroup(atomgroup)
+        ions = reorder_ions_core(new_atomgroup)
+
+        # atomgroup for ions
+        chain = pdfbridge.AtomGroup()
+        resid = 1
+        for ion in ions:
+            res = pdfbridge.AtomGroup()
+            res.name = ion.name
+            res.set_atom(ion.symbol, ion)
+            chain.set_group(resid, res)
+            resid += 1
+
+        num_of_chains = atomgroup.get_number_of_groups()
+        new_chain_id = chr(ord('A') +(num_of_chains % 26))
+        chain.name = new_chain_id
+        new_atomgroup.set_group(new_chain_id, chain)
+
+        return new_atomgroup
+
+        
     def _prepare_mdin_step1(self):
         mdin_templ = """
         # 
@@ -744,6 +817,11 @@ class Relax(object):
         self._exec_cmd(cmdline)
         
     def _make_prep(self, ligand):
+        # setup ligand_charge_table
+        ligand_charge_table = {}
+        ligand_charge_table['FAD'] = -2
+        
+        
         self._logger.info('>>>> make prep: {}'.format(ligand))
 
         # select ligand
@@ -762,11 +840,17 @@ class Relax(object):
 
         # 
         self._logger.info('calc charges...')
-        antechamber_cmd = '{ANTECHAMBER} -fi pdb -i {LIG}.pdb -fo prepi -o {LIG}.prep -at gaff -c bcc -nc 0 -rn {LIG}'.format(
+        charge = 0
+        if ligand in ligand_charge_table:
+            charge = ligand_charge_table[ligand]
+        
+        # exec antechamber
+        antechamber_cmd = '{ANTECHAMBER} -fi pdb -i {LIG}.pdb -fo prepi -o {LIG}.prep -at gaff -c bcc -nc {CHARGE} -rn {LIG}'.format(
             ANTECHAMBER = self._antechamber_cmd,
-            LIG = ligand
+            LIG = ligand,
+            CHARGE = charge
         )
-        self._logger.debug('run: %s'.format(antechamber_cmd))
+        self._logger.debug('run: {cmd}'.format(cmd = antechamber_cmd))
         self._exec_cmd(antechamber_cmd)
 
         #
@@ -775,7 +859,7 @@ class Relax(object):
             PARMCHK = self._parmchk_cmd,
             LIG = ligand
         )
-        self._logger.debug('run: %s'.format(parmchk_cmd))
+        self._logger.debug('run: {cmd}'.format(cmd = parmchk_cmd))
         self._exec_cmd(parmchk_cmd)
 
         self._logger.info('<<<< make prep: {} done.'.format(ligand))

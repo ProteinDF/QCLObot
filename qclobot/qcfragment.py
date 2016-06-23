@@ -191,7 +191,9 @@ class QcFragment(object):
         '''
         return work_dir path
         '''
-        assert(len(self.name) > 0)
+        if len(self.name) == 0:
+            self._logger.critical('fragment.name is not define: {}'.format(repr(self.name)))
+            raise 
 
         parent_path = ''
         if self.qc_parent != None:
@@ -215,7 +217,7 @@ class QcFragment(object):
         return self._name
 
     def _set_name(self, name):
-        assert(isinstance(name, str))
+        name = bridge.Utils.to_unicode(name)
         self._name = name
 
     name = property(_get_name, _set_name)

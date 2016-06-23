@@ -140,7 +140,7 @@ class QcFrame(object):
             if os.path.exists(pdfparam_path):
                 mpac_file = open(pdfparam_path, 'rb')
                 mpac_data = msgpack.unpackb(mpac_file.read())
-                mpac_data = bridge.Utils.byte2str(mpac_data)
+                mpac_data = bridge.Utils.to_unicode_dict(mpac_data)
                 mpac_file.close()
                 self._logger.debug('pdfparam({}) is loaded.'.format(pdfparam_path))
                 self._cache['pdfparam'] = pdf.PdfParam(mpac_data)
@@ -649,7 +649,7 @@ class QcFrame(object):
             output += "\n"
         
         self._logger.info(output)
-        if isinstance(filepath, str):
+        if filepath != None:
             with open(filepath, 'a') as f:
                 f.write(output)
 
@@ -817,6 +817,7 @@ class QcFrame(object):
         assert(num_of_AOs == Clo.rows)
         for frg_name, frg in self.fragments():
             frg_cols = len(MO_fragment_assigned.get(frg_name, []))
+            self._logger.info('frg {}: col={}'.format(frg_name, frg_cols))
             if frg_cols == 0:
                 continue
 
@@ -888,6 +889,10 @@ class QcFrame(object):
         F_path = self.pdfparam.get_Fmat_path(run_type)
         self._logger.info('F matrix: {}'.format(F_path))
         for frg_name, frg in self.fragments():
+            self._logger.info('frg {}: AOs={}'.format(frg_name, frg.get_number_of_AOs()))
+            if frg.get_number_of_AOs() == 0:
+                continue
+            
             Clo_path = frg.get_LO_matrix_path(run_type)
             #if Clo_path is None:
             #    continue
@@ -948,7 +953,7 @@ class QcFrame(object):
         '''
         フラグメントを持っていればTrueを返す
         '''
-        fragment_name = str(fragment_name)
+        fragment_name = bridge.Utils.to_unicode(fragment_name)
 
         return fragment_name in self._fragments.keys()
             
@@ -957,7 +962,7 @@ class QcFrame(object):
         '''
         出力用[]演算子
         '''
-        fragment_name = str(fragment_name)
+        fragment_name = bridge.Utils.to_unicode(fragment_name)
         return self._fragments.get(fragment_name, None)
 
     def __setitem__(self, fragment_name, obj):
@@ -974,7 +979,7 @@ class QcFrame(object):
         if 'frame_molecule' in self._cache:
             self._cache.pop('frame_molecule')
 
-        fragment_name = str(fragment_name)
+        fragment_name = bridge.Utils.to_unicode(fragment_name)
 
         if isinstance(obj, qclo.QcFragment):
             fragment = qclo.QcFragment(obj)
