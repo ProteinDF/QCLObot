@@ -62,7 +62,7 @@ run_sander()
 
 make_pdb()
 {
-    ambpdb -p md${STEP}.prmtop < md${STEP}.restrt > md${STEP}_after.pdb
+    ambpdb -p md${STEP}.prmtop -aatm < md${STEP}.restrt > md${STEP}_after.pdb
 }
 
 step1()

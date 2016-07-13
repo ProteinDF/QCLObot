@@ -149,6 +149,8 @@ class Relax(object):
         self._leapin_ssbond_filepath = 'leap_ssbond.in'
         self._antechamber_cmd = 'antechamber'
         self._parmchk_cmd = 'parmchk'
+
+        self._leaprc = "leaprc.ff14SB"
         
         self._ligands = []
 
@@ -212,10 +214,9 @@ class Relax(object):
         
     def _prepare_leapin_step1(self):
         md1_input_pdb_filepath = 'md1_input.pdb'
-        self._save_pdb(md1_input_pdb_filepath)
 
         leapin_templ = """
-        source leaprc.ff03.r1
+        source ${leaprc}
         source leaprc.gaff
         ${load_ambparam_str}
         
@@ -233,14 +234,18 @@ class Relax(object):
         leapin_templ = pdfbridge.Utils.unindent_block(leapin_templ)
 
         load_ambparam_str = self._get_load_ambparam_str()
-        ssbond_str = self._get_SS_bond_cmd()
+        ssbond_str = self._get_SS_bond_cmd() # <- update self._model object
         leapin_contents = string.Template(leapin_templ).substitute({
+            'leaprc': self._leaprc,
             'load_ambparam_str': load_ambparam_str,
             'pdb_file': md1_input_pdb_filepath,
             'ssbond_str': ssbond_str
         })
 
         # output
+        self._logger.info('save pdb file for input : {}'.format(md1_input_pdb_filepath))
+        self._save_pdb(md1_input_pdb_filepath)
+
         self._logger.info('save leap.in file: {}'.format(self._leapin_md1_filepath))
         fout = open(self._leapin_md1_filepath, 'w')
         fout.write(leapin_contents)
@@ -276,8 +281,12 @@ class Relax(object):
         solcap_closeness = max(distance + 10.0, 30.0)
 
         leapin_templ = """
-        source leaprc.ff03.r1
+        source ${leaprc}
         source leaprc.gaff
+
+        # for Na+ and Cl-
+        loadamberparams frcmod.ionsjc_tip3p
+
         ${load_ambparam_str}
 
         protein = loadPdb ${pdb_file}
@@ -292,10 +301,13 @@ class Relax(object):
         
         quit
         """
+        leapin_templ = leapin_templ.lstrip('\n')
+        leapin_templ = pdfbridge.Utils.unindent_block(leapin_templ)
     
         load_ambparam_str = self._get_load_ambparam_str()
         ssbond_str = self._get_SS_bond_cmd()
         leapin_contents = string.Template(leapin_templ).substitute({
+            'leaprc': self._leaprc,
             'load_ambparam_str': load_ambparam_str,
             'pdb_file': md2_input_pdb_filepath,
             'solcap_center': solcap_center,
@@ -318,8 +330,12 @@ class Relax(object):
         self._save_pdb(md3_input_pdb_filepath)
 
         leapin_templ = """
-        source leaprc.ff03.r1
+        source ${leaprc}
         source leaprc.gaff
+
+        # for Na+ and Cl-
+        loadamberparams frcmod.ionsjc_tip3p
+
         ${load_ambparam_str}
 
         protein = loadPdb ${pdb_file}
@@ -338,6 +354,7 @@ class Relax(object):
         load_ambparam_str = self._get_load_ambparam_str()
         ssbond_str = self._get_SS_bond_cmd()
         leapin_contents = string.Template(leapin_templ).substitute({
+            'leaprc': self._leaprc,
             'load_ambparam_str': load_ambparam_str,
             'pdb_file': md3_input_pdb_filepath,
             'ssbond_str': ssbond_str
@@ -387,6 +404,7 @@ class Relax(object):
             leap_ssbond_cmd = ''
             chain_residues = self._get_chain_residues_array()
 
+            ss_bond_residues_pairset = set()
             bond_list = self._model.get_bond_list()
             for bond in bond_list:
                 (model_name1, chain_name1, resid1, atom_name1) = self._divide_path(bond[0])
@@ -396,6 +414,11 @@ class Relax(object):
         
                 resid1 = self._get_serial_resid(chain_residues, chain_name1, resid1)
                 resid2 = self._get_serial_resid(chain_residues, chain_name2, resid2)
+                if resid1 > resid2:
+                    resid1, resid2 = resid2, resid1 # swap
+                ss_bond_residues_pairset.add((resid1, resid2))
+
+            for (resid1, resid2) in ss_bond_residues_pairset:
                 leap_ssbond_cmd += 'bond protein.{resid1}.SG protein.{resid2}.SG\n'.format(resid1=resid1,
                                                                                            resid2=resid2)
             f = open(self._leapin_ssbond_filepath, 'w')
@@ -887,12 +910,16 @@ class Relax(object):
         leapで処理できる残基名(?)をregistered_groupに取得
         """
         leapin_templ = """
-        source leaprc.ff03.r1
+        source ${leaprc}
         source leaprc.gaff
         quit
         """
+        leapin_templ = leapin_templ.lstrip('\n')
+        leapin_templ = pdfbridge.Utils.unindent_block(leapin_templ)
 
-        leapin_contents = leapin_templ
+        leapin_contents = string.Template(leapin_templ).substitute({
+            'leaprc': self._leaprc
+        })
         fout = open(self._leapin_premd_filepath, 'w')
         fout.write(leapin_contents)
         fout.close()

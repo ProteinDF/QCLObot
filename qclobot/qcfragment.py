@@ -175,6 +175,8 @@ class QcFragment(object):
             answer = self.qc_parent
         elif isinstance(self.qc_parent, QcFragment):
             answer = self.qc_parent.get_parent_frame()
+        else:
+            self._logger.warn('parent frame is not defined: name={}'.format(self.name))
         return answer
     
     # margin ----------------------------------------------------------
