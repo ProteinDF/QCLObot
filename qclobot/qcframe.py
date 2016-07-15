@@ -819,13 +819,15 @@ class QcFrame(object):
             frg_cols = len(MO_fragment_assigned.get(frg_name, []))
             self._logger.info('frg {}: col={}'.format(frg_name, frg_cols))
             if frg_cols == 0:
-                continue
+                self._logger.warn('fragment "{}" has no colomns.'.format(frg_name))
+                # continue
 
             Clo_frg = pdf.Matrix(num_of_AOs, frg_cols)
-            for col, ref_col in enumerate(MO_fragment_assigned[frg_name]):
-                for row in range(num_of_AOs):
-                    v = Clo.get(row, ref_col)
-                    Clo_frg.set(row, col, v)
+            if frg_name in MO_fragment_assigned:
+                for col, ref_col in enumerate(MO_fragment_assigned[frg_name]):
+                    for row in range(num_of_AOs):
+                        v = Clo.get(row, ref_col)
+                        Clo_frg.set(row, col, v)
 
             Clo_path = 'Clo_{}.mat'.format(frg_name)
             self._logger.info('fragment C_LO save: {}'.format(Clo_path))

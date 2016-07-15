@@ -66,7 +66,7 @@ class QcControl(object):
         f = open(path)
         contents = f.read()
         f.close()
-        contents = contents.decode('utf8')
+        contents = bridge.Utils.to_unicode(contents)
 
         self._senarios = []
         for d in yaml.load_all(contents):
