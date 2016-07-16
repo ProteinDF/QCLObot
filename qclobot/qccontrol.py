@@ -31,6 +31,7 @@ import jinja2
 import pdfbridge as bridge
 import qclobot as qclo
 
+
 class QcControl(object):
     _modeling = bridge.Modeling()
     
@@ -321,7 +322,7 @@ class QcControl(object):
             filepath = summary_act.get('filepath', None)
             frame.summary(format_str=format_str,
                           filepath=filepath)
-        elif isinstance(summary_act, str):
+        elif isinstance(summary_act, bridge.basestring):
             frame.summary(format_str=summary_act)
         elif isinstance(summary_act, bool):
             if summary_act:
@@ -593,7 +594,7 @@ class QcControl(object):
         index = 1
         if isinstance(atomlist, list):
             for line in atomlist:
-                if isinstance(line, (str, unicode)):
+                if isinstance(line, bridge.basestring):
                     if line[0] == '/':
                         # case '/model/...'
                         brd_select = line
@@ -694,8 +695,8 @@ class QcControl(object):
         """
         assert(isinstance(atom, bridge.Atom))
         ans = ''
-        if isinstance(input_obj, (str, unicode)):
-            ans = input_obj
+        if isinstance(input_obj, bridge.basestring):
+            ans = bridge.Utils.to_unicode(input_obj)
         elif isinstance(input_obj, dict):
             if atom.name in input_obj:
                 ans = input_obj[atom.name]
