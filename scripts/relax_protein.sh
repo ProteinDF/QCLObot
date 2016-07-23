@@ -13,6 +13,10 @@ MODELID=1
 export AMBERHOME=${HOME}/local/amber14
 export PATH=${AMBERHOME}/bin:${PATH}
 
+# if you would like to use parallel sander,
+# please set DO_PARALLEL environment variable, such as
+# DO_PARALLEL="${HOME}/local/gnu/openmpi/bin/mpiexec -n 4 "
+
 RELAX_DEBUG="--debug"
 
 # model select --------------------------------------------------------
@@ -39,7 +43,7 @@ run_reduce()
 run_leap()
 {
     STEP=$1
-    tleap -s -f leap_md${STEP}.in
+    ${AMBERHOME}/bin/tleap -s -f leap_md${STEP}.in
 }
 
 
@@ -47,8 +51,11 @@ run_sander()
 {
     STEP=$1
 
-    DO_PARALLEL="${HOME}/local/gnu/openmpi/bin/mpiexec -n 4 "
-    SANDER="${HOME}/local/amber14/bin/sander.MPI"
+    SANDER="${AMBERHOME}/bin/sander"
+    if [ x${DO_PARALLEL} != x ]; then
+        SANDER="${AMBERHOME}/bin/sander.MPI"
+    fi
+
     ${DO_PARALLEL} ${SANDER} -O \
         -i md${STEP}.in \
         -o md${STEP}.out \
