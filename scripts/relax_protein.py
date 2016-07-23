@@ -150,7 +150,12 @@ class Relax(object):
         self._antechamber_cmd = 'antechamber'
         self._parmchk_cmd = 'parmchk'
 
-        self._leaprc = "leaprc.ff14SB"
+        self._leaprc = [
+            "leaprc.f14SB",
+            "leaprc.protein.ff14SB",
+            "leaprc.water.tip3p",
+            "leaprc.gaff"
+        ]
         
         self._ligands = []
 
@@ -216,17 +221,21 @@ class Relax(object):
         md1_input_pdb_filepath = 'md1_input.pdb'
 
         leapin_templ = """
-        source ${leaprc}
-        source leaprc.gaff
+        ${source_leaprc}
+
+        # for user-defined parameters
         ${load_ambparam_str}
         
         protein = loadPdb ${pdb_file}
-        proteinBox = copy protein
         
         ${ssbond_str}
-        
-        saveAmberParm proteinBox md1.prmtop md1.inpcrd
-        savepdb proteinBox md1_before.pdb
+
+        desc protein
+        charge protein
+        check protein
+
+        saveAmberParm protein md1.prmtop md1.inpcrd
+        savepdb protein md1_before.pdb
         
         quit
         """
@@ -236,7 +245,7 @@ class Relax(object):
         load_ambparam_str = self._get_load_ambparam_str()
         ssbond_str = self._get_SS_bond_cmd() # <- update self._model object
         leapin_contents = string.Template(leapin_templ).substitute({
-            'leaprc': self._leaprc,
+            'source_leaprc': self._get_leaprc_source_lines(),
             'load_ambparam_str': load_ambparam_str,
             'pdb_file': md1_input_pdb_filepath,
             'ssbond_str': ssbond_str
@@ -281,23 +290,26 @@ class Relax(object):
         solcap_closeness = max(distance + 10.0, 30.0)
 
         leapin_templ = """
-        source ${leaprc}
-        source leaprc.gaff
+        ${source_leaprc}
 
         # for Na+ and Cl-
         loadamberparams frcmod.ionsjc_tip3p
 
+        # for user-defined parameters
         ${load_ambparam_str}
 
         protein = loadPdb ${pdb_file}
-        proteinBox = copy protein
         
         ${ssbond_str}
         
-        solvateCap proteinBox TIP3PBOX ${solcap_center} ${solcap_closeness}
+        desc protein
+        charge protein
+        check protein
 
-        saveAmberParm proteinBox md2.prmtop md2.inpcrd
-        savepdb proteinBox md2_before.pdb
+        solvateCap protein TIP3PBOX ${solcap_center} ${solcap_closeness}
+
+        saveAmberParm protein md2.prmtop md2.inpcrd
+        savepdb protein md2_before.pdb
         
         quit
         """
@@ -307,7 +319,7 @@ class Relax(object):
         load_ambparam_str = self._get_load_ambparam_str()
         ssbond_str = self._get_SS_bond_cmd()
         leapin_contents = string.Template(leapin_templ).substitute({
-            'leaprc': self._leaprc,
+            'source_leaprc': self._get_leaprc_source_lines(),
             'load_ambparam_str': load_ambparam_str,
             'pdb_file': md2_input_pdb_filepath,
             'solcap_center': solcap_center,
@@ -315,8 +327,8 @@ class Relax(object):
             'ssbond_str': ssbond_str
         })
 
-        leapin_templ = leapin_templ.lstrip('\n')
-        leapin_templ = pdfbridge.Utils.unindent_block(leapin_templ)
+        #leapin_templ = leapin_templ.lstrip('\n')
+        #leapin_templ = pdfbridge.Utils.unindent_block(leapin_templ)
 
         # output
         self._logger.info('save leap.in file: {}'.format(self._leapin_md2_filepath))
@@ -330,21 +342,24 @@ class Relax(object):
         self._save_pdb(md3_input_pdb_filepath)
 
         leapin_templ = """
-        source ${leaprc}
-        source leaprc.gaff
+        ${source_leaprc}
 
         # for Na+ and Cl-
         loadamberparams frcmod.ionsjc_tip3p
 
+        # for user-defined parameters
         ${load_ambparam_str}
 
         protein = loadPdb ${pdb_file}
-        proteinBox = copy protein
         
         ${ssbond_str}
         
-        saveAmberParm proteinBox md3.prmtop md3.inpcrd
-        savepdb proteinBox md3_before.pdb
+        desc protein
+        charge protein
+        check protein
+
+        saveAmberParm protein md3.prmtop md3.inpcrd
+        savepdb protein md3_before.pdb
         
         quit
         """
@@ -354,7 +369,7 @@ class Relax(object):
         load_ambparam_str = self._get_load_ambparam_str()
         ssbond_str = self._get_SS_bond_cmd()
         leapin_contents = string.Template(leapin_templ).substitute({
-            'leaprc': self._leaprc,
+            'source_leaprc': self._get_leaprc_source_lines(),
             'load_ambparam_str': load_ambparam_str,
             'pdb_file': md3_input_pdb_filepath,
             'ssbond_str': ssbond_str
@@ -381,6 +396,18 @@ class Relax(object):
         contents = str(pdb_obj)
         fout.write(contents)
         fout.close()
+
+    def _get_leaprc_source_lines(self):
+        """
+        """
+        answer = ""
+        if isinstance(self._leaprc, list):
+            for obj in self._leaprc:
+                answer += "source {}\n".format(obj)
+        else:
+            answer = "source {}\n".format(self._leaprc)
+        
+        return answer
         
     def _get_load_ambparam_str(self):
         """
@@ -897,7 +924,7 @@ class Relax(object):
         stdout, stderr = proc.communicate()
         retcode = proc.returncode
         
-        if retcode == 1:
+        if retcode != 0:
             output = stdout
             output += '\n'
             output += stderr
@@ -910,15 +937,14 @@ class Relax(object):
         leapで処理できる残基名(?)をregistered_groupに取得
         """
         leapin_templ = """
-        source ${leaprc}
-        source leaprc.gaff
+        ${source_leaprc}
         quit
         """
         leapin_templ = leapin_templ.lstrip('\n')
         leapin_templ = pdfbridge.Utils.unindent_block(leapin_templ)
 
         leapin_contents = string.Template(leapin_templ).substitute({
-            'leaprc': self._leaprc
+            'source_leaprc': self._get_leaprc_source_lines()
         })
         fout = open(self._leapin_premd_filepath, 'w')
         fout.write(leapin_contents)

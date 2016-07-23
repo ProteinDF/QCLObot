@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-set -eu
+# set -eu
 
 if [ x${1} = x ]; then
     echo "please input PDB ID. stop."
@@ -10,7 +10,10 @@ fi
 PDBID=${1}
 MODELID=1
 
-export AMBERHOME=${HOME}/local/amber14
+if [ ${AMBERHOME} = x ]; then
+    echo "please set AMBERHOME variable. stop."
+    exit 1
+fi
 export PATH=${AMBERHOME}/bin:${PATH}
 
 # if you would like to use parallel sander,
@@ -51,9 +54,9 @@ run_sander()
 {
     STEP=$1
 
-    SANDER="${AMBERHOME}/bin/sander"
-    if [ x${DO_PARALLEL} != x ]; then
-        SANDER="${AMBERHOME}/bin/sander.MPI"
+    SANDER="${AMBERHOME}/bin/sander.MPI"
+    if [ -z "${DO_PARALLEL}" ]; then
+        SANDER="${AMBERHOME}/bin/sander"
     fi
 
     ${DO_PARALLEL} ${SANDER} -O \
@@ -69,7 +72,7 @@ run_sander()
 
 make_pdb()
 {
-    ambpdb -p md${STEP}.prmtop -aatm < md${STEP}.restrt > md${STEP}_after.pdb
+    ambpdb -p md${STEP}.prmtop -c md${STEP}.restrt -aatm  > md${STEP}_after.pdb
 }
 
 step1()
