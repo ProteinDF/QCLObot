@@ -87,6 +87,7 @@ class QcFrame(object):
             packed = f.read()
             state_dat = msgpack.unpackb(packed)
             f.close()
+            state_dat = bridge.Utils.to_unicode_dict(state_dat)
             self.set_by_raw_data(state_dat)
         else:
             self._logger.debug('not found the state file')
@@ -731,11 +732,14 @@ class QcFrame(object):
         self.restore_cwd()
             
     # ------------------------------------------------------------------
-    def calc_lo(self, run_type):
+    def calc_lo(self, run_type, dry_run=False):
         if self.is_finished_LO:
             self._logger.info('LO has done.')
             return
 
+        if self.is_finished_scf != True:
+            self.calc_sp(dry_run=dry_run)
+        
         self.cd_work_dir('calc lo')
 
         self._logger.info('start lo calculation.')
