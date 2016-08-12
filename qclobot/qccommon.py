@@ -26,6 +26,14 @@ def get_tmpfile_path(suffix='', prefix='tmp', tmp_dir=''):
     '''
     return tmpfile path
     '''
+    if tmp_dir == '':
+        if 'TEMP' in os.environ:
+            tmp_dir = os.environ['TEMP']
+        elif 'TMP' in os.environ:
+            tmp_dir = os.environ['TMP']
+        else:
+            tmp_dir = '/tmp'
+
     try:
         (tmpfile_h, tmpfile_path) = tempfile.mkstemp(suffix=suffix, prefix=prefix, dir=tmp_dir)
     except:
