@@ -24,17 +24,19 @@ import logging
 import pdfbridge as bridge
 import pdfpytools as pdf
 
+logger = logging.getLogger(__name__)
+
+
 class QcAtom(bridge.Atom):
     def __init__(self, *args, **kwargs):
         super(QcAtom, self).__init__(*args, **kwargs)
 
-        self._logger = logging.getLogger(__name__)
         if kwargs.get('debug'):
-            self._logger.addHandler(logging.StreamHandler())
-            self._logger.setLevel(logging.DEBUG)
+            logger.addHandler(logging.StreamHandler())
+            logger.setLevel(logging.DEBUG)
         else:
-            self._logger.addHandler(logging.NullHandler())
-            self._logger.setLevel(logging.INFO)
+            logger.addHandler(logging.NullHandler())
+            logger.setLevel(logging.INFO)
 
         suffix = "." + self.symbol
         self.basisset = kwargs.get('basisset', 'O-DZVP2' + suffix)

@@ -13,11 +13,11 @@ import msgpack
 import pdfbridge 
 import qclobot as qclo
 
+logger = logging.getLogger(__name__)
 ANG_PER_AU = 0.5291772
 
 class QcOptRecord(object):
     def __init__(self):
-        self._logger = logging.getLogger(__name__)
 
         self.threshold_max_force = 0.00045
         self.threshold_rms_force = 0.00030
@@ -89,18 +89,18 @@ class QcOptRecord(object):
         judge_max_disp = max_disp < self.threshold_max_displacement
         judge_rms_disp = rms_disp < self.threshold_rms_displacement
 
-        self._logger.info('MAX FORCE: {} [{}]=> {}'.format(max_force,
-                                                           self.threshold_max_force,
-                                                           judge_max_force))
-        self._logger.info('RMS FORCE: {} [{}]=> {}'.format(rms_force,
-                                                           self.threshold_rms_force,
-                                                           judge_rms_force))
-        self._logger.info('MAX DISP.: {} [{}]=> {}'.format(max_disp,
-                                                           self.threshold_max_displacement,
-                                                           judge_max_disp))
-        self._logger.info('RMS DISP.: {} [{}]=> {}'.format(rms_disp,
-                                                           self.threshold_rms_displacement,
-                                                           judge_rms_disp))
+        logger.info('MAX FORCE: {} [{}]=> {}'.format(max_force,
+                                                     self.threshold_max_force,
+                                                     judge_max_force))
+        logger.info('RMS FORCE: {} [{}]=> {}'.format(rms_force,
+                                                     self.threshold_rms_force,
+                                                     judge_rms_force))
+        logger.info('MAX DISP.: {} [{}]=> {}'.format(max_disp,
+                                                     self.threshold_max_displacement,
+                                                     judge_max_disp))
+        logger.info('RMS DISP.: {} [{}]=> {}'.format(rms_disp,
+                                                     self.threshold_rms_displacement,
+                                                     judge_rms_disp))
         judge = judge_max_force and judge_rms_force and judge_max_disp and judge_rms_disp
         return judge
     
@@ -126,7 +126,6 @@ class QcOpt(object):
     def __init__(self,
                  brd_path,
                  template_path =None):
-        self._logger = logging.getLogger(__name__)
 
         self._initialize(brd_path, template_path)
         self._opt_record = QcOptRecord()
@@ -197,7 +196,7 @@ class QcOpt(object):
             self.calc_single_point()
 
             if self.is_converged() and self._step > 1:
-                self._logger.info('opt condition is satisfied.')
+                logger.info('opt condition is satisfied.')
                 break
             else:
                 self.update_coord()
@@ -208,19 +207,19 @@ class QcOpt(object):
         workdir = self._get_workdir()
         if not os.path.exists(workdir):
             os.mkdir(workdir)
-        self._logger.info('change dir: {}'.format(workdir))
+        logger.info('change dir: {}'.format(workdir))
         os.chdir(workdir)
 
     def restore_workdir(self):
-        self._logger.info('restore dir: {}'.format(self.top_dir))
+        logger.info('restore dir: {}'.format(self.top_dir))
         os.chdir(self.top_dir)
 
         
     def calc_single_point(self):
-        self._logger.info('create QCLO senario')
+        logger.info('create QCLO senario')
         yaml_path = self._make_input()
         
-        self._logger.info('execute QCLO sernario')
+        logger.info('execute QCLO sernario')
         control = qclo.QcControl()
         control.run(yaml_path)
 
@@ -264,7 +263,7 @@ class QcOpt(object):
     
     def _record_step(self, pdfparam):
         num_of_atoms = pdfparam.num_of_atoms
-        self._logger.info('# of atoms: {}'.format(num_of_atoms))
+        logger.info('# of atoms: {}'.format(num_of_atoms))
 
         forces = []
         for atom_id in range(num_of_atoms):

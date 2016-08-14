@@ -29,6 +29,8 @@ import pdfbridge as bridge
 import pdfpytools as pdf
 import qclobot as qclo
 
+logger = logging.getLogger(__name__)
+
 class QcFragment(object):
     # fragmentの密度行列
     _density_matrix_path = 'density.{run_type}.mat' 
@@ -42,13 +44,12 @@ class QcFragment(object):
         '''
         constructer
         '''
-        self._logger = logging.getLogger(__name__)
         if kwargs.get('debug'):
-            self._logger.addHandler(logging.StreamHandler())
-            self._logger.setLevel(logging.DEBUG)
+            logger.addHandler(logging.StreamHandler())
+            logger.setLevel(logging.DEBUG)
         else:
-            self._logger.addHandler(logging.NullHandler())
-            self._logger.setLevel(logging.INFO)
+            logger.addHandler(logging.NullHandler())
+            logger.setLevel(logging.INFO)
 
         # mandatory variables
         self._atoms = OrderedDict()
@@ -144,10 +145,10 @@ class QcFragment(object):
         
     def _prepare_work_dir(self):
         if not os.path.exists(self.work_dir):
-            self._logger.info('make workdir: {}'.format(self.work_dir))
+            logger.info('make workdir: {}'.format(self.work_dir))
             os.mkdir(self.work_dir)
         else:
-            self._logger.debug('already exist: {}'.format(self.work_dir))
+            logger.debug('already exist: {}'.format(self.work_dir))
         
     # ==================================================================
     # PROPERTIES
@@ -161,7 +162,7 @@ class QcFragment(object):
         '''
         assert(isinstance(qc_parent, (qclo.QcFrame, QcFragment)))
         if (self.qc_parent != None) and (self.qc_parent != qc_parent):
-            self._logger.warn('[{}] qc_parent is overwrite: {} -> {}'.format(
+            logger.warn('[{}] qc_parent is overwrite: {} -> {}'.format(
                 self.name,
                 self._qc_parent.name,
                 qc_parent.name))
@@ -176,7 +177,7 @@ class QcFragment(object):
         elif isinstance(self.qc_parent, QcFragment):
             answer = self.qc_parent.get_parent_frame()
         else:
-            self._logger.warn('parent frame is not defined: name={}'.format(self.name))
+            logger.warn('parent frame is not defined: name={}'.format(self.name))
         return answer
     
     # margin ----------------------------------------------------------
@@ -194,14 +195,14 @@ class QcFragment(object):
         return work_dir path
         '''
         if len(self.name) == 0:
-            self._logger.critical('fragment.name is not define: {}'.format(repr(self.name)))
+            logger.critical('fragment.name is not define: {}'.format(repr(self.name)))
             raise 
 
         parent_path = ''
         if self.qc_parent != None:
             parent_path = self.qc_parent.work_dir
         else:
-            self._logger.debug('not set parent.')
+            logger.debug('not set parent.')
 
         return os.path.join(parent_path, self.name)
 
@@ -209,7 +210,7 @@ class QcFragment(object):
 
     def _check_path(self, path):
         if not os.path.exists(path):
-            self._logger.warn('NOT FOUND: {}'.format(path))
+            logger.warn('NOT FOUND: {}'.format(path))
         
     # ==================================================================
     # molecular properties
@@ -405,7 +406,7 @@ class QcFragment(object):
             shutil.copy(abs_in_path,
                         density_matrix_path)
         else:
-            self._logger.warning('not set the same density matrix')
+            logger.warning('not set the same density matrix')
 
     def _get_density_matrix_path(self, run_type):
         return os.path.join(self.work_dir, self._density_matrix_path.format(run_type=run_type))
@@ -418,7 +419,7 @@ class QcFragment(object):
         '''
         self._prepare_work_dir()
 
-        self._logger.info('>>>> get_guess_density_matrix: {}/{}'.format(self.qc_parent.name, self.name))
+        logger.info('>>>> get_guess_density_matrix: {}/{}'.format(self.qc_parent.name, self.name))
         guess_density_matrix_path = os.path.join(self.work_dir,
                                                  'guess.density.{}.{}.mat'.format(run_type, self.name))
         
@@ -431,10 +432,10 @@ class QcFragment(object):
             
         # subgroup
         for subgrp_name, subgrp in self.groups():
-            self._logger.info('>>>> subgroup name={}'.format(subgrp_name))
+            logger.info('>>>> subgroup name={}'.format(subgrp_name))
             subgrp_guess_density_matrix_path = subgrp.prepare_guess_density_matrix(run_type)
             if not os.path.exists(subgrp_guess_density_matrix_path):
-                self._logger.warn('NOT found: subgrp.guess.dens.mat={}'.format(subgrp_guess_density_matrix_path))
+                logger.warn('NOT found: subgrp.guess.dens.mat={}'.format(subgrp_guess_density_matrix_path))
                 continue
             self._check_path(subgrp_guess_density_matrix_path)
             
@@ -444,10 +445,10 @@ class QcFragment(object):
             (is_loadable, row2, col2) = pdf.SymmetricMatrix.is_loadable(subgrp_guess_density_matrix_path)
             assert(is_loadable == True)
 
-            self._logger.debug('(sub) mat-ext -d ')
-            self._logger.debug('    {}'.format(guess_density_matrix_path))
-            self._logger.debug('    {}'.format(subgrp_guess_density_matrix_path))
-            self._logger.debug('    {}'.format(guess_density_matrix_path))
+            logger.debug('(sub) mat-ext -d ')
+            logger.debug('    {}'.format(guess_density_matrix_path))
+            logger.debug('    {}'.format(subgrp_guess_density_matrix_path))
+            logger.debug('    {}'.format(guess_density_matrix_path))
             pdf.run_pdf(['mat-ext', '-d',
                          guess_density_matrix_path,
                          subgrp_guess_density_matrix_path,
@@ -464,21 +465,21 @@ class QcFragment(object):
             if os.path.isfile(my_density_matrix_path) != True:
                 self.get_parent_frame().pickup_density_matrix(run_type)
             
-            self._logger.info('density_matrix_path: {}, parent={}'.format(my_density_matrix_path,
+            logger.info('density_matrix_path: {}, parent={}'.format(my_density_matrix_path,
                                                                           self.qc_parent.name))
             self._check_path(my_density_matrix_path)
 
-            self._logger.debug('mat-ext -d ')
-            self._logger.debug('    {}'.format(guess_density_matrix_path))
-            self._logger.debug('    {}'.format(my_density_matrix_path))
-            self._logger.debug('    {}'.format(guess_density_matrix_path))
+            logger.debug('mat-ext -d ')
+            logger.debug('    {}'.format(guess_density_matrix_path))
+            logger.debug('    {}'.format(my_density_matrix_path))
+            logger.debug('    {}'.format(guess_density_matrix_path))
             pdf.run_pdf(['mat-ext', '-d',
                          guess_density_matrix_path,
                          my_density_matrix_path,
                          guess_density_matrix_path])
 
         self._check_path(guess_density_matrix_path)
-        self._logger.info('<<<< get_guess_density_matrix: {}/{}'.format(self.qc_parent.name, self.name))
+        logger.info('<<<< get_guess_density_matrix: {}/{}'.format(self.qc_parent.name, self.name))
         return guess_density_matrix_path
 
     # LO --------------------------------------------------------------
@@ -490,7 +491,7 @@ class QcFragment(object):
             shutil.copy(abs_in_path,
                         LO_matrix_path)
         else:
-            self._logger.warning('not set the same LO matrix')
+            logger.warning('not set the same LO matrix')
 
     def get_LO_matrix_path(self, run_type):
         return os.path.join(self.work_dir, self._LO_matrix_path.format(run_type=run_type))
@@ -504,7 +505,7 @@ class QcFragment(object):
             shutil.copy(abs_in_path,
                         QCLO_matrix_path)
         else:
-            self._logger.warning('not set the same QCLO matrix')
+            logger.warning('not set the same QCLO matrix')
         
     def _get_QCLO_matrix_path(self, run_type):
         return os.path.join(self.work_dir, self._QCLO_matrix_path.format(run_type=run_type))
@@ -516,7 +517,7 @@ class QcFragment(object):
         self._prepare_work_dir()
         guess_QCLO_matrix_path = qclo.get_tmpfile_path()
 
-        self._logger.info('>>>> prepare QCLO: {}/{} for {}'.format(
+        logger.info('>>>> prepare QCLO: {}/{} for {}'.format(
             self.qc_parent.name, self.name, guess_QCLO_matrix_path))
 
         request_orbinfo = request_frame.get_orbital_info()
@@ -526,16 +527,16 @@ class QcFragment(object):
             subgrp_guess_QCLO_matrix_path = subgrp.prepare_guess_QCLO_matrix(run_type, request_frame)
             
             self._check_path(subgrp_guess_QCLO_matrix_path)
-            self._logger.debug('mat-ext -c ')
-            self._logger.debug('    {}'.format(guess_QCLO_matrix_path))
-            self._logger.debug('    {}'.format(subgrp_guess_QCLO_matrix_path))
-            self._logger.debug('    {}'.format(guess_QCLO_matrix_path))
+            logger.debug('mat-ext -c ')
+            logger.debug('    {}'.format(guess_QCLO_matrix_path))
+            logger.debug('    {}'.format(subgrp_guess_QCLO_matrix_path))
+            logger.debug('    {}'.format(guess_QCLO_matrix_path))
             pdf.run_pdf(['mat-ext', '-c',
                          guess_QCLO_matrix_path,
                          subgrp_guess_QCLO_matrix_path,
                          guess_QCLO_matrix_path])
             self._check_path(guess_QCLO_matrix_path)
-            self._logger.info('')
+            logger.info('')
             
             
         # 自分のQCLO情報
@@ -549,7 +550,7 @@ class QcFragment(object):
             if os.path.isfile(my_qclo_matrix_path) != True:
                 self.get_parent_frame().pickup_QCLO(run_type)
             
-            self._logger.info('QCLO_matrix_path: {}, parent={}'.format(my_qclo_matrix_path,
+            logger.info('QCLO_matrix_path: {}, parent={}'.format(my_qclo_matrix_path,
                                                                        self.qc_parent.name))
             self._check_path(my_qclo_matrix_path)
 
@@ -570,22 +571,22 @@ class QcFragment(object):
                                                      'guess_QCLO.part.mat')
             guess_QCLO_mat.save(my_guess_QCLO_matrix_path)
 
-            self._logger.debug('mat-ext -c ')
-            self._logger.debug('    {}'.format(guess_QCLO_matrix_path))
-            self._logger.debug('    {}'.format(my_guess_QCLO_matrix_path))
-            self._logger.debug('    {}'.format(guess_QCLO_matrix_path))
+            logger.debug('mat-ext -c ')
+            logger.debug('    {}'.format(guess_QCLO_matrix_path))
+            logger.debug('    {}'.format(my_guess_QCLO_matrix_path))
+            logger.debug('    {}'.format(guess_QCLO_matrix_path))
             pdf.run_pdf(['mat-ext', '-c',
                          guess_QCLO_matrix_path,
                          my_guess_QCLO_matrix_path,
                          guess_QCLO_matrix_path])
             self._check_path(guess_QCLO_matrix_path)
-            self._logger.info('')
+            logger.info('')
 
-        self._logger.info('prepare QCLO: name={}: {}'.format(self.name,
+        logger.info('prepare QCLO: name={}: {}'.format(self.name,
                                                              guess_QCLO_matrix_path))
 
         self._check_path(guess_QCLO_matrix_path)
-        self._logger.info('<<<< prepare QCLO: {}/{}\n'.format(self.qc_parent.name, self.name))
+        logger.info('<<<< prepare QCLO: {}/{}\n'.format(self.qc_parent.name, self.name))
         return guess_QCLO_matrix_path
         
         
