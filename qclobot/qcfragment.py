@@ -377,20 +377,21 @@ class QcFragment(object):
         for k, v in self._groups.items(): # based on collections.OrderedDict
             yield(k, v)
 
-    def _delete_group(self, key):
-        self._groups.pop(key)
+    # def _delete_group(self, key):
+    #    self._groups.pop(key)
             
     def grouping_subfragments(self):
         '''
         子グループを自分の原子リストに組入れ、その子グループを削除する
         '''
+        # set atoms in subgroup to my atom list
         for key_subgrp, subgrp in self.groups():
             subgrp.grouping_subfragments()
             for key_atom, atom in subgrp.atoms():
                 new_key_atom = '{}/{}'.format(key_subgrp, key_atom)
                 self.set_atom(new_key_atom, atom)
-            self._delete_group(key_subgrp)
-                
+        # delete subgroup
+        self._groups = OrderedDict()
         
     # ==================================================================
     # guess density
