@@ -76,8 +76,8 @@ class QcFrame(object):
         self._charge = rhs._charge
         self._state = copy.deepcopy(rhs._state)
 
-    def __del__(self):
-        self._save()
+    # def __del__(self):
+    #    self._save()
 
     # save & load ------------------------------------------------------
     def _load(self):
@@ -565,6 +565,7 @@ class QcFrame(object):
 
         self._cache.pop('pdfparam')
         self.is_finished_scf = True
+
         self._grouping_fragments()
         self._switch_fragments()
         self._save()
@@ -688,7 +689,11 @@ class QcFrame(object):
             return
         
         self.cd_work_dir('pickup density matrix')
-        
+
+        # post-SCF
+        self._grouping_fragments()
+        self._switch_fragments()
+                
         dens_mat_path = self.pdfparam.get_density_matrix_path(runtype=runtype)
         logger.info('ref. density matrix: {}'.format(dens_mat_path))
         
@@ -760,6 +765,10 @@ class QcFrame(object):
             
         self.cd_work_dir('pickup lo')
         
+        # post-SCF
+        self._grouping_fragments()
+        self._switch_fragments()
+                
         # debug
         pdfarc = self.get_pdfarchive()
         num_of_AOs = pdfarc.num_of_AOs
@@ -1035,7 +1044,7 @@ class QcFrame(object):
         logger.info('---> switch ')
         for frg_name, frg in self.fragments():
             logger.info('{}: parent={}'.format(frg_name,
-                                                     frg.qc_parent.name))
+                                               frg.qc_parent.name))
         logger.info('<---')
 
     def _grouping_fragments(self):
