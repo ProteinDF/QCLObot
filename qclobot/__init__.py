@@ -19,9 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-
-# from .types_str import str, bytes, basestring, unicode
+from __future__ import division, print_function, absolute_import
 
 #from .qccommon import get_tmpfile_path
 #from .qcerror import QcError, QcControlError, QcScriptRunningError
