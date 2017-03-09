@@ -139,12 +139,14 @@ class Process(object):
 
         for p in self._procs:
             p.stdout.close()
+            p.stderr.close()
         self._procs = []
 
         if stdout_file != None:
             stdout_file.close()
         if stderr_file != None:
             stderr_file.close()
+            
         
         return status
 

@@ -41,6 +41,13 @@ class QcProtonate(TaskObject):
         # backend
         self._data['backend'] = str(backend)
         self._AMBERHOME = os.environ.get('AMBERHOME', '')
+        self._check_AMBERHOME()
+
+        
+    def _check_AMBERHOME(self):
+        if len(self._AMBERHOME) == 0:
+            logger.warning("environ parameter, AMBERHOME, looks like empty.")
+        
 
     ####################################################################
     # property
@@ -110,7 +117,9 @@ class QcProtonate(TaskObject):
         cmd = "{} {}".format(reduce_cmd,
                                 in_pdbfile)
         p.cmd(cmd)
-        return_code = p.commit(out_pdbfile)
+        return_code = p.commit(out_pdbfile,
+                               stdout_through=False,
+                               stderr_through=False)
 
         return return_code
 
