@@ -5,6 +5,7 @@
 .python-version
 *~
 */__pycache__
+build/
 
 # Compiled Object files
 *.slo
@@ -36,4 +37,6 @@ build/*
 # for Sphinx
 _build/doctrees
 
+# working directory for unit test 
+test_*/
 

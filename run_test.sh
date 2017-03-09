@@ -2,6 +2,9 @@
 
 TESTS="\
   qcatom \
+  process \
+  protonate \
+  amberobject \
   "
 
 rm -rf test_*
