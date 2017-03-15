@@ -5,18 +5,13 @@ import unittest
 import cProfile
 from pstats import Stats
 
-from qclobot.amberobject import AmberObject
-from qclobot.utils import get_model
+from qclobot.qcmodeler import QcModeler
 import pdfbridge
 
-class TestAmberObject(unittest.TestCase):
+class TestQcModeler(unittest.TestCase):
     def setUp(self):
         self.pr = cProfile.Profile()
         self.pr.enable()
-
-        pdb = pdfbridge.Pdb("./data/sample/4tut.addH.pdb")
-        models = pdb.get_atomgroup()
-        self.model = get_model(models)
 
     def tearDown(self):
         p = Stats (self.pr)
@@ -24,16 +19,9 @@ class TestAmberObject(unittest.TestCase):
         p.sort_stats ('cumtime')
         p.print_stats()
         
-    def test_opt(self):
-        self.amber_obj = AmberObject("test_amber_opt")
-        self.amber_obj.model = self.model
-        self.amber_obj.opt()
-        
-    def test_md(self):
-        self.amber_obj = AmberObject("test_amber_md")
-        self.amber_obj.model = self.model
-        self.amber_obj.md(steps=100, dt=0.002)
-        
+    def test_run(self):
+        modeler = QcModeler()
+        modeler.run("./data/sample/modeler.yml")
 
 def test_suite():
     """
@@ -47,6 +35,7 @@ def test_suite():
     return suite
 
 if __name__ == '__main__':
+    print("check: RUN")
     unittest.main(defaultTest = 'test_suite')
         
     

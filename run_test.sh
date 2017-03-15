@@ -5,6 +5,7 @@ TESTS="\
   process \
   protonate \
   amberobject \
+  qcmodeler \
   "
 
 rm -rf test_*

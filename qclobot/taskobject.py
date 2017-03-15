@@ -3,6 +3,7 @@
 
 import os
 import copy
+import pprint
 
 try:
     import msgpack
@@ -13,7 +14,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import pdfbridge
-
+from .utils import check_format_model
 
 class TaskObject(object):
     """Task management base class
@@ -67,13 +68,18 @@ class TaskObject(object):
         # directory
         self._prepare_work_dir()
 
+
+    def __del__(self):
+        # pprint.pprint(self._data)
+        self.save()
+
+        
     def _initialize(self):
         self._data = {}
         self._data['state_filename'] = 'qclobot_state.mpac'
 
         # not stored data
         self._basedir = os.path.abspath(os.curdir)
-        # self._prev_dir = ''
         
     def _copy_constructor(self, rhs):
         assert(isinstance(rhs, TaskObject))
@@ -98,11 +104,44 @@ class TaskObject(object):
         return work_dir
     work_dir = property(_get_work_dir)
 
+    
     # state_filename ---------------------------------------------------
     def _get_state_filename(self):
         return self._data.get('state_filename')
     state_filename = property(_get_state_filename)
 
+    
+    # model (input atomgroup) -----------------------------------------
+    #   "model" data is an AtomGroup object formatted by 'MODEL', not 'protein'.
+    def _get_model(self):
+        answer = None
+        model_raw_data = self._data.get("model", None)
+        if model_raw_data != None:
+            answer = pdfbridge.AtomGroup(model_raw_data)
+        return answer
+    def _set_model(self, model):
+        if check_format_model(model):
+            self._data['model'] = model.get_raw_data()
+        else:
+            logger.critical("not support the format; use model format")
+            raise
+    model = property(_get_model, _set_model)
+
+
+    # output_model -----------------------------------------------------
+    def _get_output_model(self):
+        answer = None
+        model_raw_data = self._data.get("output_model", None)
+        if model_raw_data != None:
+            answer = pdfbridge.AtomGroup(model_raw_data)
+        return answer
+    def _set_output_model(self, model):
+        assert(check_format_model(model))
+        self._data['output_model'] = model.get_raw_data()
+    output_model = property(_get_output_model, _set_output_model)
+    
+
+    
     # ------------------------------------------------------------------
     # Archive
     # ------------------------------------------------------------------
@@ -161,6 +200,7 @@ class TaskObject(object):
             logger.debug('make work dir, but it already exists: {}'.format(self.work_dir))
             self.load()
 
+            
     def cd_workdir(self, job_name=''):
         '''
         作業ディレクトリをオブジェクトのwork_dirに移動する
@@ -171,16 +211,54 @@ class TaskObject(object):
         logger.info('work dir: {work_dir}'.format(work_dir=self.work_dir))
         
         logger.info('=' * 20)
-        # self._prev_dir = os.path.abspath(os.curdir)
         os.chdir(self.work_dir)
 
+        
     def restore_cwd(self):
         '''
         base ディレクトリに戻す
         '''
         os.chdir(self._basedir)
         logger.info('<<<< (basedir: {})\n'.format(self._basedir))
+
+
+    def write_output_model(self, output_path):
+        self._atomgroup2file(self.output_model, output_path)
+
         
+    def _atomgroup2file(self, atomgroup, output_path):
+        assert(isinstance(atomgroup, pdfbridge.AtomGroup))
+
+        abspath = os.path.abspath(output_path)
+        (basename, ext) = os.path.splitext(abspath)
+        ext = ext.lower()
+        if ext in (".pdb", ".ent"):
+            self.atomgroup2pdb(atomgroup, abspath)
+        else:
+            logger.info("save {path} as bridge file.".format(path=abspath))
+            with open(abspath, "wb") as f:
+                mpac_data = msgpack.packb(atomgroup.get_raw_data())
+                f.write(mpac_data)
+
+
+    def atomgroup2pdb(self, atomgroup, pdbfile,
+                      model_name="model_1"):
+        assert(isinstance(pdbfile, str))
+
+        pdb = pdfbridge.Pdb(mode = 'amber')
+
+        protein = atomgroup
+        if check_format_model(atomgroup):
+            # transform MODEL object to the protein(models)
+            # which has only one model.
+            protein = pdfbridge.AtomGroup()
+            protein.set_group(model_name, atomgroup)
+
+        pdb.set_by_atomgroup(protein)
+        with open(pdbfile, 'w') as f:
+            f.write(str(pdb))
+
+                
     
 if __name__ == '__main__':
     #import sys,os

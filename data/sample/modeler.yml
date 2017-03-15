@@ -1,0 +1,33 @@
+---
+tasks:
+  - name: test_protonate_4tut
+    protonate:
+      src: ./data/sample/4tut.pdb
+      dest: 4tut_addH.pdb
+
+  - name: test_opt_protein
+    opt:
+      reference: test_protonate_4tut
+      target:
+        - hydrogen
+      dest: 4tut_opt.pdb
+
+#  - name: neutralize
+#    neutralize:
+#      src: opt_protein/4tut_opt.pdb
+#      output: 4tut_opt_i.pdb
+
+  - name: test_opt_ions
+    md:
+      reference: test_protonate_4tut 
+      target:
+        - ions
+        - water
+      dest: 4tut_i.pdb
+    
+#  - name: transform_to_pdf
+#    transform:
+#      src: opt_ions/4tut_x.pdb
+#      output: 4tut_x.pdb
+      
+  

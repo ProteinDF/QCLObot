@@ -32,12 +32,12 @@ class AmberObject(MdObject):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(AmberObject, self).__init__(*args, **kwargs)
         
     def _initialize(self):
         ''' initialize object
         '''
-        super()._initialize() # called from the parents class
+        super(AmberObject, self)._initialize() # called from the parents class
 
         self._AMBERHOME = os.environ.get('AMBERHOME', '')
         
@@ -49,17 +49,6 @@ class AmberObject(MdObject):
     # ==================================================================
     # properties
     # ==================================================================
-    def _get_model(self):
-        return self._data.get('model', None)
-    def _set_model(self, model):
-        assert(isinstance(model, pdfbridge.AtomGroup))
-        if check_format_model(model):
-            self._data['model'] = pdfbridge.AtomGroup(model)
-        else:
-            logger.critical("not support the format; use model format")
-            raise
-    model = property(_get_model, _set_model)
-
     # solvation
     def _get_is_solvation(self):
         return self._data.get('is_solvation', False)
@@ -188,13 +177,26 @@ class AmberObject(MdObject):
 
         self.set_param("ntx", 1)
 
-        self.set_param("ntpr", 200)
+        # Every ntpr steps, energy information will be printed
+        # in human-readable form to files "mdout" and "mdinfo".
+        # default: 50.
+        self.set_param("ntpr", 200) 
 
+        # Flag for SHAKE to perform bond length constraints.
+        # = 1 SHAKE is not performed (default)
+        # = 2 bonds involving hydrogen are constrained
+        # = 3 allbondsareconstrained(notavailableforparallelorqmmmrunsinsander)
         self.set_param("ntc", 1)
 
+        # Force evaluation.
+        # = 1 complete interaction is calculated (default) 
         self.set_param("ntf", 1)
+        # PBC
         self.set_param("ntb", 0)
+        # cutoff range
         self.set_param("cut", 9999.999)
+        # Flag for 3D-reference interaction site model
+        # idb=1: GB
         self.set_param("igb", 1)
 
         self._prepare_mdin()
@@ -577,7 +579,7 @@ class AmberObject(MdObject):
             logger.info('some atoms are added via the leap treatment.: original={} new={}'.format(
                 self.model.get_number_of_all_atoms(), amb_model.get_number_of_all_atoms()))
         else:
-            logger.infog('some atoms are deleteed via the leap treatment.: original={} new={}'.format(
+            logger.info('some atoms are deleteed via the leap treatment.: original={} new={}'.format(
                 self.model.get_number_of_all_atoms(), amb_model.get_number_of_all_atoms()))
             
         # 入力モデルとleap後のモデルの座標は変わらないので、
@@ -591,6 +593,7 @@ class AmberObject(MdObject):
             NEAR_DISTANCE = 0.1
             range_selecter = pdfbridge.Select_Range(pos, NEAR_DISTANCE)
             selection = model.select(range_selecter)
+            # print(selection)
             path_list = selection.get_path_list()
             
             answer = None
@@ -598,7 +601,7 @@ class AmberObject(MdObject):
                 answer = path_list.pop(0)
                 
             return answer
-                        
+
         # make original table
         # self._input_amber_model_match_table = []
         for chain_id, chain in amb_model.groups():
@@ -606,11 +609,11 @@ class AmberObject(MdObject):
                 for atom_id, atom in res.atoms():
                     amb_path = atom.path
                     orig_path = find_atom_path(self.model, atom.xyz)
-
+                    
                     if orig_path == None:
                         pass
                     else:
-                        (orig_model_id, orig_chain_id, orig_resid, orig_atom_id) = pdfbridge.AtomGroup.divide_path(orig_path)
+                        (orig_chain_id, orig_resid, orig_atom_id) = pdfbridge.AtomGroup.divide_path(orig_path)
                         (amb_model_id, amb_chain_id, amb_resid, amb_atom_id) = pdfbridge.AtomGroup.divide_path(amb_path)
                         self._set_chainres_match_table(amb_chain_id, amb_resid, orig_chain_id, orig_resid)
 

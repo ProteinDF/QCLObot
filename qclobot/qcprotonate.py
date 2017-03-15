@@ -14,6 +14,7 @@ except:
 import pdfbridge
 from .taskobject import TaskObject
 from .process import Process
+from .utils import check_format_model
 
 class QcProtonate(TaskObject):
     ''' execute protonate
@@ -27,78 +28,71 @@ class QcProtonate(TaskObject):
 
     >>> p.protonate_group()
     '''
-    def __init__(self, name, atomgroup, backend='reduce'):
+    def __init__(self, name, backend='reduce'):
         """ initialize protonate object
 
         :param str pdbfile: pdb file for protonation
         """
         # initialize base object
-        super().__init__(name=name)
-
-        # initialize
-        self._data['input_atomgroup'] = pdfbridge.AtomGroup(atomgroup)
+        super(QcProtonate, self).__init__(name=name)
 
         # backend
         self._data['backend'] = str(backend)
         self._AMBERHOME = os.environ.get('AMBERHOME', '')
         self._check_AMBERHOME()
 
-        
+
     def _check_AMBERHOME(self):
         if len(self._AMBERHOME) == 0:
             logger.warning("environ parameter, AMBERHOME, looks like empty.")
-        
+
 
     ####################################################################
     # property
     ####################################################################
-    # input_atomgroup --------------------------------------------------
-    def _get_input_atomgroup(self):
-        return self._data.get('input_atomgroup')
-    input_atomgroup = property(_get_input_atomgroup)
-
-    # output_atomgroup -------------------------------------------------
-    def _get_output_atomgroup(self):
-        return self._data.get('output_atomgroup')
-    output_atomgroup = property(_get_output_atomgroup)
-
     # backend ----------------------------------------------------------
     def _get_backend(self):
-        return self._data.get('backend')
+        return self._data.get("backend")
     backend = property(_get_backend)
+
+    # model_name -------------------------------------------------------
+    def _get_model_name(self):
+        return self._data.get("model_name", "model_1")
+    model_name = property(_get_model_name)
+
 
     ####################################################################
     # method
     ####################################################################
-    # run --------------------------------------------------------------
-    def protonate(self):
+    def run(self, output_path=""):
         return_code = -1
+        self.cd_workdir()
 
         if self.backend == 'reduce':
             input_pdbfile = os.path.join(self.work_dir, 'original.pdb')
-            self._brd2pdb(self.input_atomgroup, input_pdbfile)
+            self.atomgroup2pdb(self.model, input_pdbfile,
+                               model_name=self.model_name)
 
             out_pdbfile=os.path.join(self.work_dir, 'protonated.pdb')
             return_code = self._run_reduce(input_pdbfile,
                                            out_pdbfile)
-            if return_code == 0:
-                output_atomgroup = self._pdb2brd(out_pdbfile)
-                self._data['output_atomgroup'] = output_atomgroup
-                output_brdfile = os.path.join(self.work_dir, 'protonated.brd')
-                with open(output_brdfile, 'wb') as f:
-                    raw_data = output_atomgroup.get_raw_data()
-                    f.write(msgpack.packb(raw_data))
+        if return_code == 0:
+            output_atomgroup = self._pdb2brd(out_pdbfile)
 
+            # pickup first model as result
+            self.output_model = output_atomgroup.get_group(self.model_name)
+
+            if len(output_path) > 0:
+                output_path = os.path.join(self.work_dir, output_path)
+                logger.info("output protonated file: {}".format(output_path))
+                protein = pdfbridge.AtomGroup()
+                protein.set_group("model_1", self.output_model)
+                self._atomgroup2file(protein,
+                                     output_path)
+
+        self.restore_cwd()
         return return_code
 
-    def _brd2pdb(self, atomgroup, out_pdbfile):
-        assert(isinstance(out_pdbfile, str))
-
-        logger.info('brd2pdb: to {}'.format(out_pdbfile))
-        pdb = pdfbridge.Pdb(mode = 'amber')
-        pdb.set_by_atomgroup(atomgroup)
-        with open(out_pdbfile, 'w') as f:
-            f.write(str(pdb))
 
     def _pdb2brd(self, pdbfile):
         assert(isinstance(pdbfile, str))
@@ -124,12 +118,23 @@ class QcProtonate(TaskObject):
         return return_code
 
     def protonate_group(self):
-        d_atomgroup = self.output_atomgroup ^ self.input_atomgroup
+        d_atomgroup = self.output_model ^ self.model
 
         d_path = os.path.join(self.work_dir, 'add_group.brd')
         with open(d_path, 'wb') as f:
             raw_data = d_atomgroup.get_raw_data()
             f.write(msgpack.packb(raw_data))
+
+    ####################################################################
+    # Archive
+    ####################################################################
+    def __setstate__(self, state):
+        super(QcProtonate, self).__setstate__(state)
+
+        if "backend" in state:
+            self._data["backend"] = state["backend"]
+        if "model_name" in state:
+            self._data["model_name"] = state["model_name"]
 
 
 if __name__ == '__main__':

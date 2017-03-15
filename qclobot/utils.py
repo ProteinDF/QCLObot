@@ -1,10 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import logging
 logger = logging.getLogger(__name__)
 
 import pdfbridge
+
+
+def file2atomgroup(input_path):
+    assert(isinstance(input_path, str))
+    aromgroup = None
+    
+    abspath = os.path.abspath(input_path)
+    (basename, ext) = os.path.splitext(abspath)
+    ext = ext.lower()
+    if ext in (".pdb", ".ent"):
+        logger.info("load {path} as PDB text file.".format(path=abspath))
+        pdb_obj = pdfbridge.Pdb()
+        pdb_obj.load(abspath)
+        atomgroup = pdb_obj.get_atomgroup()
+    else:
+        logger.info("load {path} as bridge file.".format(path=abspath))
+        with open(abspath, "rb") as f:
+            mpac_data = msgpack.unpackb(f.read())
+            aromgroup = pdfbridge.AtomGroup(mpac_data)
+            
+    return atomgroup
+
 
 def get_model(models):
     assert(check_format_models(models))

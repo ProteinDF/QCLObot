@@ -9,15 +9,15 @@ import pdfbridge
 class TestProtonate(unittest.TestCase):
     def setUp(self):
         pdb = pdfbridge.Pdb("./data/sample/4tut.pdb")
-        self.models = pdb.get_atomgroup()
-        self.protonate = QcProtonate(name="test_protonate",
-                                     atomgroup=self.models)
+        models = pdb.get_atomgroup()
+        self.protonate = QcProtonate(name="test_protonate")
+        self.protonate.model = models["model_1"]
         
     def tearDown(self):
         pass
 
     def test_protonate(self):
-        retcode = self.protonate.protonate()
+        retcode = self.protonate.run()
         self.assertEqual(retcode, 0)
 
         self.protonate.protonate_group()
