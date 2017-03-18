@@ -991,7 +991,7 @@ class QcFrame(object):
         計算後は代入できない
         '''
         if self.is_finished_scf:
-            logger.warn('operator[] called after simulation.')
+            logger.debug('operator[] called after SCF calc. no effect.')
             return
 
         if 'frame_molecule' in self._cache:
