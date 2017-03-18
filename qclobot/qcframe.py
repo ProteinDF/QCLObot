@@ -1007,18 +1007,19 @@ class QcFrame(object):
             logger.info('add fragment: name={}'.format(fragment_name))
             self._fragments[fragment_name] = fragment
         elif isinstance(obj, qclo.QcFrame):
-            logger.info('add frame molecule: for {}'.format(fragment_name))
+            logger.info('begin to register frame molecule: for {}'.format(fragment_name))
             fragment = qclo.QcFragment()
             fragment.name = fragment_name
             for k, f in obj.fragments():
                 if not f.margin:
-                    logger.warn('add fragment: k={} for {}'.format(k, fragment_name))
+                    logger.warn('add fragment: fragment={} for {}'.format(k, fragment_name))
                     fragment.set_group(k, f)
                 else:
-                    logger.warn('pass fragment: k={} is margin'.format(k))
+                    logger.warn('pass fragment: fragment={} is margin'.format(k))
             if fragment.qc_parent == None:
                 fragment.qc_parent = self
             self._fragments[fragment_name] = fragment
+            logger.info('end of registration frame molecule: for {}'.format(fragment_name))
         else:
             raise
 

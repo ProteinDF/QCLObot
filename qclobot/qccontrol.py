@@ -275,14 +275,20 @@ class QcControl(object):
         # print(repr(frame.pdfparam.extra_keywords))
         
         # fragments
-        logger.info('::make fragments: name={}'.format(frame_name))
+        logger.info('begin to make fragments for frame: {}'.format(frame_name))
         fragments_list = self._get_fragments(frame_data.get('fragments', []), frame_data)
         for f in fragments_list:
             assert(isinstance(f, qclo.QcFragment))
             frame[f.name] = f
-            logger.info('  > fragment: {}, parent={}'.format(f.name, frame[f.name].qc_parent.name))
-            for subgrp_name, subgrp in frame[f.name].groups():
-                logger.info('  > subfragment: {}, parent={}'.format(subgrp_name, subgrp.qc_parent.name))
+
+            # fragment information
+            parent_frame_name = ""
+            if f.qc_parent != None:
+                parent_frame_name = f.qc_parent.name
+            logger.info("add fragment: {}/{} to fragment {}".format(frame_name, f.name, frame_name))
+            #for subgrp_name, subgrp in frame[f.name].groups():
+            #    logger.info('  > subfragment: {}, parent={}'.format(subgrp_name, subgrp.qc_parent.name))
+        logger.info('end of making fragments process for frame: {}'.format(frame_name))
             
         # --------------------------------------------------------------
         # action
