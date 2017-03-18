@@ -516,6 +516,7 @@ class QcFrame(object):
             logger.info('update the number of electrons => {}'.format(self.pdfparam.num_of_electrons))
         
         self.pdfparam.step_control = 'integral'
+        self._save()
         pdfsim.sp(self.pdfparam,
                   workdir = self.work_dir,
                   db_path = self.db_path,
@@ -558,6 +559,7 @@ class QcFrame(object):
         #self.output_xyz("{}/model.xyz".format(self.name))
 
         self.pdfparam.step_control = 'guess scf'
+        self._save()
         pdfsim.sp(self.pdfparam,
                   workdir = self.work_dir,
                   db_path = self.db_path,
