@@ -551,11 +551,13 @@ class QcFragment(object):
                 self.get_parent_frame().pickup_QCLO(run_type)
             
             logger.info('QCLO_matrix_path: {}, parent={}'.format(my_qclo_matrix_path,
-                                                                       self.qc_parent.name))
+                                                                 self.qc_parent.name))
             self._check_path(my_qclo_matrix_path)
 
             QCLO_mat = pdf.Matrix()
             QCLO_mat.load(my_qclo_matrix_path)
+            logger.info("QCLO matrix row: {}".format(QCLO_mat.rows))
+            logger.info("parent AOs: {}".format(parent_num_of_AOs))
             assert(QCLO_mat.rows == parent_num_of_AOs)
             num_of_MOs = QCLO_mat.cols
             guess_QCLO_mat = pdf.Matrix(request_num_of_AOs,
