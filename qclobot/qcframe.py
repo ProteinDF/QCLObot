@@ -361,8 +361,9 @@ class QcFrame(object):
     # GUESS
     # ==================================================================
     # guess density ----------------------------------------------------
-    def guess_density(self, run_type ='rks'):
-        if self.is_finished_guess_density:
+    def guess_density(self, run_type ='rks', force=False):
+        if ((self.is_finished_guess_density == True) and
+            (force == False)):
             logger.info('guess_density has been calced.')
             return
 
@@ -410,8 +411,13 @@ class QcFrame(object):
         self.restore_cwd()
 
         
-    def guess_QCLO(self, run_type='rks', isCalcOrthogonalize = False):
-        if self.is_finished_guess_QCLO:
+    def guess_QCLO(self, run_type='rks',
+                   force = False,
+                   isCalcOrthogonalize = False):
+        """create guess by using QCLO method
+        """
+        if ((self.is_finished_guess_QCLO == True) and
+            (force == False)):
             logger.info('guess_density has been calced.')
             return
 
@@ -427,7 +433,7 @@ class QcFrame(object):
         num_of_AOs = 0
         for frg_name, frg in self.fragments():
             logger.info('guess QCLO: frg_name={}, parent={}'.format(frg_name, frg.qc_parent.name))
-            frg_QCLO_matrix_path = frg.prepare_guess_QCLO_matrix(run_type, self)
+            frg_QCLO_matrix_path = frg.prepare_guess_QCLO_matrix(run_type, self, force=force)
             if os.path.exists(frg_QCLO_matrix_path):
                 pdf.run_pdf(['mat-ext', '-c',
                              guess_QCLO_matrix_path,
@@ -758,8 +764,9 @@ class QcFrame(object):
         self.restore_cwd()
 
     # ------------------------------------------------------------------
-    def pickup_QCLO(self, run_type='rks'):
-        if self.is_finished_pickup_LO:
+    def pickup_QCLO(self, run_type='rks', force=False):
+        if ((self.is_finished_pickup_LO == True) and
+            (force == False)):
             logger.info('pickup LO has been finished.')
             return
 

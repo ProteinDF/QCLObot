@@ -510,7 +510,7 @@ class QcFragment(object):
     def _get_QCLO_matrix_path(self, run_type):
         return os.path.join(self.work_dir, self._QCLO_matrix_path.format(run_type=run_type))
     
-    def prepare_guess_QCLO_matrix(self, run_type, request_frame):
+    def prepare_guess_QCLO_matrix(self, run_type, request_frame, force=False):
         '''
         prepare QCLO matrix
         '''
@@ -519,7 +519,10 @@ class QcFragment(object):
 
         logger.info('>>>> prepare QCLO: {}/{} for {}'.format(
             self.qc_parent.name, self.name, guess_QCLO_matrix_path))
-
+        if os.path.isfile(guess_QCLO_matrix_path):
+            logger.warning("remove existed fragment QCLO file: {}".format(guess_QCLO_matrix_path))
+            os.remove(guess_QCLO_matrix_path)
+        
         request_orbinfo = request_frame.get_orbital_info()
 
         # subgroup
@@ -548,7 +551,8 @@ class QcFragment(object):
         if len(self._atoms) > 0:
             my_qclo_matrix_path = self._get_QCLO_matrix_path(run_type)
             if os.path.isfile(my_qclo_matrix_path) != True:
-                self.get_parent_frame().pickup_QCLO(run_type)
+                self.get_parent_frame().pickup_QCLO(run_type=run_type,
+                                                    force=force)
             
             logger.info('QCLO_matrix_path: {}, parent={}'.format(my_qclo_matrix_path,
                                                                  self.qc_parent.name))

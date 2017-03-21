@@ -306,10 +306,18 @@ class QcControl(object):
         logger.info('::GUESS')
         guess = frame_data.get('guess', 'harris')
         guess = guess.lower()
+        guess_force = frame_data.get("guess/force", "False")
+        if isinstance(guess_force, str):
+            guess_force = guess_force.lower()
+            if (len(guess_force) > 0) and (guess_force in ("true", "yes", "1")):
+                guess_force = True
+            else:
+                guess_force = False
+                
         if guess == 'density':
-            frame.guess_density()
+            frame.guess_density(force=guess_force)
         elif guess == 'qclo':
-            frame.guess_QCLO()
+            frame.guess_QCLO(force=guess_force)
         else:
             pass
             #frame.guess_Harris()
