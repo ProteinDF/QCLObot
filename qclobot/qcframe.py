@@ -1076,9 +1076,9 @@ class QcFrame(object):
         
     def check_bump_of_atoms(self):
         logger.info("check bump of atoms: begin")
-        atom_list = self.frame_molecule.get_atomlist()
+        atom_list = self.frame_molecule.get_atom_list()
         num_of_atoms = len(atom_list)
-        for i in range(atom_list):
+        for i in range(num_of_atoms):
             xyz1 = atom_list[i].xyz
             for j in range(i):
                 d = xyz1.distance_from(atom_list[j].xyz)

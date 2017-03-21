@@ -507,9 +507,9 @@ class QcControl(object):
         brd_file_path = frg_data.get('brd_file')
         brd_select_H = frg_data.get('displacement')
         atomgroup_H = self._select_atomgroup(brd_file_path, brd_select_H)
-        atomgroup_H = atomgroup_H.get_atomlist()
-        assert(atomgroup_H.get_number_of_atoms() > 0)
-        (key_H, atom_H) = list(atomgroup_H.atoms())[0]
+        atomgroup_H = atomgroup_H.get_atom_list()
+        assert(len(atomgroup_H) > 0)
+        atom_H = atomgroup_H[0]
         atom_H.symbol = 'H'
         
         ag_H = bridge.AtomGroup()
@@ -535,19 +535,19 @@ class QcControl(object):
         brd_select_C2 = frg_data.get('root')
 
         atomgroup_C1 = self._select_atomgroup(brd_file_path, brd_select_C1)
-        atomgroup_C1 = atomgroup_C1.get_atomlist()
-        if atomgroup_C1.get_number_of_atoms() == 0:
+        atomgroup_C1 = atomgroup_C1.get_atom_list()
+        if len(atomgroup_C1) == 0:
             logger.critical('cannnot find displacement atom: key={}'.format(brd_select_C1))
             raise qclo.QcControlError('No atoms found for "displacement" in add_CH3',
                                       brd_select_C1)
-        (key_C1, atom_C1) = list(atomgroup_C1.atoms())[0]
+        atom_C1 = atomgroup_C1[0]
 
         atomgroup_C2 = self._select_atomgroup(brd_file_path, brd_select_C2)
-        atomgroup_C2 = atomgroup_C2.get_atomlist()
-        if atomgroup_C2.get_number_of_atoms() == 0:
+        atomgroup_C2 = atomgroup_C2.get_atom_list()
+        if len(atomgroup_C2) == 0:
             logger.critical('cannnot find displacement atom: key={}'.format(brd_select_C2))
             raise qclo.QcControlError('No atoms found for "root" in add_CH3')
-        (key_C2, atom_C2) = list(atomgroup_C2.atoms())[0]
+        atom_C2 = atomgroup_C2[0]
         ag_CH3 = self._modeling.add_methyl(atom_C1, atom_C2)
         ag_CH3.set_atom('C', atom_C1)
         
@@ -624,7 +624,7 @@ class QcControl(object):
                         #logger.debug('select path: {}'.format(brd_select))
                         #logger.debug('selected: {}'.format(str(selected_atomgroup)))
                         if selected_atomgroup.get_number_of_all_atoms() > 0:
-                            for dummy_atomindex, selected_atom in selected_atomgroup.get_atomlist().atoms():
+                            for selected_atom in selected_atomgroup.get_atom_list():
                                 atomgroup.set_atom(index, selected_atom)
                                 index += 1
                         else:
