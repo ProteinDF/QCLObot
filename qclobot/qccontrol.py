@@ -461,7 +461,10 @@ class QcControl(object):
         
         return frg
 
+    
     def _get_reference_fragment(self, frg_data):
+        """return new QcFragment object referenced from input(frg_data)
+        """
         assert(isinstance(frg_data, dict))
 
         if not 'frame' in frg_data['reference']:
@@ -484,9 +487,12 @@ class QcControl(object):
                                       '{} in {}'.format(ref_fragment,
                                                         ref_frame))
 
-        logger.info("reference: {}.{}".format(ref_frame, ref_fragment))
-        return self._frames[ref_frame][ref_fragment]
+        logger.info("reference fragment: {}/{}".format(ref_frame, ref_fragment))
+        ref_fragment = qclo.QcFragment(self._frames[ref_frame][ref_fragment])
+        ref_fragment.parent = self._frame[ref_frame] # add parent information
+        return ref_fragment
 
+    
     def _get_add_H(self, frg_data):
         assert(isinstance(frg_data, dict))
         brd_file_path = frg_data.get('brd_file')
