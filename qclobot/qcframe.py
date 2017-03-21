@@ -93,7 +93,7 @@ class QcFrame(object):
         else:
             logger.debug('not found the state file')
         
-    def _save(self):
+    def save(self):
         path = os.path.join(self.work_dir, 'qcframe.mpac')
         # logger.info('save the fragment state: {}'.format(path))
 
@@ -405,7 +405,7 @@ class QcFrame(object):
         self._check_path(guess_density_matrix_path)
         
         self.is_finished_guess_density = True
-        self._save()
+        self.save()
             
         self.restore_cwd()
 
@@ -458,7 +458,7 @@ class QcFrame(object):
 
         
         self.is_finished_guess_QCLO = True
-        self._save()
+        self.save()
         self.restore_cwd()
 
         # create occ file
@@ -485,7 +485,7 @@ class QcFrame(object):
         occ_vtr.save(occ_vtr_path)
         self._check_path(occ_vtr_path)
 
-        self._save()
+        self.save()
         self.restore_cwd()
         
     # ==================================================================
@@ -514,9 +514,9 @@ class QcFrame(object):
             num_of_electrons -= self.charge # 電子(-)数と電荷(+)の正負が逆なことに注意
             self.pdfparam.num_of_electrons = num_of_electrons
             logger.info('update the number of electrons => {}'.format(self.pdfparam.num_of_electrons))
-        
+
         self.pdfparam.step_control = 'integral'
-        self._save()
+        self.save()
         pdfsim.sp(self.pdfparam,
                   workdir = self.work_dir,
                   db_path = self.db_path,
@@ -524,7 +524,7 @@ class QcFrame(object):
         
         self._cache.pop('pdfparam')
         self.is_finished_prescf = True
-        self._save()
+        self.save()
 
         self.restore_cwd()
         
@@ -559,7 +559,7 @@ class QcFrame(object):
         #self.output_xyz("{}/model.xyz".format(self.name))
 
         self.pdfparam.step_control = 'guess scf'
-        self._save()
+        self.save()
         pdfsim.sp(self.pdfparam,
                   workdir = self.work_dir,
                   db_path = self.db_path,
@@ -570,7 +570,7 @@ class QcFrame(object):
 
         self._grouping_fragments()
         self._switch_fragments()
-        self._save()
+        self.save()
             
         self.restore_cwd()
 
@@ -612,7 +612,7 @@ class QcFrame(object):
 
         self._cache.pop('pdfparam')
         self.is_finished_force = True
-        self._save()
+        self.save()
             
         self.restore_cwd()
 
@@ -736,7 +736,7 @@ class QcFrame(object):
                 global_dim += dim
 
         logger.is_finished_pickup_density_matrix = True
-        self._save()
+        self.save()
         self.restore_cwd()
             
     # ------------------------------------------------------------------
@@ -754,7 +754,7 @@ class QcFrame(object):
         pdf.run_pdf('lo')
 
         self.is_finished_LO = True
-        self._save()
+        self.save()
         self.restore_cwd()
 
     # ------------------------------------------------------------------
@@ -856,7 +856,7 @@ class QcFrame(object):
 
         # finish
         self.is_finished_pickup_LO = True
-        self._save()
+        self.save()
         self.restore_cwd()
 
     def _get_AO_fragment_table(self, num_of_AOs):

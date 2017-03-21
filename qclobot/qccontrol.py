@@ -294,6 +294,7 @@ class QcControl(object):
         # action
         # --------------------------------------------------------------
         logger.info('::action')
+        frame.save()
         self._frames[frame_name] = frame
         self._last_frame_name = frame_name
         
