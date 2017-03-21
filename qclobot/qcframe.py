@@ -39,6 +39,7 @@ logger = logging.getLogger(__name__)
 class QcFrame(object):
     _pdfparam_filename = 'pdfparam.mpac'
     _db_filename = 'pdfresults.db'
+    TOO_SMALL = 1.0E-5
 
     # ------------------------------------------------------------------
     def __init__(self, name, *args, **kwargs):
@@ -201,7 +202,7 @@ class QcFrame(object):
             frame_molecule = bridge.AtomGroup()
             for frg_name, frg in self._fragments.items():
                 logger.info('fragment name={}: {} atoms'.format(frg_name,
-                                                                      frg.get_number_of_all_atoms()))
+                                                                frg.get_number_of_all_atoms()))
                 frame_molecule[frg_name] = frg.get_AtomGroup()
             self._cache['frame_molecule'] = frame_molecule
             logger.info('')
@@ -506,7 +507,8 @@ class QcFrame(object):
             return
         
         self.cd_work_dir('calc preSCF')
-
+        self.check_bump_of_atoms()
+        
         pdfsim = pdf.PdfSim()
         for frg_name, frg in self.fragments():
             frg.set_basisset(self.pdfparam)
@@ -547,6 +549,7 @@ class QcFrame(object):
             self.calc_preSCF(dry_run)
 
         self.cd_work_dir('calc SP')
+        self.check_bump_of_atoms()
 
         pdfsim = pdf.PdfSim()
         for frg_name, frg in self.fragments():
@@ -1070,7 +1073,22 @@ class QcFrame(object):
         xyz = bridge.Xyz(self.frame_molecule)
         xyz.save(file_path)
 
+        
+    def check_bump_of_atoms(self):
+        logger.info("check bump of atoms: begin")
+        atom_list = self.frame_molecule.get_atomlist()
+        num_of_atoms = len(atom_list)
+        for i in range(atom_list):
+            xyz1 = atom_list[i].xyz
+            for j in range(i):
+                d = xyz1.distance_from(atom_list[j].xyz)
+                if d < self.TOO_SMALL:
+                    logger.warning("atom[{}][{}]({}) is near by atom[{}][{}]({})".format(
+                        i, str(atom_list[i]), atom_list[i].path,
+                        j, str(atom_list[j]), atom_list[j].path))
+        logger.info("check_bump of atoms: end")
 
+        
     # ==================================================================
     # orbital table
     # ==================================================================
