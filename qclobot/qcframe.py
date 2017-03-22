@@ -220,8 +220,11 @@ class QcFrame(object):
             logger.info('create frame molecule coordinates.')
             frame_molecule = bridge.AtomGroup()
             for frg_name, frg in self._fragments.items():
-                logger.info('fragment name={}: {} atoms'.format(frg_name,
-                                                                frg.get_number_of_all_atoms()))
+                logger.info('fragment name={name}: atoms={atoms}, elec={elec}, charge={charge}'.format(
+                    name = frg_name,
+                    atoms = frg.get_number_of_all_atoms(),
+                    elec = frg.sum_of_atomic_number(),
+                    charge = frg.get_AtomGroup().charge))
                 frame_molecule[frg_name] = frg.get_AtomGroup()
             self._cache['frame_molecule'] = frame_molecule
             logger.info('')
@@ -555,6 +558,8 @@ class QcFrame(object):
             logger.info("{header} update the number of electrons => {elec}".format(
                 header=self.header,
                 elec=self.pdfparam.num_of_electrons))
+        if self.pdfparam.num_of_electrons % 2 != 0:
+            logger.warning("{header} the number of electrons is not even.".format(header=self.header))
 
     # ------------------------------------------------------------------
     def calc_preSCF(self, dry_run=False):
