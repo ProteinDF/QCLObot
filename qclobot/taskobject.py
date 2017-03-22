@@ -245,6 +245,7 @@ class TaskObject(object):
                       model_name="model_1"):
         assert(isinstance(pdbfile, str))
 
+        self.cd_workdir()
         pdb = pdfbridge.Pdb(mode = 'amber')
 
         protein = atomgroup
@@ -258,6 +259,7 @@ class TaskObject(object):
         with open(pdbfile, 'w') as f:
             f.write(str(pdb))
 
+        self.restore_cwd()
                 
     
 if __name__ == '__main__':
