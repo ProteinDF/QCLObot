@@ -342,7 +342,10 @@ class QcControl(object):
         elif isinstance(summary_act, bool):
             if summary_act:
                 frame.summary()
-            
+
+        # finalize
+        frame.save()
+                
     # ------------------------------------------------------------------
     # utils
     # ------------------------------------------------------------------
@@ -497,9 +500,10 @@ class QcControl(object):
                                                         ref_frame))
 
         logger.info("reference fragment: {}/{}".format(ref_frame, ref_fragment))
-        ref_fragment = qclo.QcFragment(self._frames[ref_frame][ref_fragment])
-        ref_fragment.parent = self._frame[ref_frame] # add parent information
-        return ref_fragment
+        fragment = qclo.QcFragment(self._frames[ref_frame][ref_fragment])
+        fragment.name = frg_data.get('name')
+        fragment.parent = self._frames[ref_frame] # add parent information
+        return fragment
 
     
     def _get_add_H(self, frg_data):
