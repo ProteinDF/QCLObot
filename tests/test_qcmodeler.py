@@ -10,14 +10,16 @@ import pdfbridge
 
 class TestQcModeler(unittest.TestCase):
     def setUp(self):
-        self.pr = cProfile.Profile()
-        self.pr.enable()
+        pass
+        #self.pr = cProfile.Profile()
+        #self.pr.enable()
 
     def tearDown(self):
-        p = Stats (self.pr)
-        p.strip_dirs()
-        p.sort_stats ('cumtime')
-        p.print_stats()
+        pass
+        #p = Stats (self.pr)
+        #p.strip_dirs()
+        #p.sort_stats ('cumtime')
+        #p.print_stats()
         
     def test_run(self):
         modeler = QcModeler()

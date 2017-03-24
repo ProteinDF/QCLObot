@@ -5,6 +5,8 @@ TESTS="\
   process \
   protonate \
   amberobject \
+  "
+TESTS="\
   qcmodeler \
   "
 
