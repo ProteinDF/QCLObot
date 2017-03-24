@@ -14,6 +14,7 @@ import jinja2
     
 import pdfbridge
 from .qcprotonate import QcProtonate
+from .qcneutralize import QcNeutralize
 from .amberobject import AmberObject
 from .utils import (file2atomgroup,
                     check_format_models,
@@ -107,6 +108,7 @@ class QcModeler(QcControl_Base):
         elif "md" in task.keys():
             self.global_tasks[name] = self._run_md(name, task['md'])
         elif "neutralize" in task.keys():
+            self.global_tasks[name] = self._run_neutralize(name, task['neutralize'])
             pass
         else:
             logger.warning("not found task command: {cmds}".format(cmds=str([ x for x in task.keys()])))
@@ -133,6 +135,26 @@ class QcModeler(QcControl_Base):
         
         return prot_obj
 
+
+    def _run_neutralize(self, name, args):
+        logger.info("run neutralize")
+        assert(isinstance(name, str))
+        assert(isinstance(args, dict))
+        
+        neutralize_obj = QcNeutralize(name=name)
+
+        input_model = self._get_input_model(args)
+        neutralize_obj.model = input_model
+
+        neutralize_obj.run()
+        assert(check_format_model(neutralize_obj.output_model))
+        
+        dest = args.get("dest", None)
+        if dest:
+            neutralize_obj.write_output_model(dest)
+        
+        return neutralize_obj
+        
     
     def _run_opt(self, name, args):
         logger.info("run opt")
@@ -155,6 +177,26 @@ class QcModeler(QcControl_Base):
         amber = AmberObject(name=name)
         model = self._get_input_model(args)
         amber.model = model
+
+        if "solvation" in args:
+            solvation_args = args["solvation"]
+
+            amber.solvation_method = "cap"
+            if "method" in solvation_args:
+                amber.solvation_method = solvation_args["method"]
+                
+            if "model" in solvation_args:
+                amber.solvation_model = solvation_args["model"]
+        
+        if "belly_mask" in args:
+            amber.use_belly = True
+            for bellymask_target in args["belly_mask"]:
+                bellymask_target = bellymask_target.lower()
+                if bellymask_target == "water":
+                    amber.bellymask_WAT = True
+                if bellymask_target == "ions":
+                    amber.bellymask_ions = True
+        
         amber.md()
 
         return amber
@@ -170,7 +212,7 @@ class QcModeler(QcControl_Base):
         if "reference" in args:
             ref_task = self._get_reference_task(args["reference"])
             answer = ref_task.output_model
-        else:
+        elif "src" in args:
             src = args.get("src", None)
             if src == None:
                 logger.critical('not found "src"')
@@ -185,6 +227,8 @@ class QcModeler(QcControl_Base):
                     answer = models.get_group(model_list[0])
             else:
                 answer = atomgroup
+        else:
+            logger.critical("NOT found input model. use \"reference\" or \"src\" command.")
         assert(check_format_model(answer))
             
         return answer

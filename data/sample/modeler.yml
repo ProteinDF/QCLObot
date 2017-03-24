@@ -1,25 +1,26 @@
 ---
 tasks:
-  - name: test_4tut_H
+  - name: test_4TUT
     protonate:
       src: ./data/sample/4tut.pdb
 
-  - name: test_4tut_H_opt
+  - name: test_4TUT_opt
     opt:
-      reference: test_4tut_H
-      target:
-        - hydrogen
+      reference: test_4TUT
 
-  - name: test_4tut_Hx
+  - name: test_4TUT_optX
     neutralize:
-      reference: test_4tut_H
+      reference: test_4TUT_opt
 
-  - name: test_4tut_Hx_md
+  - name: test_4TUT_optX_mdWatX
     md:
-      reference: test_4tut_H
-      target:
-        - ions
+      reference: test_4TUT_optX
+      solvation:
+        method: cap
+        model: TIP3PBOX
+      belly_mask:
         - water
+        - ions
     
 #  - name: transform_to_pdf
 #    transform:

@@ -17,18 +17,27 @@ class QcNeutralize(TaskObject):
 
 
     def run(self):
-        ip = pdfbridge.IonPair(self.model)
+        neutral_model = self._neutralize(self.model)
+        self.output_model = self._reorder_ions_for_amber(neutral_model)
+        
+
+    def _neutralize(self, model):
+        ip = pdfbridge.IonPair(model)
         ionpairs = ip.get_ion_pairs()
        
         # 処理しやすいように並べ替え
-        exempt_list = []
+        exempt_list = [] # 免除リスト
         for (anion_path, cation_path, anion_type, cation_type) in ionpairs:
             (anion_chain_name, anion_res_name) = pdfbridge.AtomGroup.divide_path(anion_path)
             (cation_chain_name, cation_res_name) = pdfbridge.AtomGroup.divide_path(cation_path)
             exempt_list.append((anion_chain_name, anion_res_name, anion_type))
             exempt_list.append((cation_chain_name, cation_res_name, cation_type))
-
-        output_model = pdfbridge.AtomGroup(self.model)
+            logger.info("ion pair found: {anion_path} <-> {cation_path}".format(
+                anion_path=anion_path,
+                cation_path=cation_path)
+            )
+            
+        output_model = pdfbridge.AtomGroup(model)
         modeling = pdfbridge.Modeling()
         for chain_name, chain in output_model.groups():
             for resid, res in chain.groups():
@@ -87,9 +96,9 @@ class QcNeutralize(TaskObject):
                     logger.info("add ion for FAD({}): {}".format(resid, ag))
                     self._add_ions(res, ag)
  
-        self.output_model = output_model
-        return 0
+        return output_model
 
+    
     def _add_ions(self, atomgroup, ions):
         assert isinstance(atomgroup, pdfbridge.AtomGroup)
         assert isinstance(ions, pdfbridge.AtomGroup)
@@ -106,5 +115,41 @@ class QcNeutralize(TaskObject):
                 count += 1
             atomgroup.set_atom(new_name, atom)
 
-        
+
+    def _reorder_ions_for_amber(self, model):
+        assert isinstance(model, pdfbridge.AtomGroup)
+
+        def pick_ions(atomgroup):
+            ions = []
+            for key, subgrp in atomgroup.groups():
+                new_ions = pick_ions(subgrp)
+                ions.extend(new_ions)
+            for key, atom in atomgroup.atoms():
+                if atom.symbol not in ('Na', 'Cl'):
+                    logger.debug("pass>'{}':'{}'@{}".format(key, atom.symbol, atomgroup.name))
+                else:
+                    logger.debug("FOUND>'{}':'{}'@{}".format(key, atom.symbol, atomgroup.name))
+                    atomgroup.erase_atom(key)
+                    ions.append(atom)
+            return ions
+
+        new_model = pdfbridge.AtomGroup(model)
+        ions = pick_ions(new_model)
+
+        # atomgroup for ions
+        chain = pdfbridge.AtomGroup()
+        resid = 1
+        for ion in ions:
+            res = pdfbridge.AtomGroup()
+            res.name = ion.name
+            res.set_atom(ion.symbol, ion)
+            chain.set_group(resid, res)
+            resid += 1
+
+        num_of_chains = model.get_number_of_groups()
+        new_chain_id = chr(ord('A') +(num_of_chains % 26))
+        chain.name = new_chain_id
+        new_model.set_group(new_chain_id, chain)
+
+        return new_model
         

@@ -50,18 +50,45 @@ class AmberObject(MdObject):
     # properties
     # ==================================================================
     # solvation
-    def _get_is_solvation(self):
-        return self._data.get('is_solvation', False)
-    def _set_is_solvation(self, yn):
-        self._data['is_solvation'] = bool(yn)
-    is_solvation = property(_get_is_solvation, _set_is_solvation)
+    #def _get_is_solvation(self):
+    #    return self._data.get('is_solvation', False)
+    #def _set_is_solvation(self, yn):
+    #    self._data['is_solvation'] = bool(yn)
+    #is_solvation = property(_get_is_solvation, _set_is_solvation)
 
+    def _get_solvation_method(self):
+        return self._data.get("solvation_method", None)
+    def _set_solvation_method(self, method):
+        self._data["solvation_method"] = str(method).lower()
+    solvation_method = property(_get_solvation_method, _set_solvation_method)
+    
     def _get_solvation_model(self):
-        return self._data.get('solvation_model', None)
+        return self._data.get('solvation_model', "TIP3PBOX")
     def _set_solvation_model(self, model):
         self._data['solvation_model'] = str(model)
     solvation_model = property(_get_solvation_model, _set_solvation_model)
 
+
+    # belly type dynamics
+    def _get_use_belly(self):
+        return self._data.get("use_belly", False)
+    def _set_use_belly(self, yn):
+        self._data["use_belly"] = bool(yn)
+    use_belly = property(_get_use_belly, _set_use_belly)
+
+    def _get_bellymask_WAT(self):
+        return self._data.get("bellymask_WAT", False)
+    def _set_bellymask_WAT(self, yn):
+        self._data["bellymask_WAT"] = bool(yn)
+    bellymask_WAT = property(_get_bellymask_WAT, _set_bellymask_WAT)
+
+    def _get_bellymask_ions(self):
+        return self._data.get("bellymask_ions", False)
+    def _set_bellymask_ions(self, yn):
+        self._data["bellymask_ions"] = bool(yn)
+    bellymask_ions = property(_get_bellymask_ions, _set_bellymask_ions)
+    
+    
     # other amber parameters
     def set_param(self, param, value):
         self._data.setdefault("cntrl", {})
@@ -203,6 +230,7 @@ class AmberObject(MdObject):
 
         self._do_sander()
         self._restrt2pdb()
+
         
     def _remove_water(self, model):
         return remove_WAT(model)
@@ -237,7 +265,7 @@ class AmberObject(MdObject):
         model = pdfbridge.AtomGroup(self.model)
         model = self._remove_water(model)
         self._prepare_input_pdb(model)
-        self.solvation_model = "cap"
+        # self.solvation_model = "cap"
         
         self._prepare_leapin()
         self._do_leap()
@@ -285,7 +313,7 @@ class AmberObject(MdObject):
         leapin_contents += 'protein = loadPdb {pdb_file}\n'.format(pdb_file=self.input_pdb_filepath)
         leapin_contents += 'proteinBox = copy protein\n'
         leapin_contents += self.__get_leap_ssbond_lines()
-        leapin_contents += self.__get_solvation(solute='proteinBox', solvent='TIP3PBOX')
+        leapin_contents += self.__get_solvation(solute='proteinBox')
         leapin_contents += 'saveAmberParm proteinBox {prmtop} {inpcrd}\n'.format(prmtop=self.prmtop_filepath,
                                                                                  inpcrd=self.inpcrd_filepath)
         leapin_contents += 'savePdb proteinBox {pdb_file}\n'.format(pdb_file=self.initial_pdb_filepath)
@@ -321,13 +349,13 @@ class AmberObject(MdObject):
 
         return answer
 
-    def __get_solvation(self, solute, solvent):
+    def __get_solvation(self, solute):
         """return solvation leap code.
         """
         answer = ''
 
-        if self.solvation_model != None:
-            if self.solvation_model.upper() == 'CAP':
+        if self.solvation_method != None:
+            if self.solvation_method == 'cap':
                 center = self.model.center()
                 cap_center = "{{ {x:.3f} {y:.3f} {z:.3f} }}".format(x=center.x,
                                                                     y=center.y,
@@ -343,6 +371,7 @@ class AmberObject(MdObject):
                 distance = max(distance, center.distance_from(pdfbridge.Position(box_min.x, box_max.y, box_max.z)))
                 distance = max(distance, center.distance_from(pdfbridge.Position(box_min.x, box_min.y, box_max.z)))
                 cap_radius = max(distance + 10.0, 30.0)
+                solvent = self.solvation_model
                 answer += "solvateCap {solute} {solvent} {position} {radius} {closeness}\n".format(
                     solute=solute,
                     solvent=solvent,
@@ -441,11 +470,38 @@ class AmberObject(MdObject):
         #  = 0 noperiodicityisappliedandPMEisoff(defaultwhenigb>0)
         #  = 1 constantvolume(defaultwhenigbandntpareboth0,whicharetheirdefaults)
         #  = 2 constant pressure (default when ntp > 0)
+
+        belly_contents = ""
+        if self.use_belly:
+            pdb = pdfbridge.Pdb()
+            pdb.load(self.initial_pdb_filepath)
+            initial_model = get_model(pdb.get_atomgroup())
+            #print("initial model: #atoms=", initial_model.get_number_of_all_atoms())
+            #print("model: ", self.model.get_number_of_all_atoms())
+            #print("BM ions", self.bellymask_ions)
+            #assert(initial_model.get_number_of_all_atoms() == self.model.get_number_of_all_atoms())
+            
+            belly_maskstr = ""
+            if self.bellymask_WAT:
+                wat_resid = self._get_wat_resid(initial_model)
+                if len(belly_maskstr) > 0:
+                    belly_maskstr += " "
+                belly_maskstr += self._make_maskstr(resid_areas = wat_resid)
+            if self.bellymask_ions:
+                ion_resid = self._get_ion_resid(initial_model)
+                if len(belly_maskstr) > 0:
+                    belly_maskstr += " "
+                belly_maskstr += self._make_maskstr(resid_areas = ion_resid)
+            belly_contents = "ibelly=1, bellymask='{belly_maskstr}'"
+            belly_contents = belly_contents.format(belly_maskstr=belly_maskstr)
+        
+        
         mdin_contents = """
         # 
         &cntrl
           {minimization_contents}
           {cntrl_contents}
+          {belly_contents}
         &end
         """
 
@@ -457,7 +513,8 @@ class AmberObject(MdObject):
         
         mdin_contents = mdin_contents.format(
             minimization_contents=minimization_contents,
-            cntrl_contents=cntrl_contents)
+            cntrl_contents=cntrl_contents,
+            belly_contents=belly_contents)
         mdin_contents += lmod_contents
         mdin_contents = mdin_contents.lstrip('\n')
         mdin_contents = pdfbridge.Utils.unindent_block(mdin_contents)
@@ -533,9 +590,13 @@ class AmberObject(MdObject):
         orig_pdb.set_by_atomgroup(orig_models)
         with open(self.output_pdb_filepath, "w") as f:
             f.write(str(orig_pdb))
-        
+
+        # output for QcModeling
+        self.output_model = orig_model
+            
         self.restore_cwd()
         return return_code
+
     
     def _rename_amb2orig(self, amb_model):
         # rename model, chain, res_id
@@ -631,6 +692,79 @@ class AmberObject(MdObject):
             logger.debug("amb: {}/{} <-> orig: {}/{}".format(amb_chain_id, amb_resid, orig_chain_id, orig_resid))
 
             
+    # ==================================================================
+    # for belly method
+    # ==================================================================
+    def _get_wat_resid(self, model):
+        start = -1
+        end = -1
+
+        select_WAT = pdfbridge.Select_Name('WAT')
+        WATs = model.select(select_WAT)
+
+        return self._get_ambermask_res_list(WATs)
+        
+
+    def _get_ion_resid(self, model):
+        start = -1
+        end = -1
+
+        areas = []
+        select_Na = pdfbridge.Select_Name("Na+")
+        select_Cl = pdfbridge.Select_Name("Cl-")
+        model_Na = model.select(select_Na)
+        model_Cl = model.select(select_Cl)
+        model_X = model_Na
+        model_X |= model_Cl
+
+        return self._get_ambermask_res_list(model_X)
+
+
+    def _get_ambermask_res_list(self, select_model):
+        select_model.sort_atoms = "nice"
+        select_model.sort_groups = "nice"
+
+        start = end = -1
+        res_list = []
+        for chain_name, chain in select_model.groups():
+            for resid, res in chain.groups():
+                i = int(resid)
+                if start == -1:
+                    start = i
+                    end = i
+                    continue
+                
+                if end +1 == i:
+                    # continue residue area
+                    end = i
+                else:
+                    res_list.append((start, end))
+                    start = i
+                    end = i
+        if start != -1:
+            res_list.append((start, end))
+
+        return res_list
+    
+    
+    def _make_maskstr(self, resid_areas):
+        assert(isinstance(resid_areas, list))
+        maskstr = ""
+        for start, end in resid_areas:
+            if len(maskstr) == 0:
+               maskstr = ":"
+            else:
+               maskstr += ","
+
+            if start != end:
+                maskstr += "{start}-{end}".format(
+                    start=start, end=end)
+            else:
+                maskstr += "{start}".format(
+                    start=start)
+        return maskstr
+    
+    
 if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     import doctest
