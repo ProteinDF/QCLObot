@@ -1,5 +1,6 @@
 # System
 .python-version
+*~
 
 # Compiled Object files
 *.slo
@@ -23,6 +24,12 @@
 *.out
 *.app
 
+# for Python
+*.pyc
+*/__pycache__/*
+build/*
+
 # for Sphinx
 _build/doctrees
+
 

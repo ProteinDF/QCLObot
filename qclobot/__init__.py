@@ -23,17 +23,17 @@ from __future__ import absolute_import
 
 # from .types_str import str, bytes, basestring, unicode
 
-from .qccommon import get_tmpfile_path
-from .qcerror import QcError, QcControlError, QcScriptRunningError
+#from .qccommon import get_tmpfile_path
+#from .qcerror import QcError, QcControlError, QcScriptRunningError
 
 from .qccontrol import QcControl
-from .qcatom import QcAtom
-from .qcfragment import QcFragment
-from .qcframe import QcFrame
-from .qcorbitaldata import QcOrbitalData
+#from .qcatom import QcAtom
+#from .qcfragment import QcFragment
+#from .qcframe import QcFrame
+#from .qcorbitaldata import QcOrbitalData
 
-from .qcopt import QcOpt
+#from .qcopt import QcOpt
 
 # copy from ProteinDF_pytools
-from .process import Process
+#from .process import Process
 
