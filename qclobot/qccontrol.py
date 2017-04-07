@@ -376,7 +376,7 @@ class QcControl(object):
     # ------------------------------------------------------------------
     def _get_fragments(self, fragments_data, default):
         assert(isinstance(fragments_data, list))
-        logger.debug("> get_fragments()")
+        logger.info("> make list of fragments: start")
         logger.debug(str(default))
         
         #fragment = QcFragment()
@@ -425,9 +425,10 @@ class QcControl(object):
                 raise QcControlError('unknown subfragment:', frg_data_str)
 
             assert(isinstance(subfrg, QcFragment))
-            logger.info("> fragment append: {fragment_name}".format(fragment_name=name))
+            logger.info("> add fragment to list: {fragment_name}".format(fragment_name=name))
             answer.append(subfrg)
 
+        logger.info("> make list of fragments: end")
         return answer
 
     def _set_default(self, default_values, update_values):

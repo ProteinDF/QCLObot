@@ -885,8 +885,8 @@ class QcFrame(object):
             frg.set_LO_matrix(Clo_path, run_type)
         logger.info("{header} create C_LO: end".format(header=self.header))
             
-        # trans C_LO
-        self._trans_LO()
+        # trans C_LO to QCLO
+        self._trans_LO2QCLO()
 
         # finish
         self.is_finished_pickup_LO = True
@@ -936,59 +936,63 @@ class QcFrame(object):
             
         return ranked_judge[0][0]
 
-    def _trans_LO(self):
+    def _trans_LO2QCLO(self):
         logger.info('trans LO at {}'.format(os.getcwd()))
         run_type = 'rks'
         F_path = self.pdfparam.get_Fmat_path(run_type)
         logger.info('F matrix: {}'.format(F_path))
         for frg_name, frg in self.fragments():
-            logger.info('frg {}: AOs={}'.format(frg_name, frg.get_number_of_AOs()))
-            if frg.get_number_of_AOs() == 0:
-                continue
-            
-            Clo_path = frg.get_LO_matrix_path(run_type)
-            #if Clo_path is None:
-            #    continue
-
-            # calc (C_LO)dagger * F * C_LO => F'
-            F_Clo_path = 'F_Clo.{}.mat'.format(frg_name)
-            pdf.run_pdf(['mat-mul', '-v',
-                         F_path,
-                         Clo_path,
-                         F_Clo_path])
-
-            Clo_dagger_path = 'Clo_dagger.{}.mat'.format(frg_name)
-            pdf.run_pdf(['mat-transpose', '-v',
-                         Clo_path,
-                         Clo_dagger_path])
-
-            F_prime_path = 'Fprime.{}.mat'.format(frg_name)
-            pdf.run_pdf(['mat-mul', '-v',
-                         Clo_dagger_path,
-                         F_Clo_path,
-                         F_prime_path])
-
-            pdf.run_pdf(['mat-symmetrize',
-                         F_prime_path,
-                         F_prime_path])
-            
-            # diagonal F'
-            eigval_path = 'QCLO_eigval.{}.vtr'.format(frg_name)
-            Cprime_path = 'Cprime.{}.mat'.format(frg_name)
-            logger.info("diagonal F'")
-            pdf.run_pdf(['mat-diagonal', '-v',
-                         '-l', eigval_path,
-                         '-x', Cprime_path,
-                         F_prime_path])
-
-            # AO基底に変換
             C_QCLO_path = 'C_QCLO.{}.mat'.format(frg_name)
-            pdf.run_pdf(['mat-mul', '-v',
-                         Clo_path,
-                         Cprime_path,
-                         C_QCLO_path])
-            frg.set_QCLO_matrix(C_QCLO_path)
+            frg_AO = frg.get_number_of_AOs()
+            logger.info("{header} fragment '{name}' has {ao} AO(s)".format(
+                header=self.header, name=frg_name, ao=frg_AO))
 
+            if frg.get_number_of_AOs() != 0:
+                Clo_path = frg.get_LO_matrix_path(run_type)
+                assert(Clo_path != None)
+
+                # calc (C_LO)dagger * F * C_LO => F'
+                F_Clo_path = 'F_Clo.{}.mat'.format(frg_name)
+                pdf.run_pdf(['mat-mul', '-v',
+                             F_path,
+                             Clo_path,
+                             F_Clo_path])
+
+                Clo_dagger_path = 'Clo_dagger.{}.mat'.format(frg_name)
+                pdf.run_pdf(['mat-transpose', '-v',
+                             Clo_path,
+                             Clo_dagger_path])
+                
+                F_prime_path = 'Fprime.{}.mat'.format(frg_name)
+                pdf.run_pdf(['mat-mul', '-v',
+                             Clo_dagger_path,
+                             F_Clo_path,
+                             F_prime_path])
+
+                pdf.run_pdf(['mat-symmetrize',
+                             F_prime_path,
+                             F_prime_path])
+            
+                # diagonal F'
+                eigval_path = 'QCLO_eigval.{}.vtr'.format(frg_name)
+                Cprime_path = 'Cprime.{}.mat'.format(frg_name)
+                logger.info("diagonal F'")
+                pdf.run_pdf(['mat-diagonal', '-v',
+                             '-l', eigval_path,
+                             '-x', Cprime_path,
+                             F_prime_path])
+
+                # AO基底に変換
+                pdf.run_pdf(['mat-mul', '-v',
+                             Clo_path,
+                             Cprime_path,
+                             C_QCLO_path])
+            else:
+                logger.info("{header} create empty QCLO matrix.".format(header=self.header))
+                empty_mat = pdf.Matrix()
+                empty_mat.save(C_QCLO_path)
+                
+            frg.set_QCLO_matrix(C_QCLO_path)
             logger.info('C_QCLO saved: {}'.format(C_QCLO_path))
         
         
