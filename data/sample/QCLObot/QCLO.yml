@@ -1,0 +1,143 @@
+---
+vars:
+  residues: [ 2 ]
+  
+tasks:
+  - name: default
+    brd_file: GDG_x.brd
+    basis_set: DZVP
+    guess: Harris
+    XC_functional: SVWN
+    J_engine: CD
+
+  - name: res_1
+    sp: true
+    fragments:
+      - name: res_1
+        brd_select: /model_1/A/1/
+      - name: NME_1
+        add_NME: true
+        brd_select: /model_1/A/2/
+
+  - name: res_{{ item }}
+    sp: true
+    fragments:
+      - name: res_{{ item }}
+        brd_select: /model_1/A/{{ item }}/
+      - name: ACE_{{ item -1 }}
+        add_ACE: true
+        brd_select: /model_1/A/{{ item -1 }}/
+      - name: NME_{{ item +1 }}
+        add_NME: true
+        brd_select: /model_1/A/{{ item +1 }}/
+    with_items: residues
+
+  - name: res_3
+    sp: true
+    fragments:
+      - name: res_3
+        brd_select: /model_1/A/3/
+      - name: ACE_3
+        add_ACE: true
+        brd_select: /model_1/A/2/
+
+  - name: res_1-3_dens
+    sp: true
+    guess: density
+    fragments:
+      - name: N_term
+        reference:
+          frame: res_1
+          fragment: res_1
+      - name: res_2
+        reference:
+          frame: res_2
+          fragment: res_2
+      - name: C_term
+        reference:
+          frame: res_3
+          fragment: res_3
+    
+  - name: res_1-3_qclo
+    sp: true
+    guess: QCLO
+    fragments:
+      - name: N_term
+        reference:
+          frame: res_1
+          fragment: res_1
+      - name: res_2
+        reference:
+          frame: res_2
+          fragment: res_2
+      - name: C_term
+        reference:
+          frame: res_3
+          fragment: res_3
+    
+  - name: res_12-3_subgrp_dens
+    sp: true
+    guess: density
+    fragments:
+      - name: res_1-2
+        fragments:
+          - name: N_term
+            reference:
+              frame: res_1
+              fragment: res_1
+          - name: res_2
+            reference:
+              frame: res_2
+              fragment: res_2
+      - name: res_3
+        reference:
+          frame: res_3
+          fragment: res_3
+          
+  - name: res_12-3_subgrp_qclo
+    sp: true
+    guess: QCLO
+    fragments:
+      - name: res_1-2
+        fragments:
+          - name: N_term
+            reference:
+              frame: res_1
+              fragment: res_1
+          - name: res_2
+            reference:
+              frame: res_2
+              fragment: res_2
+      - name: res_3
+        reference:
+          frame: res_3
+          fragment: res_3
+          
+  - name: res_1-3_subgrp_dens
+    sp: true
+    guess: density
+    fragments:
+      - name: res_1-2
+        reference:
+          frame: res_12-3_subgrp_dens
+          fragment: res_1-2
+      - name: res_3
+        reference:
+          frame: res_3
+          fragment: res_3
+          
+  - name: res_1-3_subgrp_qclo
+    sp: true
+    guess: QCLO
+    fragments:
+      - name: res_1-2
+        reference:
+          frame: res_12-3_subgrp_qclo
+          fragment: res_1-2
+      - name: res_3
+        reference:
+          frame: res_3
+          fragment: res_3
+
+
+          

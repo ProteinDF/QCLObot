@@ -31,26 +31,19 @@ class QcAtom(bridge.Atom):
     def __init__(self, *args, **kwargs):
         super(QcAtom, self).__init__(*args, **kwargs)
 
-        if kwargs.get('debug'):
-            logger.addHandler(logging.StreamHandler())
-            logger.setLevel(logging.DEBUG)
-        else:
-            logger.addHandler(logging.NullHandler())
-            logger.setLevel(logging.INFO)
-
         suffix = "." + self.symbol
         self.basisset = kwargs.get('basisset', 'O-DZVP2' + suffix)
         self.basisset_j = kwargs.get('basisset_j', 'A-DZVP2' + suffix)
         self.basisset_xc = kwargs.get('basisset_xc', 'A-DZVP2' + suffix)
         self.basisset_gridfree = kwargs.get('basisset_gridfree', 'O-DZVP2' + suffix)
 
-        if isinstance(args[0], QcAtom):
+        if (len(args) > 0) and (isinstance(args[0], QcAtom)):
             self.basisset = args[0].basisset
             self.basisset_j = args[0].basisset_j
             self.basisset_xc = args[0].basisset_xc
             self.basisset_gridfree = args[0].basisset_gridfree
         
-        self._qc_parent = kwargs.get('qc_parent', None)
+        # self._qc_parent = kwargs.get('qc_parent', None)
 
     # transform to bridge.Atom
     def get_Atom(self):

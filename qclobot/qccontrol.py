@@ -29,9 +29,12 @@ except:
 import jinja2
     
 import pdfbridge as bridge
-import qclobot as qclo
+from .qcframe import QcFrame
+from .qcfragment import QcFragment
+from .qcerror import QcControlError
 
 logger = logging.getLogger(__name__)
+
 
 class QcControl(object):
     _modeling = bridge.Modeling()
@@ -224,8 +227,10 @@ class QcControl(object):
         if 'name' not in frame_data:
             logger.critical('name is not defined.')
         frame_name = frame_data.get('name')        
-        logger.info('--- FRAME: {} ---'.format(frame_name))
-        frame = qclo.QcFrame(frame_name)
+        logger.info("#" * 72)
+        logger.info('# FRAME: {} '.format(frame_name))
+        logger.info("#" * 72)
+        frame = QcFrame(frame_name)
 
         # setup default value
         self._set_default(self._frames['default'], frame_data)
@@ -275,20 +280,24 @@ class QcControl(object):
         # print(repr(frame.pdfparam.extra_keywords))
         
         # fragments
-        logger.info('begin to make fragments for frame: {}'.format(frame_name))
+        logger.info('> make fragments for [{frame_name}]'.format(frame_name=frame_name))
         fragments_list = self._get_fragments(frame_data.get('fragments', []), frame_data)
         for f in fragments_list:
-            assert(isinstance(f, qclo.QcFragment))
+            assert(isinstance(f, QcFragment))
             frame[f.name] = f
 
             # fragment information
-            parent_frame_name = ""
-            if f.qc_parent != None:
-                parent_frame_name = f.qc_parent.name
-            logger.info("add fragment: {}/{} to fragment {}".format(frame_name, f.name, frame_name))
+            #parent_frame_name = ""
+            #if f.parent != None:
+            #    parent_frame_name = f.parent.name
+            #logger.info("> add fragment {ref_frame}/{ref_fragment} to {frame_name}".format(
+            #    ref_frame=parent_frame_name,
+            #    ref_fragment=f.name,
+            #    frame_name=frame_name
+            #))
             #for subgrp_name, subgrp in frame[f.name].groups():
-            #    logger.info('  > subfragment: {}, parent={}'.format(subgrp_name, subgrp.qc_parent.name))
-        logger.info('end of making fragments process for frame: {}'.format(frame_name))
+            #    logger.info('  > subfragment: {}, parent={}'.format(subgrp_name, subgrp.parent.name))
+        logger.debug('> make fragments for [{frame_name}]: end'.format(frame_name=frame_name))
             
         # --------------------------------------------------------------
         # action
@@ -367,27 +376,29 @@ class QcControl(object):
     # ------------------------------------------------------------------
     def _get_fragments(self, fragments_data, default):
         assert(isinstance(fragments_data, list))
-        logger.debug(">>>> _get_fragments()")
+        logger.info("> make list of fragments: start")
         logger.debug(str(default))
         
-        fragment = qclo.QcFragment()
+        #fragment = QcFragment()
         answer = []
         for frg_data in fragments_data:
             assert(isinstance(frg_data, dict))
 
             self._set_default(default, frg_data)
-            logger.debug(">>>> _get_fragments(): loop")
+            logger.debug("> get_fragments(): loop")
             logger.debug(frg_data)
             name = frg_data.get('name', '')
-            logger.info('>> name: {}'.format(name))
+            logger.debug('> name: {}'.format(name))
 
             subfrg = None
             if 'fragments' in frg_data:
+                logger.info("> create subfragment for {name}: start".format(name=name))
                 subfrg_list = self._get_fragments(frg_data.get('fragments'), default)
-                subfrg = qclo.QcFragment(name=name)
+                subfrg = QcFragment(name=name)
                 for item in subfrg_list:
-                    logger.info('>>>> list name: {}'.format(item.name))
+                    logger.debug('> list name: {}'.format(item.name))
                     subfrg[item.name] = item
+                logger.info("> create subfragment for {name}: end".format(name=name))
             elif 'add_H' in frg_data:
                 subfrg = self._get_add_H(frg_data)
             elif 'add_CH3' in frg_data:
@@ -404,19 +415,20 @@ class QcControl(object):
                 subfrg = self._get_reference_fragment(frg_data)
             else:
                 logger.critical(str(frg_data))
-                raise qclo.QcControlError('unknown fragment:', str(frg_data))
+                raise QcControlError('unknown fragment:', str(frg_data))
 
             if subfrg == None:
                 frg_data_str = pprint.pformat(frg_data)
-                logger.critical('unknown sub-fragment:')
-                logger.critical('  sub-fragment information >')
+                logger.critical('> unknown sub-fragment:')
+                logger.critical('>  sub-fragment information:')
                 logger.critical(frg_data_str)
-                raise qclo.QcControlError('unknown subfragment:', frg_data_str)
+                raise QcControlError('unknown subfragment:', frg_data_str)
 
-            logger.info("subfrg append: {}".format(name))
-            assert(isinstance(subfrg, qclo.QcFragment))
+            assert(isinstance(subfrg, QcFragment))
+            logger.info("> add fragment to list: {fragment_name}".format(fragment_name=name))
             answer.append(subfrg)
 
+        logger.info("> make list of fragments: end")
         return answer
 
     def _set_default(self, default_values, update_values):
@@ -460,10 +472,10 @@ class QcControl(object):
         brd_file_path = frg_data.get('brd_file')
         atomgroup = self._select_atomgroup(brd_file_path, brd_select)
 
-        frg = qclo.QcFragment(atomgroup)
+        frg = QcFragment(atomgroup)
         frg.margin = False
         if 'name' not in frg_data:
-            raise qclo.QcControlError('name keyword NOT FOUND', str(frg_data))
+            raise QcControlError('name keyword NOT FOUND', str(frg_data))
         frg.name = frg_data.get('name')
 
         self._set_basis_set(frg,
@@ -480,29 +492,32 @@ class QcControl(object):
         assert(isinstance(frg_data, dict))
 
         if not 'frame' in frg_data['reference']:
-            raise qclo.QcControlError('NOT FOUND frame key in reference fragment',
-                                      pprint.pformat(frg_data))
+            raise QcControlError('NOT FOUND frame key in reference fragment',
+                                 pprint.pformat(frg_data))
         if not 'fragment' in frg_data['reference']:
-            raise qclo.QcControlError('NOT FOUND fragment key in reference fragment',
-                                      pprint.pformat(frg_data))
+            raise QcControlError('NOT FOUND fragment key in reference fragment',
+                                 pprint.pformat(frg_data))
         
-        ref_frame = bridge.Utils.to_unicode(frg_data['reference']['frame'])
-        ref_fragment = bridge.Utils.to_unicode(frg_data['reference']['fragment'])
+        ref_frame_name = bridge.Utils.to_unicode(frg_data['reference']['frame'])
+        ref_fragment_name = bridge.Utils.to_unicode(frg_data['reference']['fragment'])
 
-        if ref_frame not in self._frames:
-            raise qclo.QcControlError('UNKNOWN FRAME',
-                                      ref_frame)
+        if ref_frame_name not in self._frames:
+            raise QcControlError('UNKNOWN FRAME',
+                                 ref_frame_name)
+        ref_frame = self._frames.get(ref_frame_name)
 
-        if not self._frames[ref_frame].has_fragment(ref_fragment):
-            logger.critical(str(self._frames[ref_frame]))
-            raise qclo.QcControlError('UNKNOWN FRAGMENT',
-                                      '{} in {}'.format(ref_fragment,
-                                                        ref_frame))
+        if not ref_frame.has_fragment(ref_fragment_name):
+            logger.critical(str(self._frames[ref_frame_name]))
+            raise QcControlError('UNKNOWN FRAGMENT',
+                                 '{} in {}'.format(ref_fragment_name,
+                                                   ref_frame_name))
 
-        logger.info("reference fragment: {}/{}".format(ref_frame, ref_fragment))
-        fragment = qclo.QcFragment(self._frames[ref_frame][ref_fragment])
+        logger.info("> reference fragment: [{}/{}]".format(ref_frame_name, ref_fragment_name))
+        ref_fragment = ref_frame[ref_fragment_name]
+
+        fragment = QcFragment(ref_fragment)
         fragment.name = frg_data.get('name')
-        fragment.parent = self._frames[ref_frame] # add parent information
+        fragment.ref_fragment = ref_fragment
         return fragment
 
     
@@ -519,10 +534,10 @@ class QcControl(object):
         ag_H = bridge.AtomGroup()
         ag_H.set_atom('H*', atom_H)
         
-        H = qclo.QcFragment(ag_H)
+        H = QcFragment(ag_H)
         H.margin = True
         if 'name' not in frg_data:
-            raise qclo.QcControlError('NOT FOUND name key in add_H', str(frg_data))
+            raise QcControlError('NOT FOUND name key in add_H', str(frg_data))
         H.name = frg_data.get('name')
 
         self._set_basis_set(H,
@@ -542,23 +557,23 @@ class QcControl(object):
         atomgroup_C1 = atomgroup_C1.get_atom_list()
         if len(atomgroup_C1) == 0:
             logger.critical('cannnot find displacement atom: key={}'.format(brd_select_C1))
-            raise qclo.QcControlError('No atoms found for "displacement" in add_CH3',
-                                      brd_select_C1)
+            raise QcControlError('No atoms found for "displacement" in add_CH3',
+                                 brd_select_C1)
         atom_C1 = atomgroup_C1[0]
 
         atomgroup_C2 = self._select_atomgroup(brd_file_path, brd_select_C2)
         atomgroup_C2 = atomgroup_C2.get_atom_list()
         if len(atomgroup_C2) == 0:
             logger.critical('cannnot find displacement atom: key={}'.format(brd_select_C2))
-            raise qclo.QcControlError('No atoms found for "root" in add_CH3')
+            raise QcControlError('No atoms found for "root" in add_CH3')
         atom_C2 = atomgroup_C2[0]
         ag_CH3 = self._modeling.add_methyl(atom_C1, atom_C2)
         ag_CH3.set_atom('C', atom_C1)
         
-        CH3 = qclo.QcFragment(ag_CH3)
+        CH3 = QcFragment(ag_CH3)
         CH3.margin = True
         if 'name' not in frg_data:
-            raise qclo.QcControlError('NOT FOUND name key in add_CH3', str(frg_data))
+            raise QcControlError('NOT FOUND name key in add_CH3', str(frg_data))
         CH3.name = frg_data.get('name')
 
         self._set_basis_set(CH3,
@@ -574,10 +589,10 @@ class QcControl(object):
         atomgroup = self._select_atomgroup(brd_file_path, brd_select)
         ag_ACE = self._modeling.get_ACE_simple(atomgroup)
 
-        ACE = qclo.QcFragment(ag_ACE)
+        ACE = QcFragment(ag_ACE)
         ACE.margin = True
         if 'name' not in frg_data:
-            raise qclo.QcControlError('NOT FOUND name key in add_ACE', str(frg_data))
+            raise QcControlError('NOT FOUND name key in add_ACE', str(frg_data))
         ACE.name = frg_data.get('name')
 
         self._set_basis_set(ACE,
@@ -594,10 +609,10 @@ class QcControl(object):
         atomgroup = self._select_atomgroup(brd_file_path, brd_select)
         ag_NME = self._modeling.get_NME_simple(atomgroup)
         
-        NME = qclo.QcFragment(ag_NME)
+        NME = QcFragment(ag_NME)
         NME.margin = True
         if 'name' not in frg_data:
-            raise qclo.QcControlError('NOT FOUND name key in add_NME', str(frg_data))
+            raise QcControlError('NOT FOUND name key in add_NME', str(frg_data))
         NME.name = frg_data.get('name')
 
         self._set_basis_set(NME,
@@ -613,7 +628,7 @@ class QcControl(object):
 
         atomgroup = bridge.AtomGroup()
         if 'name' not in frg_data:
-            raise qclo.QcControlError('NOT FOUND name key in atomlist', str(frg_data))
+            raise QcControlError('NOT FOUND name key in atomlist', str(frg_data))
         atomgroup.name = frg_data.get('name')
         
         index = 1
@@ -660,7 +675,7 @@ class QcControl(object):
         else:
             logger.error("atomlist shuld be list: {}".format(str(atomlist)))
                     
-        frg = qclo.QcFragment(atomgroup)
+        frg = QcFragment(atomgroup)
         self._set_basis_set(frg,
                             frg_data.get('basis_set'),
                             frg_data.get('basis_set_aux', None),
@@ -695,7 +710,7 @@ class QcControl(object):
         """
         set basis set to the fragment object.
         """
-        if isinstance(fragment, qclo.QcFragment):
+        if isinstance(fragment, QcFragment):
             for subfrg_name, subfrg in fragment.groups():
                 self._set_basis_set(subfrg, basis_set, basis_set_aux, basis_set_gridfree)
             for atm_name, atm in fragment.atoms():
@@ -711,7 +726,7 @@ class QcControl(object):
                 else:
                     atm.basisset_gridfree = 'O-{}.{}'.format(self._find_basis_set_name(atm, basis_set), atm.symbol)
         else:
-            raise qclo.QcControlError('Program Error: ', str(fragment))
+            raise QcControlError('Program Error: ', str(fragment))
 
     def _find_basis_set_name(self, atom, input_obj):
         """ 
@@ -728,7 +743,7 @@ class QcControl(object):
             elif atom.symbol in input_obj:
                 ans = input_obj[atom.symbol]
             else:
-                raise qclo.QcControlError('type mismatch.', str(input_obj))
+                raise QcControlError('type mismatch.', str(input_obj))
         return ans
         
 if __name__ == '__main__':
