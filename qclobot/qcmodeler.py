@@ -161,9 +161,7 @@ class QcModeler(QcControl_Base):
         assert(isinstance(name, str))
         assert(isinstance(args, dict))
 
-        amber = AmberObject(name=name)
-        model = self._get_input_model(args)
-        amber.model = model
+        amber = self._run_amber_setup(name, args)
         amber.opt()
 
         return amber
@@ -174,6 +172,13 @@ class QcModeler(QcControl_Base):
         assert(isinstance(name, str))
         assert(isinstance(args, dict))
 
+        amber = self._run_amber_setup(name, args)
+        amber.md()
+
+        return amber
+
+    
+    def _run_amber_setup(self, name, args):
         amber = AmberObject(name=name)
         model = self._get_input_model(args)
         amber.model = model
@@ -196,9 +201,7 @@ class QcModeler(QcControl_Base):
                     amber.bellymask_WAT = True
                 if bellymask_target == "ions":
                     amber.bellymask_ions = True
-        
-        amber.md()
-
+                    
         return amber
     
 

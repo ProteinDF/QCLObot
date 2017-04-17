@@ -21,7 +21,15 @@ tasks:
       belly_mask:
         - water
         - ions
-    
+
+  - name: test_4TUT_optX_mdWatX_optWatX
+    opt:
+      reference: test_4TUT_optX_mdWatX
+      belly_mask:
+        - water
+        - ions
+      
+        
 #  - name: transform_to_pdf
 #    transform:
 #      src: opt_ions/4tut_x.pdb

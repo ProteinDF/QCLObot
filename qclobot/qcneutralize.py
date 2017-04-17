@@ -19,8 +19,10 @@ class QcNeutralize(TaskObject):
     def run(self):
         neutral_model = self._neutralize(self.model)
         self.output_model = self._reorder_ions_for_amber(neutral_model)
-        
 
+        return 0
+
+    
     def _neutralize(self, model):
         ip = pdfbridge.IonPair(model)
         ionpairs = ip.get_ion_pairs()

@@ -4,11 +4,13 @@ TESTS="\
   qcatom \
   process \
   protonate \
+  qcneutralize \
   amberobject \
-  "
-TESTS="\
   qcmodeler \
   "
+#TESTS="\
+#  qcmodeler \
+#  "
 
 rm -rf test_*
 

@@ -107,6 +107,16 @@ def check_format_residue(res):
     return answer
 
 
+def find_max_chain_id(model):
+    """return max chain ID
+    """
+    answer = ord("A")
+    if check_format_model(model):
+        for chain_id, chain in model.groups():
+            answer = max(answer, ord(chain_id))
+    return chr(answer)
+
+
 def remove_WAT(atomgroup):
     """ remove water(WAT or HOH) residues
     """

@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 import pdfbridge
 from .mdobject import MdObject
 from .process import Process
-from .utils import get_model, check_format_model, remove_WAT
+from .utils import get_model, check_format_model, find_max_chain_id, remove_WAT
 
 class AmberObject(MdObject):
     """Operate Amber task
@@ -485,12 +485,12 @@ class AmberObject(MdObject):
             if self.bellymask_WAT:
                 wat_resid = self._get_wat_resid(initial_model)
                 if len(belly_maskstr) > 0:
-                    belly_maskstr += " "
+                    belly_maskstr += " | "
                 belly_maskstr += self._make_maskstr(resid_areas = wat_resid)
             if self.bellymask_ions:
                 ion_resid = self._get_ion_resid(initial_model)
                 if len(belly_maskstr) > 0:
-                    belly_maskstr += " "
+                    belly_maskstr += " | "
                 belly_maskstr += self._make_maskstr(resid_areas = ion_resid)
             belly_contents = "ibelly=1, bellymask='{belly_maskstr}'"
             belly_contents = belly_contents.format(belly_maskstr=belly_maskstr)
@@ -567,6 +567,7 @@ class AmberObject(MdObject):
         
         self.cd_workdir("restrt2pdb")
 
+        # get pdb file from trajectory file using Amber
         p = Process()
         ambpdb_cmd = os.path.join(self._AMBERHOME, "bin", "ambpdb")
         cmd = "{ambpdb_cmd} -p {prmtop} -c {restrt}".format(ambpdb_cmd=ambpdb_cmd,
@@ -583,6 +584,7 @@ class AmberObject(MdObject):
         amb_models = amb_pdb.get_atomgroup()
         amb_model = get_model(amb_models)
 
+        # match the pdb formed by amber with original one
         orig_model = self._rename_amb2orig(amb_model)
         orig_models = pdfbridge.AtomGroup()
         orig_models.set_group(1, orig_model)
@@ -599,18 +601,23 @@ class AmberObject(MdObject):
 
     
     def _rename_amb2orig(self, amb_model):
+        """ 対応表(match_table)
+        """
+        max_chain_id = find_max_chain_id(self.model)
+        next_chain_id = chr(ord(max_chain_id) +1)
+        
         # rename model, chain, res_id
         answer = pdfbridge.AtomGroup()
         for amb_chain_id, amb_chain in amb_model.groups():
             for amb_res_id, amb_res in amb_chain.groups():
                 orig_chain_id, orig_res_id = self._get_chainres_match_table(amb_chain_id, amb_res_id)
                 if (orig_chain_id == None) or (orig_res_id == None):
-                    orig_chain_id = amb_chain_id
+                    orig_chain_id = next_chain_id
                     orig_res_id = amb_res_id
                     
                 if answer.has_groupkey(orig_chain_id) != True:
-                        orig_chain = pdfbridge.AtomGroup(name=amb_chain.name)
-                        answer.set_group(orig_chain_id, orig_chain)
+                    orig_chain = pdfbridge.AtomGroup(name=amb_chain.name)
+                    answer.set_group(orig_chain_id, orig_chain)
                 answer[orig_chain_id].set_group(orig_res_id, amb_res)
         
         return answer
@@ -664,7 +671,6 @@ class AmberObject(MdObject):
             return answer
 
         # make original table
-        # self._input_amber_model_match_table = []
         for chain_id, chain in amb_model.groups():
             for res_id, res in chain.groups():
                 for atom_id, atom in res.atoms():
