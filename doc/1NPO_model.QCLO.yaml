@@ -1,0 +1,192 @@
+---
+tasks:
+  - name: default
+    brd_file: 1NPO_model.brd
+    basis_set: DZVP2
+    guess: Harris
+    XC_functional: B3LYP
+    J_engine: CD
+    K_engine: CD
+    XC_engine: grid
+
+# ----------------------------------------------------------------------
+# STEP 1
+# ----------------------------------------------------------------------
+
+  # The res_1 bounds to the res_6 by the dislufide bond.
+  - name: res_1_res_6
+    sp: true
+    fragments:
+      - name: res_1-1
+        brd_select: /model_1/_/1/
+      - name: NME_1
+        add_NME: true
+        brd_select: /model_1/_/2/
+      - name: ACE_6
+        add_ACE: true
+        brd_select: /model_1/_/5/
+      - name: res_6-6
+        brd_select: /model_1/_/6/
+      - name: NME_6
+        brd_select: /model_1/_/7/
+
+  - name: res_2-2
+    sp: true
+    fragments:
+      - name: ACE_2
+        brd_select: /model_1/_/1/
+      - name: res_2-2
+        brd_select: /model_1/_/2/
+      - name: NME_2
+        brd_select: /model_1/_/3/
+  - name: res_3-3
+    sp: true
+    fragments:
+      - name: ACE_3
+        brd_select: /model_1/_/2/
+      - name: res_3-3
+        brd_select: /model_1/_/3/
+      - name: NME_3
+        brd_select: /model_1/_/4/
+  - name: res_4-4
+    sp: true
+    fragments:
+      - name: ACE_4
+        brd_select: /model_1/_/3/
+      - name: res_4-4
+        brd_select: /model_1/_/4/
+      - name: NME_4
+        brd_select: /model_1/_/5/
+  - name: res_5-5
+    sp: true
+    fragments:
+      - name: ACE_5
+        brd_select: /model_1/_/4/
+      - name: res_5-5
+        brd_select: /model_1/_/5/
+      - name: NME_5
+        brd_select: /model_1/_/6/
+  - name: res_7-7
+    sp: true
+    fragments:
+      - name: ACE_7
+        brd_select: /model_1/_/6/
+      - name: res_7-7
+        brd_select: /model_1/_/7/
+      - name: NME_7
+        brd_select: /model_1/_/8/
+  - name: res_8-8
+    sp: true
+    fragments:
+      - name: ACE_8
+        brd_select: /model_1/_/7/
+      - name: res_8-8
+        brd_select: /model_1/_/8/
+      - name: NME_8
+        brd_select: /model_1/_/9/
+  - name: res_9-9
+    sp: true
+    fragments:
+      - name: ACE_9
+        brd_select: /model_1/_/8/
+      - name: res_9-9
+        brd_select: /model_1/_/9/
+
+# ----------------------------------------------------------------------
+# STEP 2
+# ----------------------------------------------------------------------
+  - name: res_1-7
+    guess: QCLO
+    sp: true
+    fragments:
+      - name: res_1-6
+        fragments:
+          - name: res_1-1
+            reference:
+              frame: res_1_res_6
+              fragment: res_1-1
+          - name: res_2-2
+            reference:
+              frame: res_2-2
+              fragment: res_2-2
+          - name: res_3-3
+            reference:
+              frame: res_3-3
+              fragment: res_3-3
+          - name: res_4-4
+            reference:
+              frame: res_4-4
+              fragment: res_4-4
+          - name: res_5-5
+            reference:
+              frame: res_5-5
+              fragment: res_5-5
+          - name: res_6-6
+            reference:
+              frame: res_1_res_6
+              fragment: res_6-6
+      - name: res_7-7
+        fragments:
+          - name: res_7-7
+            reference:
+              frame: res_7-7
+              fragment: res_7-7
+          - name: NME_7
+            reference:
+              frame: res_7-7
+              fragment: NME_7
+
+  - name: res_6-9
+    guess: QCLO
+    sp: true
+    fragments:
+      - name: res_1_res_6
+        fragments:
+          - name: res_1-1
+            reference:
+              frame: res_1_res_6
+              fragment: res_1-1
+          - name: NME_1
+            reference:
+              frame: res_1_res_6
+              fragment: NME_1
+          - name: ACE_6
+            reference:
+              frame: res_1_res_6
+              fragment: ACE_6
+          - name: res_6-6
+            reference:
+              frame: res_1_res_6
+              fragment: res_6-6
+      - name: res_7-9
+        fragments:
+          - name: res_7-7
+            reference:
+              frame: res_7-7
+              fragment: res_7-7
+          - name: res_8-8
+            reference:
+              frame: res_8-8
+              fragment: res_8-8
+          - name: res_9-9
+            reference:
+              frame: res_9-9
+              fragment: res_9-9
+
+# ----------------------------------------------------------------------
+# STEP 3
+# ----------------------------------------------------------------------
+  - name: res_1-9
+    guess: QCLO
+    sp: true
+    fragments:
+      - name: res_1-9
+        fragments:
+          - name: res_1-6
+            reference:
+              frame: res_1-7
+              fragment: res_1-6
+          - name: res_7-9
+            reference:
+              frame: res_6-9
+              fragment: res_7-9

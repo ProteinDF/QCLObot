@@ -1,0 +1,4 @@
+[submodule "doc/_build/html"]
+	path = doc/_build/html
+	url = git@github.com:ProteinDF/QCLObot.git
+	branch = gh-pages

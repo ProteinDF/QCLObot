@@ -1,0 +1,67 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2015, Toshiyuki HIRANO
+# This file is distributed under the same license as the QCLObot tutorial
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: QCLObot tutorial 2015.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-02-15 15:29-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.2.0\n"
+
+#: ../../20_setup_model.rst:2
+msgid "Setting up calculation model"
+msgstr "計算モデルの設定"
+
+#: ../../20_setup_model.rst:5
+msgid "Prepare Oxytocin model"
+msgstr "Oxytocinモデルの作成"
+
+#: ../../20_setup_model.rst:7
+msgid ""
+"You can get Oxytocin model (1NPO_model.pdb) from here. Or you save the "
+"following text as 1NPO_model.pdb."
+msgstr "Oxytocinモデル(1NPO_model.pdb)を作成します。"
+"以下に1NPO_model.pdbを示します。"
+
+#: ../../20_setup_model.rst:17
+msgid "Check the model structure"
+msgstr "モデル分子構造の確認。"
+
+#: ../../20_setup_model.rst:19
+msgid ""
+"You should check the model structure by using viewing software such as "
+"PyMol and Chimera. The current model has a dislufide bond between CYC1 "
+"and CYC6."
+msgstr "PyMolやChimeraなどのビューワーソフトを使って構造を確認します。"
+"今回のモデルではCYC1とCYC6の間にS-S結合があります。"
+
+#: ../../20_setup_model.rst:25
+msgid "Convert PDB file to Bridge format file"
+msgstr "PDBファイルからBridge形式ファイルへの変換"
+
+#: ../../20_setup_model.rst:34
+msgid "You can check the bridge file contents using the following utility."
+msgstr "以下のユーティリティソフトを使ってBridge形式のファイルをチェックできます。"
+
+#: ../../20_setup_model.rst:43
+msgid "Create input file for QCLObot"
+msgstr "QCLObotの入力ファイルの作成"
+
+#: ../../20_setup_model.rst:45
+msgid "You save the following text as 1NPO_model.QCLO.yaml."
+msgstr "以下の内容を'1NPO_model.QCLO.yaml'として保存します。"
+
+#: ../../20_setup_model.rst:54
+msgid "Run QCLObot"
+msgstr "QCLObotの実行"
+

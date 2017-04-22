@@ -24,7 +24,6 @@ from distutils.core import setup
 from imp import reload
 
 sys.path.append('./qclobot')
-sys.path.append('./pdftests')
 
 setup(name='QCLObot',
       version='2014.0',
@@ -42,5 +41,11 @@ setup(name='QCLObot',
       packages=['qclobot'],
       scripts=[
           'scripts/qclo_sample.py',
+          'scripts/QCLObot.py',
+          'scripts/QCLObot_opt.py',
+          'scripts/relax_protein.py',
+          'scripts/relax_protein.sh',
+          'scripts/remove_wat.py'
       ],
 )
+
