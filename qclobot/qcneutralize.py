@@ -15,7 +15,23 @@ class QcNeutralize(TaskObject):
     def __init__(self, *args, **kwargs):
         super(QcNeutralize, self).__init__(*args, **kwargs)
 
-
+    # ==================================================================
+    # properties
+    # ==================================================================
+    def _get_input_pdb_filepath(self):
+        path = self._data.get('input_pdb_filepath', 'input.pdb')
+        return path
+    input_pdb_filepath = property(_get_input_pdb_filepath)
+    
+        
+    def _get_output_pdb_filepath(self):
+        path = self._data.get('output_pdb_filepath', 'output.pdb')
+        return path
+    output_pdb_filepath = property(_get_output_pdb_filepath)
+        
+    # ==================================================================
+    # method
+    # ==================================================================
     def run(self):
         neutral_model = self._neutralize(self.model)
         self.output_model = self._reorder_ions_for_amber(neutral_model)

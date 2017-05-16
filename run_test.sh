@@ -8,9 +8,6 @@ TESTS="\
   amberobject \
   qcmodeler \
   "
-#TESTS="\
-#  qcmodeler \
-#  "
 
 rm -rf test_*
 

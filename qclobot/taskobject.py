@@ -226,7 +226,9 @@ class TaskObject(object):
         self._atomgroup2file(self.output_model, output_path)
 
         
-    def _atomgroup2file(self, atomgroup, output_path):
+    def atomgroup2file(self, atomgroup, output_path):
+        '''output_pathの拡張子に応じて、bridge形式またはpdb形式でatomgroupをファイルに書き出す
+        '''
         assert(isinstance(atomgroup, pdfbridge.AtomGroup))
 
         abspath = os.path.abspath(output_path)
@@ -243,6 +245,11 @@ class TaskObject(object):
 
     def atomgroup2pdb(self, atomgroup, pdbfile,
                       model_name="model_1"):
+        '''atomgroupをpdb形式で出力する
+
+        atomgroupがmodels(複数のmodelで構成されている)の場合はそのまま出力する。
+        atomgroupがmodelの場合は、model_nameを付加して出力する。
+        '''
         assert(isinstance(pdbfile, str))
 
         self.cd_workdir()

@@ -20,11 +20,11 @@ class TestAmberObject(unittest.TestCase):
         self.model = get_model(models)
 
     def tearDown(self):
-        pass
         #p = Stats (self.pr)
         #p.strip_dirs()
         #p.sort_stats ('cumtime')
         #p.print_stats()
+        pass
         
     def test_opt(self):
         self.amber_obj = AmberObject("test_amber_opt")

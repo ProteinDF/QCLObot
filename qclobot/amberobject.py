@@ -4,6 +4,7 @@
 import os
 import logging
 logger = logging.getLogger(__name__)
+import time
 
 import pdfbridge
 from .mdobject import MdObject
@@ -99,6 +100,8 @@ class AmberObject(MdObject):
     # ==================================================================
     # properties: filepath
     # ==================================================================
+
+    # for leap
     def _get_leapin_filepath(self):
         path = os.path.join(self.work_dir, 'leap.in')
         return path
@@ -116,7 +119,14 @@ class AmberObject(MdObject):
     def _get_leap_amberparams(self):
         return self._data['leap_amberparams']
     leap_amberparams = property(_get_leap_amberparams)
+
+    def _get_leap_input_pdb_filepath(self):
+        path = self._data.get('leap_input_pdb_filepath', 'leap_input.pdb')
+        return path
+    leap_input_pdb_filepath = property(_get_leap_input_pdb_filepath)
+
     
+    # for this task
     def _get_input_pdb_filepath(self):
         path = self._data.get('input_pdb_filepath', 'input.pdb')
         return path
@@ -197,8 +207,18 @@ class AmberObject(MdObject):
     # ==================================================================
     def opt(self):
         model = pdfbridge.AtomGroup(self.model)
+        self._save_input_pdb(model)
+
+        # remove water?
         model = self._remove_water(model)
-        self._prepare_input_pdb(model)
+
+        if self.use_belly:
+            # belly-mask-atoms are set at top of pdb.
+            model = self._reform_model_for_belly(model)
+        
+        # self.solvation_model = "cap"
+
+        self._save_leap_input_pdb(model)
         self._prepare_leapin()
         self._do_leap()
 
@@ -235,23 +255,93 @@ class AmberObject(MdObject):
     def _remove_water(self, model):
         return remove_WAT(model)
 
-        
-    def _prepare_input_pdb(self, model):
-        self.cd_workdir("prepare input pdb file")
 
-        #mode = ''
-        mode = 'amber'
+    def _save_input_pdb(self, model):
+        """
+        入力ファイルを保存する
+        """
+        self.cd_workdir("debug input pdb file")
 
         models = pdfbridge.AtomGroup()
         models.set_group('model_1', model)
-        pdb = pdfbridge.Pdb(mode=mode)
+        pdb = pdfbridge.Pdb(mode="amber")
         pdb.set_by_atomgroup(models)
 
         with open(self.input_pdb_filepath, "w") as f:
             f.write(str(pdb))
 
         self.restore_cwd()
+        
+    def _save_leap_input_pdb(self, model):
+        """
+        leapで処理する前のmodelをpdb形式で保存する
+        """
+        self.cd_workdir("prepare input pdb file")
 
+        models = pdfbridge.AtomGroup()
+        models.set_group('model_1', model)
+        pdb = pdfbridge.Pdb(mode="amber")
+        pdb.set_by_atomgroup(models)
+
+        with open(self.leap_input_pdb_filepath, "w") as f:
+            f.write(str(pdb))
+
+        self.restore_cwd()
+
+
+    def _reform_model_for_belly(self, model):
+        chain_prefix = chr(ord("A") -1)
+
+        if self.bellymask_WAT:
+            model_new = pdfbridge.AtomGroup()
+            for chain_id, chain in model.groups():
+                chain_keep = pdfbridge.AtomGroup()
+                chain_keep.name = chain.name
+                chain_head = pdfbridge.AtomGroup()
+                chain_head.name = chain.name
+                for res_id, res in chain.groups():
+                    if res.name == "WAT":
+                        chain_head.set_group(res_id, res)
+                    else:
+                        chain_keep.set_group(res_id, res)
+                model_new.set_group(chain_id, chain_keep)
+                model_new.set_group(chain_prefix + chain_id, chain_head)
+            model = self._reorder_model(model_new)
+                
+        if self.bellymask_ions:
+            ions = ("Na+", "Na",
+                    "Cl-", "Cl")
+            model_new = pdfbridge.AtomGroup()
+            for chain_id, chain in model.groups():
+                chain_keep = pdfbridge.AtomGroup()
+                chain_keep.name = chain.name
+                chain_head = pdfbridge.AtomGroup()
+                chain_head.name = chain.name
+                for res_id, res in chain.groups():
+                    if res.name in ions:
+                        chain_head.set_group(res_id, res)
+                    else:
+                        chain_keep.set_group(res_id, res)
+                model_new.set_group(chain_id, chain_keep)
+                model_new.set_group(chain_prefix + chain_id, chain_head)
+            model = self._reorder_model(model_new)
+
+        return model
+
+    def _reorder_model(self, model):
+        input_model = pdfbridge.AtomGroup(model)
+        input_model.sort_groups = "nice"
+
+        output_model = pdfbridge.AtomGroup()
+        chain_index = 0
+        for chain_id, chain in input_model.groups():
+            if chain.get_number_of_all_atoms() > 0:
+                output_model.set_group(chr(ord("A") + chain_index), chain)
+                chain_index += 1
+
+        return output_model
+        
+    
     # ==================================================================
     # dynamics
     # ==================================================================
@@ -263,10 +353,18 @@ class AmberObject(MdObject):
         dt:    The time step (psec).
         """
         model = pdfbridge.AtomGroup(self.model)
+        self._save_input_pdb(model)
+
+        # remove water?
         model = self._remove_water(model)
-        self._prepare_input_pdb(model)
+
+        if self.use_belly:
+            # belly-mask-atoms are set at top of pdb.
+            model = self._reform_model_for_belly(model)
+
         # self.solvation_model = "cap"
-        
+
+        self._save_leap_input_pdb(model)
         self._prepare_leapin()
         self._do_leap()
 
@@ -310,7 +408,7 @@ class AmberObject(MdObject):
         leapin_contents += 'logFile {logfile_filepath}\n'.format(logfile_filepath=self.leap_logfile_filepath)
         leapin_contents += self.__get_leap_source_lines()
         leapin_contents += self.__get_leap_amberparams_lines()
-        leapin_contents += 'protein = loadPdb {pdb_file}\n'.format(pdb_file=self.input_pdb_filepath)
+        leapin_contents += 'protein = loadPdb {pdb_file}\n'.format(pdb_file=self.leap_input_pdb_filepath)
         leapin_contents += 'proteinBox = copy protein\n'
         leapin_contents += self.__get_leap_ssbond_lines()
         leapin_contents += self.__get_solvation(solute='proteinBox')
@@ -563,6 +661,7 @@ class AmberObject(MdObject):
     # get pdb
     # ==================================================================
     def _restrt2pdb(self):
+
         self._make_matching_table()
         
         self.cd_workdir("restrt2pdb")
@@ -595,7 +694,7 @@ class AmberObject(MdObject):
 
         # output for QcModeling
         self.output_model = orig_model
-            
+
         self.restore_cwd()
         return return_code
 
@@ -631,6 +730,8 @@ class AmberObject(MdObject):
 
         入力したモデルとleapで処理したモデルで残基番号などが変化するので、
         対応表を作成する
+
+        TODO: time-consuming routine!
         """
         self.cd_workdir("match models")
 
@@ -654,14 +755,14 @@ class AmberObject(MdObject):
         # 座標をもとに対応表を作成する
 
         # 座標が等しい原子をmodelから探す
-        def find_atom_path(model, pos):
+        def find_atom_path(model, atom):
             assert(isinstance(model, pdfbridge.AtomGroup))
-            assert(isinstance(pos, pdfbridge.Position))
+            assert(isinstance(atom, pdfbridge.Atom))
 
             NEAR_DISTANCE = 0.1
-            range_selecter = pdfbridge.Select_Range(pos, NEAR_DISTANCE)
-            selection = model.select(range_selecter)
-            # print(selection)
+            symbol_selector = pdfbridge.Select_Atom(atom.symbol)
+            range_selector = pdfbridge.Select_Range(atom.xyz, NEAR_DISTANCE)
+            selection = model.select(symbol_selector).select(range_selector)
             path_list = selection.get_path_list()
             
             answer = None
@@ -675,7 +776,7 @@ class AmberObject(MdObject):
             for res_id, res in chain.groups():
                 for atom_id, atom in res.atoms():
                     amb_path = atom.path
-                    orig_path = find_atom_path(self.model, atom.xyz)
+                    orig_path = find_atom_path(self.model, atom)
                     
                     if orig_path == None:
                         pass

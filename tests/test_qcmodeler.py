@@ -8,18 +8,20 @@ from pstats import Stats
 from qclobot.qcmodeler import QcModeler
 import pdfbridge
 
+use_profiler = False
+
 class TestQcModeler(unittest.TestCase):
     def setUp(self):
-        pass
-        #self.pr = cProfile.Profile()
-        #self.pr.enable()
+        if use_profiler:
+            self.pr = cProfile.Profile()
+            self.pr.enable()
 
     def tearDown(self):
-        pass
-        #p = Stats (self.pr)
-        #p.strip_dirs()
-        #p.sort_stats ('cumtime')
-        #p.print_stats()
+        if use_profiler:
+            p = Stats (self.pr)
+            p.strip_dirs()
+            p.sort_stats ('cumtime')
+            p.print_stats()
         
     def test_run(self):
         modeler = QcModeler()

@@ -87,8 +87,7 @@ class QcProtonate(TaskObject):
                 logger.info("output protonated file: {}".format(output_path))
                 protein = pdfbridge.AtomGroup()
                 protein.set_group("model_1", self.output_model)
-                self._atomgroup2file(protein,
-                                     output_path)
+                self.atomgroup2file(protein, output_path)
 
         self.restore_cwd()
         return return_code

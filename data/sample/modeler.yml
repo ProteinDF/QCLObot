@@ -2,7 +2,7 @@
 tasks:
   - name: test_4TUT
     protonate:
-      src: ./data/sample/4tut.pdb
+      src: ./data/sample/4tut.noWAT.pdb
 
   - name: test_4TUT_opt
     opt:
