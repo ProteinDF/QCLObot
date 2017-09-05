@@ -414,8 +414,8 @@ class QcControl(object):
             elif 'reference' in frg_data:
                 subfrg = self._get_reference_fragment(frg_data)
             else:
-                logger.critical(str(frg_data))
-                raise QcControlError('unknown fragment:', str(frg_data))
+                logger.critical("unknown fragment command/object: {}".format(str(frg_data.keys())))
+                raise QcControlError('unknown fragment: {}'.format(str(frg_data)))
 
             if subfrg == None:
                 frg_data_str = pprint.pformat(frg_data)
