@@ -525,7 +525,7 @@ class QcFrame(object):
         self.pdfparam.molecule = self.frame_molecule
 
         # num_of_electrons
-        num_of_electrons = self.pdfparam.num_of_electrons # calc from the molecule data
+        num_of_electrons = self.frame_molecule.sum_of_atomic_number() # calc from the molecule data
         logger.info("{header} the number of electrons = {elec}".format(
             header=self.header, elec=num_of_electrons))
         if self.charge != 0:
