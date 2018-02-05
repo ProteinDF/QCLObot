@@ -10,8 +10,8 @@ import yaml
 import logging
 import msgpack
 
-import pdfbridge 
-import qclobot as qclo
+import proteindf_bridge
+from .qccontrol import QcControl
 
 logger = logging.getLogger(__name__)
 ANG_PER_AU = 0.5291772
@@ -36,15 +36,15 @@ class QcOptRecord(object):
         self._steps.append({'molecule': pdfbridge.AtomGroup(molecule),
                             'coord': coord_table,
                             'force': force_table})
-        
+
     def _expand_molecule_data(self, atomgroup, coord_table, force_table):
         for k, subgroup in atomgroup.groups():
             self._expand_molecule_data(subgroup, coord_table, force_table)
         for k, atom in atomgroup.atoms():
             coord_table.append(atom.xyz)
             force_table.append(atom.force)
-    
-    
+
+
     @property
     def step(self):
         step = len(self._steps) -1
@@ -80,7 +80,7 @@ class QcOptRecord(object):
 
         return (max_force, rms_force, max_disp, rms_disp)
 
-    
+
     def is_converged(self):
         max_force, rms_force, max_disp, rms_disp = self._get_stat(self.step)
 
@@ -103,8 +103,8 @@ class QcOptRecord(object):
                                                      judge_rms_disp))
         judge = judge_max_force and judge_rms_force and judge_max_disp and judge_rms_disp
         return judge
-    
-    
+
+
     def get_new_coord(self):
         ans = self.get_SD()
         return ans
@@ -121,7 +121,7 @@ class QcOptRecord(object):
         update_coord_SD(molecule, alpha)
         return molecule
 
-    
+
 class QcOpt(object):
     def __init__(self,
                  brd_path,
@@ -133,11 +133,11 @@ class QcOpt(object):
     @property
     def top_dir(self):
         return self._top_dir
-        
+
     @property
     def name(self):
         return self._name
-    
+
     @property
     def step(self):
         return self._step
@@ -145,12 +145,12 @@ class QcOpt(object):
     @property
     def max_steps(self):
         return self._max_steps
-    
+
     # --------------------------------------------------------------------------
     def _initialize(self, brd_path, template_path):
         self._top_dir = os.path.abspath(os.getcwd())
         self._name = 'opt'
-        
+
         self._step = 1
         self._max_steps = 100
 
@@ -166,7 +166,7 @@ class QcOpt(object):
             raw_dat = msgpack.unpackb(f.read())
             atom_group = pdfbridge.AtomGroup(raw_dat)
         return atom_group
-            
+
     # --------------------------------------------------------------------------
     def _get_workdir(self, step = None):
         if step == None:
@@ -175,7 +175,7 @@ class QcOpt(object):
                           '{name}_{step}'.format(name = self.name,
                                                  step = step))
         return wd
-        
+
     def _get_brd_path(self, itr = None):
         if itr == None:
             itr = self.step
@@ -187,12 +187,12 @@ class QcOpt(object):
             path = os.path.join(self._get_workdir(itr),
                                 '{}_{}.brd'.format(brd_basename, itr))
         return path
-        
+
     # --------------------------------------------------------------------------
-    def run(self):        
+    def run(self):
         for self._step in range(self._step, self.max_steps):
             self.change_workdir()
-            
+
             self.calc_single_point()
 
             if self.is_converged() and self._step > 1:
@@ -214,20 +214,20 @@ class QcOpt(object):
         logger.info('restore dir: {}'.format(self.top_dir))
         os.chdir(self.top_dir)
 
-        
+
     def calc_single_point(self):
         logger.info('create QCLO senario')
         yaml_path = self._make_input()
-        
+
         logger.info('execute QCLO sernario')
-        control = qclo.QcControl()
+        control = QcControl()
         control.run(yaml_path)
 
         frame = control.get_frame(control.last_frame_name)
         pdfparam = frame.pdfparam
         self._record_step(pdfparam)
 
-        
+
     def _make_input(self):
         input_data = {}
         if self._template_path:
@@ -251,7 +251,7 @@ class QcOpt(object):
         input_data['tasks'][task_default_index]['brd_file'] = self._get_brd_path(self.step)
         with open(self._get_brd_path(self.step), 'wb') as f:
             f.write(msgpack.packb(self._molecule.get_raw_data()))
-        
+
         # save YAML file
         yaml_file_path = os.path.join(self._get_workdir(), 'senario.yaml')
         yaml_file = open(yaml_file_path, 'w')
@@ -260,7 +260,7 @@ class QcOpt(object):
 
         return yaml_file_path
 
-    
+
     def _record_step(self, pdfparam):
         num_of_atoms = pdfparam.num_of_atoms
         logger.info('# of atoms: {}'.format(num_of_atoms))
@@ -274,8 +274,8 @@ class QcOpt(object):
         assert(num_of_forces == num_of_atoms)
 
         self._opt_record.add_step(self._molecule)
-        
-        
+
+
     def _insert_forces(self, atomgroup, force_list, force_list_index):
         for key, group in atomgroup.groups():
             force_list_index = self.insert_forces(group, force_list, force_list_index)
@@ -283,12 +283,10 @@ class QcOpt(object):
             atom.force = force_list[force_list_index]
             force_list_index += 1
         return force_list_index
-        
-    
+
+
     def is_converged(self):
         return self._opt_record.is_converged()
 
     def update_coord(self):
         self._molecule = self._opt_record.get_new_coord()
-
-

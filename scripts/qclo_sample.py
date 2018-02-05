@@ -29,8 +29,8 @@ try:
 except:
     import msgpack_pure as msgpack
 
-import pdfbridge as bridge
-import pdfpytools as pdf
+import proteindf_bridge as bridge
+import proteindf_tools as pdf
 import qclobot as qclo
 
 
@@ -61,7 +61,7 @@ def main():
     brdfile.close()
 
     # manager = qclo.QcFrameManager()
-    
+
     # all models
     models = bridge.AtomGroup(brddata)
     #print('>>>> models')
@@ -81,7 +81,7 @@ def main():
         max_resid = chain.get_number_of_groups()
         logging.info("chain {}: max_resid={}".format(chain_name, max_resid))
         #logging.info(str(chain))
-        
+
         #for resid, res in chain.groups():
         for resid in range(1, 6):
             #resid = int(resid)
@@ -122,7 +122,7 @@ def main():
             frame[name] = fragment_res
             frame['ACE'] = ACE
             frame['NME'] = NME
-            
+
             frames[frame.name] = frame
             setup_calc_conf(frame.pdfparam)
             frame.calc_sp(dry_run = False)
@@ -140,7 +140,7 @@ def main():
         calc5res(frames, chain, 1)
 
         calc_test(frames)
-            
+
     exit()
 
 def calc3res(frames, chain, start):
@@ -150,7 +150,7 @@ def calc3res(frames, chain, start):
 
     if res1 >= 4:
         return
-    
+
     frame = qclo.QcFrame(name = 'res_{}-{}'.format(res1, res3))
 
     res1str = 'res_{res1}-{res1}'.format(res1=res1)
@@ -192,16 +192,16 @@ def calc5res(frames, chain, start):
     res1_3str = 'res_{res1}-{res3}'.format(res1=res1, res3=res3)
     res2_4str = 'res_{res2}-{res4}'.format(res2=res2, res4=res4)
     res3_5str = 'res_{res3}-{res5}'.format(res3=res3, res5=res5)
-    
+
     res1_5str = 'res_{res1}-{res5}'.format(res1=res1, res5=res5)
-    
+
     frame[res1_5str] = qclo.QcFragment()
     frame[res1_5str].set_group('res1', frames[res1_3str][res1str])
     frame[res1_5str].set_group('res2', frames[res1_3str][res2str])
     frame[res1_5str].set_group('res3', frames[res2_4str][res3str])
     frame[res1_5str].set_group('res4', frames[res3_5str][res4str])
     frame[res1_5str].set_group('res5', frames[res3_5str][res5str])
-    
+
     frame['ACE'] = frames['res_1-3']['ACE']
     frame['NME'] = frames['res_3-5']['NME']
 
@@ -219,12 +219,12 @@ def calc5res(frames, chain, start):
 
 def calc_test(frames):
     frame = qclo.QcFrame(name = 'res_1-3.QCLO')
-    
+
     frame['res_1-3'] = qclo.QcFragment()
     frame['res_1-3'].set_group('res1', frames['res_1-3']['res_1-1'])
     frame['res_1-3'].set_group('res2', frames['res_1-3']['res_2-2'])
     frame['res_1-3'].set_group('res3', frames['res_1-3']['res_3-3'])
-    
+
     frame['NME'] = frames['res_1-3']['NME']
 
     frames[frame.name] = frame
@@ -242,7 +242,7 @@ def setup_calc_conf(pdfparam):
     pdfparam.k_engine = 'CD'
     pdfparam.xc_engine = 'gridfree_CD'
     pdfparam.xc_functional = 'b3lyp'
-        
+
 if __name__ == '__main__':
     logging.config.fileConfig('logconfig.ini')
     main()
