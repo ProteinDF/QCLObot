@@ -106,7 +106,14 @@ class QcFragment(object):
         # option variables
         self._ref_fragment = None # isinstance(QcFragment)
         self._parent = None # isinstance(QcFrame, QcFragment)
+        # command alias
+        self._cmds = self._get_default_cmds()
 
+    def _get_default_cmds(self):
+        answer = {}
+        answer['mat-extend'] = 'mat-extend'
+
+        return answer
 
     # state ============================================================
     def get_raw_data(self):
@@ -166,6 +173,12 @@ class QcFragment(object):
     # ==================================================================
     # PROPERTIES
     # ==================================================================
+    # command alias ----------------------------------------------------
+    def set_command_alias(self, cmd_alias_dict):
+        for k, v in cmd_alias_dict.items():
+            logger.debug("command update: {} -> {}".format(k, v))
+            self._cmds[k] = v
+
     # parent -----------------------------------------------------------
     def _get_parent(self):
         return self._parent
@@ -505,6 +518,8 @@ class QcFragment(object):
         for subgrp_name, subgrp in self.groups():
             logger.info('{header} subgroup name={subgrp_name}'.format(
                 header=self.header, subgrp_name=subgrp_name))
+
+            subgrp.set_command_alias(self._cmds)
             subgrp_guess_density_matrix_path = subgrp.prepare_guess_density_matrix(run_type)
             if not os.path.exists(subgrp_guess_density_matrix_path):
                 logger.warn('NOT found: subgrp.guess.dens.mat={}'.format(subgrp_guess_density_matrix_path))
@@ -517,11 +532,11 @@ class QcFragment(object):
             assert(self._check_symmetric_matrix(subgrp_guess_density_matrix_path, subgrp_AOs))
             num_of_AOs_subgrp += subgrp_AOs
 
-            logger.debug('(sub) mat-ext -d ')
+            logger.debug('(sub) {} -d '.format(self._cmds['mat-extend']))
             logger.debug('    {}'.format(guess_density_matrix_path))
             logger.debug('    {}'.format(subgrp_guess_density_matrix_path))
             logger.debug('    {}'.format(guess_density_matrix_path))
-            pdf.run_pdf(['mat-ext', '-d',
+            pdf.run_pdf([self._cmds['mat-extend'], '-d',
                          guess_density_matrix_path,
                          subgrp_guess_density_matrix_path,
                          guess_density_matrix_path])
@@ -538,9 +553,10 @@ class QcFragment(object):
                 header=self.header, path=my_density_matrix_path))
             self._check_path(my_density_matrix_path)
 
-            logger.debug('mat-ext -d {} {} {}'.format(
+            logger.debug('{} -d {} {} {}'.format(
+                self._cmds['mat-extend'],
                 guess_density_matrix_path, my_density_matrix_path, guess_density_matrix_path))
-            pdf.run_pdf(['mat-ext', '-d',
+            pdf.run_pdf([self._cmds['mat-extend'], '-d',
                          guess_density_matrix_path,
                          my_density_matrix_path,
                          guess_density_matrix_path])
@@ -629,6 +645,8 @@ class QcFragment(object):
         for subgrp_name, subgrp in self.groups():
             logger.info('{header} subgroup name={subgrp_name}'.format(
                 header=self.header, subgrp_name=subgrp_name))
+
+            subgrp.set_command_alias(self._cmds)
             subgrp_guess_QCLO_matrix_path = subgrp.prepare_guess_QCLO_matrix(run_type, request_frame)
             if not os.path.exists(subgrp_guess_QCLO_matrix_path):
                 logger.warn('NOT found: subgrp.guess.QCLO.mat={}'.format(subgrp_guess_QCLO_matrix_path))
@@ -636,11 +654,11 @@ class QcFragment(object):
             self._check_path(subgrp_guess_QCLO_matrix_path)
 
             # 行数は変えずに列方向に追加("pdf-mat-ext -c")
-            logger.debug('mat-ext -c ')
+            logger.debug('{} -c '.format(self._cmds['mat-extend']))
             logger.debug('    {}'.format(guess_QCLO_matrix_path))
             logger.debug('    {}'.format(subgrp_guess_QCLO_matrix_path))
             logger.debug('    {}'.format(guess_QCLO_matrix_path))
-            pdf.run_pdf(['mat-ext', '-c',
+            pdf.run_pdf([self._cmds['mat-extend'], '-c',
                          guess_QCLO_matrix_path,
                          subgrp_guess_QCLO_matrix_path,
                          guess_QCLO_matrix_path])
@@ -674,11 +692,11 @@ class QcFragment(object):
             guess_QCLO_mat.save(my_guess_QCLO_matrix_path)
 
             # 行数は変えずに列方向に追加("pdf-mat-ext -c")
-            logger.debug('mat-ext -c ')
+            logger.debug('{} -c '.format('mat-extend'))
             logger.debug('    {}'.format(guess_QCLO_matrix_path))
             logger.debug('    {}'.format(my_guess_QCLO_matrix_path))
             logger.debug('    {}'.format(guess_QCLO_matrix_path))
-            pdf.run_pdf(['mat-ext', '-c',
+            pdf.run_pdf([self._cmds['mat-extend'], '-c',
                          guess_QCLO_matrix_path,
                          my_guess_QCLO_matrix_path,
                          guess_QCLO_matrix_path])

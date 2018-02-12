@@ -53,6 +53,9 @@ class QcFrame(object):
         self._fragments = OrderedDict()
         self._charge = 0
         self._state = {} # 状態保持
+        self._cmds = self._get_default_cmds() # 外部コマンド
+
+        self._initialize()
 
         self._prepare_work_dir()
         self._load()
@@ -69,9 +72,24 @@ class QcFrame(object):
         self._fragments = copy.deepcopy(rhs._fragments)
         self._charge = rhs._charge
         self._state = copy.deepcopy(rhs._state)
+        self._cmds = copy.copy(rhs._cmds)
 
     # def __del__(self):
     #    self._save()
+
+    def _initialize(self, *args, **kwargs):
+        pass
+
+    def _get_default_cmds(self):
+        answer = {}
+        answer['mat-extend'] = 'mat-extend'
+        answer['mat-mul'] = 'mat-mul'
+        answer['mat-select'] = 'mat-select'
+        answer['mat-symmetrize'] = 'mat-symmetrize'
+        answer['mat-transpose'] = 'mat-transpose'
+        answer['mat-diagonal'] = 'mat-diagonal'
+
+        return answer
 
     # save & load ------------------------------------------------------
     def _load(self):
@@ -112,6 +130,7 @@ class QcFrame(object):
         state['fragments'] = tmp_frgs
         state['charge'] = self.charge
         state['state'] = self._state
+        state['cmds'] = self._cmds
         return state
 
     def __setstate__(self, state):
@@ -123,6 +142,7 @@ class QcFrame(object):
                 self._fragments[k] = QcFragment(frg, parent=self)
         self.charge = state.get('charge', 0)
         self._state = state.get('state', {})
+        self._cmds = state.get('cmds', self._get_default_cmds())
 
     # pdfparam ---------------------------------------------------------
     def _get_pdfparam(self):
@@ -170,6 +190,12 @@ class QcFrame(object):
     # ==================================================================
     # PROPERTIES
     # ==================================================================
+    # command alias ----------------------------------------------------
+    def set_command_alias(self, cmd_alias_dict):
+        for k, v in cmd_alias_dict.items():
+            logger.debug("command update: {} -> {}".format(k, v))
+            self._cmds[k] = v
+
     # work_dir ---------------------------------------------------------
     def _get_work_dir(self):
         return self._work_dir
@@ -389,6 +415,7 @@ class QcFrame(object):
             if frg.parent == None:
                 logger.warn('guess_density(): parent == None. frg_name={}'.format(frg_name))
 
+            frg.set_command_alias(self._cmds)
             frg_guess_density_matrix_path = frg.prepare_guess_density_matrix(run_type)
 
             logger.debug('guess_density() [{}@{}] ext: {} from {}'.format(
@@ -397,7 +424,7 @@ class QcFrame(object):
                 guess_density_matrix_path,
                 frg_guess_density_matrix_path))
             if os.path.exists(frg_guess_density_matrix_path):
-                pdf.run_pdf(['mat-ext', '-d',
+                pdf.run_pdf([self._cmds['mat-extend'], '-d',
                              guess_density_matrix_path,
                              frg_guess_density_matrix_path,
                              guess_density_matrix_path])
@@ -435,9 +462,11 @@ class QcFrame(object):
         num_of_AOs = 0
         for frg_name, frg in self.fragments():
             logger.info('guess QCLO: frg_name={}, parent={}'.format(frg_name, frg.parent.name))
+
+            frg.set_command_alias(self._cmds)
             frg_QCLO_matrix_path = frg.prepare_guess_QCLO_matrix(run_type, self, force=force)
             if os.path.exists(frg_QCLO_matrix_path):
-                pdf.run_pdf(['mat-ext', '-c',
+                pdf.run_pdf([self._cmds['mat-extend'], '-c',
                              guess_QCLO_matrix_path,
                              frg_QCLO_matrix_path,
                              guess_QCLO_matrix_path])
@@ -454,7 +483,7 @@ class QcFrame(object):
             Xinv_path = self.pdfparam.get_Xinv_mat_path()
 
             self._check_path(guess_QCLO_matrix_path)
-            pdf.run_pdf(['mat-mul', '-v',
+            pdf.run_pdf([self._cmds['mat-mul'], '-v',
                          Xinv_path,
                          guess_QCLO_matrix_path,
                          guess_path])
@@ -730,7 +759,7 @@ class QcFrame(object):
                     end=global_dim +dim -1))
 
                 # フラグメント対応部分を切り出す
-                pdf.run_pdf(['mat-select',
+                pdf.run_pdf([self._cmds['mat-select'],
                              '-t', global_dim,
                              '-l', global_dim,
                              '-b', global_dim +dim -1,
@@ -739,7 +768,7 @@ class QcFrame(object):
                              frg_dens_mat_path])
 
                 # select された行列を対称行列に変換
-                pdf.run_pdf(['mat-symmetrize',
+                pdf.run_pdf([self._cmds['mat-symmetrize'],
                              frg_dens_mat_path,
                              frg_dens_mat_path])
                 logger.debug("{header} density matrix for {fragment} was saved as {path}".format(
@@ -944,23 +973,23 @@ class QcFrame(object):
 
                 # calc (C_LO)dagger * F * C_LO => F'
                 F_Clo_path = 'F_Clo.{}.mat'.format(frg_name)
-                pdf.run_pdf(['mat-mul', '-v',
+                pdf.run_pdf([self._cmds['mat-mul'], '-v',
                              F_path,
                              Clo_path,
                              F_Clo_path])
 
                 Clo_dagger_path = 'Clo_dagger.{}.mat'.format(frg_name)
-                pdf.run_pdf(['mat-transpose', '-v',
+                pdf.run_pdf([self._cmds['mat-transpose'], '-v',
                              Clo_path,
                              Clo_dagger_path])
 
                 F_prime_path = 'Fprime.{}.mat'.format(frg_name)
-                pdf.run_pdf(['mat-mul', '-v',
+                pdf.run_pdf([self._cmds['mat-mul'], '-v',
                              Clo_dagger_path,
                              F_Clo_path,
                              F_prime_path])
 
-                pdf.run_pdf(['mat-symmetrize',
+                pdf.run_pdf([self._cmds['mat-symmetrize'],
                              F_prime_path,
                              F_prime_path])
 
@@ -968,13 +997,13 @@ class QcFrame(object):
                 eigval_path = 'QCLO_eigval.{}.vtr'.format(frg_name)
                 Cprime_path = 'Cprime.{}.mat'.format(frg_name)
                 logger.info("diagonal F'")
-                pdf.run_pdf(['mat-diagonal', '-v',
+                pdf.run_pdf([self._cmds['mat-diagonal'], '-v',
                              '-l', eigval_path,
                              '-x', Cprime_path,
                              F_prime_path])
 
                 # AO基底に変換
-                pdf.run_pdf(['mat-mul', '-v',
+                pdf.run_pdf([self._cmds['mat-mul'], '-v',
                              Clo_path,
                              Cprime_path,
                              C_QCLO_path])

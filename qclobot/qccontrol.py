@@ -278,6 +278,10 @@ class QcControl(object):
         frame.pdfparam.extra_keywords = self._get_value('pdf_extra_keywords', frame_data)
         # print(repr(frame.pdfparam.extra_keywords))
 
+        # cmd alias
+        if self._get_value('cmd_alias', frame_data) != None:
+            frame.set_command_alias(self._get_value('cmd_alias', frame_data))
+
         # fragments
         logger.info('> make fragments for [{frame_name}]'.format(frame_name=frame_name))
         fragments_list = self._get_fragments(frame_data.get('fragments', []), frame_data)
