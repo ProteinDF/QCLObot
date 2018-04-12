@@ -37,6 +37,7 @@ setup(name='qclobot',
           'scripts/qclo_sample.py',
           'scripts/QCLObot.py',
           'scripts/QCLObot_opt.py',
+          'scripts/QCLObot_modeler.py',
           'scripts/relax_protein.py',
           'scripts/relax_protein.sh',
           'scripts/remove_wat.py'

@@ -11,7 +11,7 @@ try:
 except:
     import msgpack_pure as msgpack
 import jinja2
-    
+
 import pdfbridge
 from .qcprotonate import QcProtonate
 from .qcneutralize import QcNeutralize
@@ -62,7 +62,7 @@ class QcControl_Base(object):
         assert(isinstance(in_vars_data, dict))
 
         self._vars = dict(in_vars_data)
-        
+
     # ------------------------------------------------------------------
     # task
     # ------------------------------------------------------------------
@@ -77,12 +77,12 @@ class QcControl_Base(object):
         # setup default value
         # self._set_default_to_task(self._tasks['default'], task)
 
-        # exec command        
+        # exec command
         self._run_task_cmd(task)
 
     def _set_default_to_task(self, ref_dic, out_dic):
         pass
-        
+
     def _run_task_cmd(self, task):
         """execute task command
 
@@ -91,7 +91,7 @@ class QcControl_Base(object):
         return None
 
 
-    
+
 # ----------------------------------------------------------------------
 class QcModeler(QcControl_Base):
     def __init__(self):
@@ -113,7 +113,7 @@ class QcModeler(QcControl_Base):
         else:
             logger.warning("not found task command: {cmds}".format(cmds=str([ x for x in task.keys()])))
 
-                
+
     def _run_protonate(self, name, args):
         logger.info("run prptonate")
         assert(isinstance(name, str))
@@ -125,14 +125,14 @@ class QcModeler(QcControl_Base):
 
         input_model = self._get_input_model(args)
         prot_obj.model = input_model
-        
+
         prot_obj.run()
         assert(check_format_model(prot_obj.output_model))
 
         dest = args.get("dest", None)
         if dest:
             prot_obj.write_output_model(dest)
-        
+
         return prot_obj
 
 
@@ -140,7 +140,7 @@ class QcModeler(QcControl_Base):
         logger.info("run neutralize")
         assert(isinstance(name, str))
         assert(isinstance(args, dict))
-        
+
         neutralize_obj = QcNeutralize(name=name)
 
         input_model = self._get_input_model(args)
@@ -148,14 +148,14 @@ class QcModeler(QcControl_Base):
 
         neutralize_obj.run()
         assert(check_format_model(neutralize_obj.output_model))
-        
+
         dest = args.get("dest", None)
         if dest:
             neutralize_obj.write_output_model(dest)
-        
+
         return neutralize_obj
-        
-    
+
+
     def _run_opt(self, name, args):
         logger.info("run opt")
         assert(isinstance(name, str))
@@ -167,10 +167,11 @@ class QcModeler(QcControl_Base):
         dt = 0.002
         if "dt" in args:
             dt = args["dt"]
-        
+
         amber = self._run_amber_setup(name, args)
-        amber.opt(steps=steps,
-                  dt=dt)
+        #amber.opt(steps=steps,
+        #          dt=dt)
+        amber.opt()
 
         return amber
 
@@ -185,7 +186,7 @@ class QcModeler(QcControl_Base):
 
         return amber
 
-    
+
     def _run_amber_setup(self, name, args):
         amber = AmberObject(name=name)
         model = self._get_input_model(args)
@@ -197,10 +198,10 @@ class QcModeler(QcControl_Base):
             amber.solvation_method = "cap"
             if "method" in solvation_args:
                 amber.solvation_method = solvation_args["method"]
-                
+
             if "model" in solvation_args:
                 amber.solvation_model = solvation_args["model"]
-        
+
         if "belly_mask" in args:
             amber.use_belly = True
             for bellymask_target in args["belly_mask"]:
@@ -209,9 +210,9 @@ class QcModeler(QcControl_Base):
                     amber.bellymask_WAT = True
                 if bellymask_target == "ions":
                     amber.bellymask_ions = True
-                    
+
         return amber
-    
+
 
     def _get_input_model(self, args):
         """入力model(AtomGroup)を返す
@@ -241,10 +242,10 @@ class QcModeler(QcControl_Base):
         else:
             logger.critical("NOT found input model. use \"reference\" or \"src\" command.")
         assert(check_format_model(answer))
-            
+
         return answer
 
-    
+
     def _get_reference_task(self, reference_task_name):
         assert(isinstance(reference_task_name, str))
         if reference_task_name in self.global_tasks.keys():
@@ -252,6 +253,3 @@ class QcModeler(QcControl_Base):
         else:
             logger.critical("unknown task name: {name}".format(name = reference_task_name))
             raise
-
-
-

@@ -25,12 +25,14 @@ def main():
                         nargs=1,
                         help='QCLO senario file (YAML_format)')
     args = parser.parse_args()
+    senario_file_path = args.senario_file_path[0]
 
-    
-    
+    modeler = qclo.QcModeler()
+    modeler.run(senario_file_path)
+
+
 if __name__ == '__main__':
     if os.path.exists("config.ini"):
         logging.config.fileConfig("config.ini",
                                   disable_exisiting_logger=False)
     main()
-    
