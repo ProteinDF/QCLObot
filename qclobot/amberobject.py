@@ -29,24 +29,26 @@ class AmberObject(MdObject):
 
     optimization
     >>> md1.opt()
-    
+
     """
 
     def __init__(self, *args, **kwargs):
         super(AmberObject, self).__init__(*args, **kwargs)
-        
+
     def _initialize(self):
         ''' initialize object
         '''
         super(AmberObject, self)._initialize() # called from the parents class
 
         self._AMBERHOME = os.environ.get('AMBERHOME', '')
-        
+        if len(self._AMBERHOME) == 0:
+            logger.warn("The environment variable `AMBERHOME` is empty.")
+
         self._data['leap_sources'] = ['leaprc.protein.ff14SB',
                                       'leaprc.water.tip3p',
                                       'leaprc.gaff']
         self._data['leap_amberparams'] = []
-        
+
     # ==================================================================
     # properties
     # ==================================================================
@@ -62,7 +64,7 @@ class AmberObject(MdObject):
     def _set_solvation_method(self, method):
         self._data["solvation_method"] = str(method).lower()
     solvation_method = property(_get_solvation_method, _set_solvation_method)
-    
+
     def _get_solvation_model(self):
         return self._data.get('solvation_model', "TIP3PBOX")
     def _set_solvation_model(self, model):
@@ -88,15 +90,15 @@ class AmberObject(MdObject):
     def _set_bellymask_ions(self, yn):
         self._data["bellymask_ions"] = bool(yn)
     bellymask_ions = property(_get_bellymask_ions, _set_bellymask_ions)
-    
-    
+
+
     # other amber parameters
     def set_param(self, param, value):
         self._data.setdefault("cntrl", {})
         param = str(param)
         value = str(value)
         self._data["cntrl"][param] = value
-    
+
     # ==================================================================
     # properties: filepath
     # ==================================================================
@@ -125,7 +127,7 @@ class AmberObject(MdObject):
         return path
     leap_input_pdb_filepath = property(_get_leap_input_pdb_filepath)
 
-    
+
     # for this task
     def _get_input_pdb_filepath(self):
         path = self._data.get('input_pdb_filepath', 'input.pdb')
@@ -146,7 +148,7 @@ class AmberObject(MdObject):
         path = self._data.get('inpcrd_filepath', 'protein.inpcrd')
         return path
     inpcrd_filepath = property(_get_inpcrd_filepath)
-    
+
     def _get_initial_pdb_filepath(self):
         path = self._data.get('initial_pdb_filepath', 'initial.pdb')
         return path
@@ -186,7 +188,7 @@ class AmberObject(MdObject):
         path = self._data.get('final_pdb_filepath', 'final.pdb')
         return path
     final_pdb_filepath = property(_get_final_pdb_filepath)
-    
+
     # ==================================================================
     # internal properties
     # ==================================================================
@@ -201,7 +203,7 @@ class AmberObject(MdObject):
         self._data.setdefault("cr_tbl", {})
         key = (amb_chain, amb_res)
         return self._data["cr_tbl"].get(key, (None, None))
-    
+
     # ==================================================================
     # optimization
     # ==================================================================
@@ -215,7 +217,7 @@ class AmberObject(MdObject):
         if self.use_belly:
             # belly-mask-atoms are set at top of pdb.
             model = self._reform_model_for_belly(model)
-        
+
         # self.solvation_model = "cap"
 
         self._save_leap_input_pdb(model)
@@ -227,7 +229,7 @@ class AmberObject(MdObject):
         # Every ntpr steps, energy information will be printed
         # in human-readable form to files "mdout" and "mdinfo".
         # default: 50.
-        self.set_param("ntpr", 200) 
+        self.set_param("ntpr", 200)
 
         # Flag for SHAKE to perform bond length constraints.
         # = 1 SHAKE is not performed (default)
@@ -236,7 +238,7 @@ class AmberObject(MdObject):
         self.set_param("ntc", 1)
 
         # Force evaluation.
-        # = 1 complete interaction is calculated (default) 
+        # = 1 complete interaction is calculated (default)
         self.set_param("ntf", 1)
         # PBC
         self.set_param("ntb", 0)
@@ -251,7 +253,7 @@ class AmberObject(MdObject):
         self._do_sander()
         self._restrt2pdb()
 
-        
+
     def _remove_water(self, model):
         return remove_WAT(model)
 
@@ -271,7 +273,7 @@ class AmberObject(MdObject):
             f.write(str(pdb))
 
         self.restore_cwd()
-        
+
     def _save_leap_input_pdb(self, model):
         """
         leapで処理する前のmodelをpdb形式で保存する
@@ -307,7 +309,7 @@ class AmberObject(MdObject):
                 model_new.set_group(chain_id, chain_keep)
                 model_new.set_group(chain_prefix + chain_id, chain_head)
             model = self._reorder_model(model_new)
-                
+
         if self.bellymask_ions:
             ions = ("Na+", "Na",
                     "Cl-", "Cl")
@@ -340,8 +342,8 @@ class AmberObject(MdObject):
                 chain_index += 1
 
         return output_model
-        
-    
+
+
     # ==================================================================
     # dynamics
     # ==================================================================
@@ -394,8 +396,8 @@ class AmberObject(MdObject):
 
         self._do_sander()
         self._restrt2pdb()
-        
-        
+
+
     # ==================================================================
     # leap setting
     # ==================================================================
@@ -403,7 +405,7 @@ class AmberObject(MdObject):
         """make input file for xleap command
         """
         self.cd_workdir("prepare leapin")
-        
+
         leapin_contents = ''
         leapin_contents += 'logFile {logfile_filepath}\n'.format(logfile_filepath=self.leap_logfile_filepath)
         leapin_contents += self.__get_leap_source_lines()
@@ -416,13 +418,13 @@ class AmberObject(MdObject):
                                                                                  inpcrd=self.inpcrd_filepath)
         leapin_contents += 'savePdb proteinBox {pdb_file}\n'.format(pdb_file=self.initial_pdb_filepath)
         leapin_contents += 'quit\n'
-        
+
         logger.debug('save leap inputfile: {}'.format(self.leapin_filepath))
         with open(self.leapin_filepath, 'w') as f:
             f.write(leapin_contents)
 
         self.restore_cwd()
-            
+
     def __get_leap_source_lines(self):
         """return source command lines for leap.in
         """
@@ -478,15 +480,15 @@ class AmberObject(MdObject):
                     closeness="")
             else:
                 logger.warning('solvation model is not understood.: {}'.format(self.solvation_model))
-        
+
         return answer
-    
+
     # ==================================================================
     # do leap
     # ==================================================================
     def _do_leap(self):
         self.cd_workdir("do leap")
-        
+
         p = Process()
         leap_cmd = os.path.join(self._AMBERHOME, 'bin', 'tleap')
         cmd = "{leap_cmd} -s -f {leapin}".format(leap_cmd=leap_cmd,
@@ -556,13 +558,13 @@ class AmberObject(MdObject):
             # nstlim: Number of MD-steps to be performed. Default 1.
             minimization_contents = "imin=0, "
 
-            
+
         # ntx: Option to read the coordinates from the “inpcrd” file.
         #  = 1 X is read formatted with no initial velocity information. Default.
         #  = 2 X is read unformatted with no initial velocity information.
         #
         # ntpr: Print the progress of the minimization every ntpr steps; default is 10.
-        # 
+        #
         # **** Potential function parameters ****
         # ntb: periodic boundaries or not
         #  = 0 noperiodicityisappliedandPMEisoff(defaultwhenigb>0)
@@ -578,7 +580,7 @@ class AmberObject(MdObject):
             #print("model: ", self.model.get_number_of_all_atoms())
             #print("BM ions", self.bellymask_ions)
             #assert(initial_model.get_number_of_all_atoms() == self.model.get_number_of_all_atoms())
-            
+
             belly_maskstr = ""
             if self.bellymask_WAT:
                 wat_resid = self._get_wat_resid(initial_model)
@@ -592,10 +594,10 @@ class AmberObject(MdObject):
                 belly_maskstr += self._make_maskstr(resid_areas = ion_resid)
             belly_contents = "ibelly=1, bellymask='{belly_maskstr}'"
             belly_contents = belly_contents.format(belly_maskstr=belly_maskstr)
-        
-        
+
+
         mdin_contents = """
-        # 
+        #
         &cntrl
           {minimization_contents}
           {cntrl_contents}
@@ -608,7 +610,7 @@ class AmberObject(MdObject):
             cntrl_contents += "{param}={value}, ".format(
                 param=param,
                 value=value)
-        
+
         mdin_contents = mdin_contents.format(
             minimization_contents=minimization_contents,
             cntrl_contents=cntrl_contents,
@@ -626,10 +628,10 @@ class AmberObject(MdObject):
 #        &cntrl
 #          ibelly=1,
 #          bellymask='${belly_mask}'
-#        &end        
+#        &end
 #        """
-        
-        
+
+
     # ==================================================================
     # do sander
     # ==================================================================
@@ -652,7 +654,7 @@ class AmberObject(MdObject):
         logger.debug("run command: {}".format(cmd))
         p.cmd(cmd)
         return_code = p.commit()
-        
+
         self.restore_cwd()
         return return_code
 
@@ -663,7 +665,7 @@ class AmberObject(MdObject):
     def _restrt2pdb(self):
 
         self._make_matching_table()
-        
+
         self.cd_workdir("restrt2pdb")
 
         # get pdb file from trajectory file using Amber
@@ -672,7 +674,7 @@ class AmberObject(MdObject):
         cmd = "{ambpdb_cmd} -p {prmtop} -c {restrt}".format(ambpdb_cmd=ambpdb_cmd,
                                                             prmtop=self.prmtop_filepath,
                                                             restrt=self.restart_filepath)
-        
+
         logger.debug("run command: {}".format(cmd))
         p.cmd(cmd)
         return_code = p.commit(self.final_pdb_filepath,
@@ -698,13 +700,13 @@ class AmberObject(MdObject):
         self.restore_cwd()
         return return_code
 
-    
+
     def _rename_amb2orig(self, amb_model):
         """ 対応表(match_table)
         """
         max_chain_id = find_max_chain_id(self.model)
         next_chain_id = chr(ord(max_chain_id) +1)
-        
+
         # rename model, chain, res_id
         answer = pdfbridge.AtomGroup()
         for amb_chain_id, amb_chain in amb_model.groups():
@@ -713,14 +715,14 @@ class AmberObject(MdObject):
                 if (orig_chain_id == None) or (orig_res_id == None):
                     orig_chain_id = next_chain_id
                     orig_res_id = amb_res_id
-                    
+
                 if answer.has_groupkey(orig_chain_id) != True:
                     orig_chain = pdfbridge.AtomGroup(name=amb_chain.name)
                     answer.set_group(orig_chain_id, orig_chain)
                 answer[orig_chain_id].set_group(orig_res_id, amb_res)
-        
+
         return answer
-    
+
     # ==================================================================
     # make matching table
     # ==================================================================
@@ -750,7 +752,7 @@ class AmberObject(MdObject):
         else:
             logger.info('some atoms are deleteed via the leap treatment.: original={} new={}'.format(
                 self.model.get_number_of_all_atoms(), amb_model.get_number_of_all_atoms()))
-            
+
         # 入力モデルとleap後のモデルの座標は変わらないので、
         # 座標をもとに対応表を作成する
 
@@ -764,11 +766,11 @@ class AmberObject(MdObject):
             range_selector = pdfbridge.Select_Range(atom.xyz, NEAR_DISTANCE)
             selection = model.select(symbol_selector).select(range_selector)
             path_list = selection.get_path_list()
-            
+
             answer = None
             if len(path_list) > 0:
                 answer = path_list.pop(0)
-                
+
             return answer
 
         # make original table
@@ -777,7 +779,7 @@ class AmberObject(MdObject):
                 for atom_id, atom in res.atoms():
                     amb_path = atom.path
                     orig_path = find_atom_path(self.model, atom)
-                    
+
                     if orig_path == None:
                         pass
                     else:
@@ -786,11 +788,11 @@ class AmberObject(MdObject):
                         self._set_chainres_match_table(amb_chain_id, amb_resid, orig_chain_id, orig_resid)
 
         self._show_match_table()
-        
+
         self.restore_cwd()
         return 0
 
-    
+
     def _show_match_table(self):
         ''' output matching table
         '''
@@ -798,7 +800,7 @@ class AmberObject(MdObject):
         for (amb_chain_id, amb_resid), (orig_chain_id, orig_resid) in self._data["cr_tbl"].items():
             logger.debug("amb: {}/{} <-> orig: {}/{}".format(amb_chain_id, amb_resid, orig_chain_id, orig_resid))
 
-            
+
     # ==================================================================
     # for belly method
     # ==================================================================
@@ -810,7 +812,7 @@ class AmberObject(MdObject):
         WATs = model.select(select_WAT)
 
         return self._get_ambermask_res_list(WATs)
-        
+
 
     def _get_ion_resid(self, model):
         start = -1
@@ -840,7 +842,7 @@ class AmberObject(MdObject):
                     start = i
                     end = i
                     continue
-                
+
                 if end +1 == i:
                     # continue residue area
                     end = i
@@ -852,8 +854,8 @@ class AmberObject(MdObject):
             res_list.append((start, end))
 
         return res_list
-    
-    
+
+
     def _make_maskstr(self, resid_areas):
         assert(isinstance(resid_areas, list))
         maskstr = ""
@@ -870,11 +872,9 @@ class AmberObject(MdObject):
                 maskstr += "{start}".format(
                     start=start)
         return maskstr
-    
-    
+
+
 if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     import doctest
     doctest.testmod()
-
-
