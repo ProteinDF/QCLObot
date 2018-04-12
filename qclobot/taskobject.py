@@ -41,7 +41,7 @@ class TaskObject(object):
     test_task1
 
     """
-    
+
     def __init__(self, *args, **kwargs):
         """initialize object
 
@@ -57,7 +57,7 @@ class TaskObject(object):
             else:
                 logger.critical('type mismatch')
                 raise
-            
+
         if 'name' in kwargs.keys():
             self._data['name'] = str(kwargs.get('name'))
 
@@ -70,21 +70,20 @@ class TaskObject(object):
 
 
     def __del__(self):
-        # pprint.pprint(self._data)
         self.save()
 
-        
+
     def _initialize(self):
         self._data = {}
         self._data['state_filename'] = 'qclobot_state.mpac'
 
         # not stored data
         self._basedir = os.path.abspath(os.curdir)
-        
+
     def _copy_constructor(self, rhs):
         assert(isinstance(rhs, TaskObject))
         self._data = copy.deepcopy(rhs._data)
-        
+
     # ------------------------------------------------------------------
     # Properties
     # ------------------------------------------------------------------
@@ -92,7 +91,7 @@ class TaskObject(object):
     def _get_name(self):
         return self._data.get('name')
     name = property(_get_name)
-    
+
 
     # work_dir ---------------------------------------------------------
     def _get_work_dir(self):
@@ -104,13 +103,13 @@ class TaskObject(object):
         return work_dir
     work_dir = property(_get_work_dir)
 
-    
+
     # state_filename ---------------------------------------------------
     def _get_state_filename(self):
         return self._data.get('state_filename')
     state_filename = property(_get_state_filename)
 
-    
+
     # model (input atomgroup) -----------------------------------------
     #   "model" data is an AtomGroup object formatted by 'MODEL', not 'protein'.
     def _get_model(self):
@@ -139,9 +138,9 @@ class TaskObject(object):
         assert(check_format_model(model))
         self._data['output_model'] = model.get_raw_data()
     output_model = property(_get_output_model, _set_output_model)
-    
 
-    
+
+
     # ------------------------------------------------------------------
     # Archive
     # ------------------------------------------------------------------
@@ -162,6 +161,7 @@ class TaskObject(object):
         logger.debug('save the fragment state: {}'.format(path))
 
         state_dat = self.get_raw_data()
+        # pprint.pprint(state_dat)
         packed = msgpack.packb(state_dat)
         with open(path, 'wb') as f:
             f.write(packed)
@@ -182,13 +182,13 @@ class TaskObject(object):
         self._initialize()
         self._data['name'] = state.get('name')
         self._data['state_filename'] = state.get('state_filename')
-            
+
     # ------------------------------------------------------------------
     # Work dir
     # ------------------------------------------------------------------
     def _prepare_work_dir(self):
         '''
-        make working directory which is called its "name" property.  
+        make working directory which is called its "name" property.
         '''
         assert(len(self.name) > 0)
 
@@ -200,7 +200,7 @@ class TaskObject(object):
             logger.debug('make work dir, but it already exists: {}'.format(self.work_dir))
             self.load()
 
-            
+
     def cd_workdir(self, job_name=''):
         '''
         作業ディレクトリをオブジェクトのwork_dirに移動する
@@ -209,11 +209,11 @@ class TaskObject(object):
         logger.info('>>>> {job_name}@{frame_name}'.format(job_name = job_name,
                                                           frame_name = self.name))
         logger.info('work dir: {work_dir}'.format(work_dir=self.work_dir))
-        
+
         logger.info('=' * 20)
         os.chdir(self.work_dir)
 
-        
+
     def restore_cwd(self):
         '''
         base ディレクトリに戻す
@@ -225,7 +225,7 @@ class TaskObject(object):
     def write_output_model(self, output_path):
         self._atomgroup2file(self.output_model, output_path)
 
-        
+
     def atomgroup2file(self, atomgroup, output_path):
         '''output_pathの拡張子に応じて、bridge形式またはpdb形式でatomgroupをファイルに書き出す
         '''
@@ -267,8 +267,8 @@ class TaskObject(object):
             f.write(str(pdb))
 
         self.restore_cwd()
-                
-    
+
+
 if __name__ == '__main__':
     #import sys,os
     #sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

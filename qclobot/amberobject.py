@@ -195,14 +195,22 @@ class AmberObject(MdObject):
     def _set_chainres_match_table(self,
                                   amb_chain, amb_res,
                                   orig_chain, orig_res):
-        self._data.setdefault("cr_tbl", {})
-        key = (amb_chain, amb_res)
-        self._data["cr_tbl"][key] = (orig_chain, orig_res)
+        self._data.setdefault("amber_chain_res_table", {})
+        key = "{}:{}".format(amb_chain, amb_res)
+        value = "{}:{}".format(orig_chain, orig_res)
+        self._data["amber_chain_res_table"][key] = value
 
     def _get_chainres_match_table(self, amb_chain, amb_res):
-        self._data.setdefault("cr_tbl", {})
-        key = (amb_chain, amb_res)
-        return self._data["cr_tbl"].get(key, (None, None))
+        self._data.setdefault("amber_chain_res_table", {})
+        key = "%s:%s".format(amb_chain, amb_res)
+
+        value = self._data["amber_chain_res_table"].get(key, None)
+        chain = None
+        res = None, None
+        if value:
+            chain, res = value.split(":")
+        answer = (chain, res)
+        return answer
 
     # ==================================================================
     # optimization
@@ -787,18 +795,18 @@ class AmberObject(MdObject):
                         (amb_model_id, amb_chain_id, amb_resid, amb_atom_id) = pdfbridge.AtomGroup.divide_path(amb_path)
                         self._set_chainres_match_table(amb_chain_id, amb_resid, orig_chain_id, orig_resid)
 
-        self._show_match_table()
+        self._show_amber_chain_res_match_table()
 
         self.restore_cwd()
         return 0
 
 
-    def _show_match_table(self):
+    def _show_amber_chain_res_match_table(self):
         ''' output matching table
         '''
         logger.debug(">>>> matching table")
-        for (amb_chain_id, amb_resid), (orig_chain_id, orig_resid) in self._data["cr_tbl"].items():
-            logger.debug("amb: {}/{} <-> orig: {}/{}".format(amb_chain_id, amb_resid, orig_chain_id, orig_resid))
+        for amb_chain_res, orig_chain_res in self._data["amber_chain_res_table"].items():
+            logger.debug("amb: {} <-> orig: {}".format(amb_chain_res, orig_chain_res))
 
 
     # ==================================================================

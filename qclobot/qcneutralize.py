@@ -22,13 +22,13 @@ class QcNeutralize(TaskObject):
         path = self._data.get('input_pdb_filepath', 'input.pdb')
         return path
     input_pdb_filepath = property(_get_input_pdb_filepath)
-    
-        
+
+
     def _get_output_pdb_filepath(self):
         path = self._data.get('output_pdb_filepath', 'output.pdb')
         return path
     output_pdb_filepath = property(_get_output_pdb_filepath)
-        
+
     # ==================================================================
     # method
     # ==================================================================
@@ -36,13 +36,13 @@ class QcNeutralize(TaskObject):
         neutral_model = self._neutralize(self.model)
         self.output_model = self._reorder_ions_for_amber(neutral_model)
 
-        return 0
+        return self
 
-    
+
     def _neutralize(self, model):
         ip = pdfbridge.IonPair(model)
         ionpairs = ip.get_ion_pairs()
-       
+
         # 処理しやすいように並べ替え
         exempt_list = [] # 免除リスト
         for (anion_path, cation_path, anion_type, cation_type) in ionpairs:
@@ -54,7 +54,7 @@ class QcNeutralize(TaskObject):
                 anion_path=anion_path,
                 cation_path=cation_path)
             )
-            
+
         output_model = pdfbridge.AtomGroup(model)
         modeling = pdfbridge.Modeling()
         for chain_name, chain in output_model.groups():
@@ -82,7 +82,7 @@ class QcNeutralize(TaskObject):
                     if (chain_name, resid, 'GLU') not in exempt_list:
                         ag = modeling.neutralize_GLU(res)
                         logger.info("add ion for GLU({}): {}".format(resid, ag))
-                        self._add_ions(res, ag)                        
+                        self._add_ions(res, ag)
                     else:
                         logger.info('exempt adding ion: {}/{} GLU'.format(chain_name, resname))
                 elif resname == 'ASP':
@@ -113,10 +113,10 @@ class QcNeutralize(TaskObject):
                     ag = modeling.neutralize_FAD(res)
                     logger.info("add ion for FAD({}): {}".format(resid, ag))
                     self._add_ions(res, ag)
- 
+
         return output_model
 
-    
+
     def _add_ions(self, atomgroup, ions):
         assert isinstance(atomgroup, pdfbridge.AtomGroup)
         assert isinstance(ions, pdfbridge.AtomGroup)
@@ -164,10 +164,15 @@ class QcNeutralize(TaskObject):
             chain.set_group(resid, res)
             resid += 1
 
-        num_of_chains = model.get_number_of_groups()
-        new_chain_id = chr(ord('A') +(num_of_chains % 26))
+        new_chain_id = chr(ord(self._get_last_chainid(new_model)) + 1)
         chain.name = new_chain_id
         new_model.set_group(new_chain_id, chain)
 
         return new_model
-        
+
+    def _get_last_chainid(self, model):
+        max_chain_id = 0
+        for chain_id, chain in model.groups():
+            max_chain_id = max(ord(chain_id) - ord('A'), max_chain_id)
+        last_chainid = chr(ord('A') + max_chain_id)
+        return last_chainid

@@ -11,13 +11,11 @@ class MdObject(TaskObject):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(MdObject, self).__init__(*args, **kwargs)
 
     def opt(self):
         pass
-        
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
-
-
