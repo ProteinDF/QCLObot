@@ -202,7 +202,7 @@ class AmberObject(MdObject):
 
     def _get_chainres_match_table(self, amb_chain, amb_res):
         self._data.setdefault("amber_chain_res_table", {})
-        key = "%s:%s".format(amb_chain, amb_res)
+        key = "{}:{}".format(amb_chain, amb_res)
 
         value = self._data["amber_chain_res_table"].get(key, None)
         chain = None
