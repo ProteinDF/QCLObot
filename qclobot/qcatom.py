@@ -20,11 +20,10 @@
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-
-import pdfbridge as bridge
-import pdfpytools as pdf
-
 logger = logging.getLogger(__name__)
+
+import proteindf_bridge as bridge
+import proteindf_tools as pdf
 
 
 class QcAtom(bridge.Atom):
@@ -42,7 +41,7 @@ class QcAtom(bridge.Atom):
             self.basisset_j = args[0].basisset_j
             self.basisset_xc = args[0].basisset_xc
             self.basisset_gridfree = args[0].basisset_gridfree
-        
+
         # self._qc_parent = kwargs.get('qc_parent', None)
 
     # transform to bridge.Atom
@@ -58,7 +57,7 @@ class QcAtom(bridge.Atom):
         self.basisset_j = data.get('basisset_j', 'A-DZVP2' + suffix)
         self.basisset_xc = data.get('basisset_xc', 'A-DZVP2' + suffix)
         self.basisset_gridfree = data.get('basisset_gridfree', 'O-DZVP2' + suffix)
-        
+
     def get_raw_data(self):
         data = super(QcAtom, self).get_raw_data()
         data['basisset'] = self.basisset
@@ -67,13 +66,13 @@ class QcAtom(bridge.Atom):
         data['basisset_gridfree'] = self.basisset_gridfree
 
         return data
-        
+
     #
     def get_number_of_AOs(self):
         basis2 = pdf.Basis2()
         bs = basis2.get_basisset(self.basisset)
         return bs.get_number_of_AOs()
-        
+
     # basisset -------------------------------------------------------
     def _get_basisset(self):
         return self._basisset
@@ -120,6 +119,3 @@ class QcAtom(bridge.Atom):
         return kind
 
     atomlabel = property(_get_atomlabel)
-
-
-

@@ -28,8 +28,8 @@ try:
 except:
     import msgpack_pure as msgpack
 
-import pdfbridge as bridge
-import pdfpytools as pdf
+import proteindf_bridge as bridge
+import proteindf_tools as pdf
 import qclobot as qclo
 
 def main():
@@ -77,8 +77,8 @@ def main():
     qcctrl.run(senario_file_path)
 
     app_logger.info('QCLObot done.')
-    
-        
+
+
 def setup_logging(logfile_path = '', is_debug = False):
     if len(logfile_path) == 0:
         logfile_path = 'qclobot.log'
@@ -96,15 +96,15 @@ def setup_logging(logfile_path = '', is_debug = False):
         format=format_str,
         datefmt=date_format
     )
-    
+
     formatter = logging.Formatter(format_str, date_format)
-    
+
     console = logging.StreamHandler()
     console.setLevel(logging.WARNING)
     console.setFormatter(formatter)
     logging.getLogger().addHandler(console)
 
-        
+
 def load_brdfile(brdfile_path):
     brdfile = open(brdfile_path, 'rb')
     brddata = msgpack.unpackb(brdfile.read())
@@ -113,10 +113,10 @@ def load_brdfile(brdfile_path):
 
     return atomgroup
 
-    
+
 if __name__ == '__main__':
     main()
-    
+
     #import cProfile
     #cProfile.run('main()', 'qclo_prof')
 
@@ -124,4 +124,3 @@ if __name__ == '__main__':
     #ps = pstats.Stats('qclo_prof')
     #ps.sort_stats('cumulative').print_stats()
     #ps.sort_stats('time').print_stats()
-

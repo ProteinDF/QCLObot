@@ -5,7 +5,7 @@ import argparse
 import re
 import msgpack
 
-import pdfbridge
+import proteindf_bridge as bridge
 
 
 def main():
@@ -21,30 +21,30 @@ def main():
                         action="store_true",
                         default = False)
     args = parser.parse_args()
-    
+
     # setting
     mpac_file_path = args.FILE[0]
     output = args.output
     verbose = args.verbose
-    
+
     # reading
     if verbose:
         print("reading: %s\n" % (mpac_file_path))
     mpac_file = open(mpac_file_path, "rb")
     mpac_data = msgpack.unpackb(mpac_file.read())
     mpac_file.close()
-        
+
     # prepare atomgroup
-    answer = pdfbridge.AtomGroup(mpac_data)
+    answer = brdige.AtomGroup(mpac_data)
     #print(atomgroup)
 
     # search 'HOH'
-    HOH_selecter = pdfbridge.Select_Name('HOH')
+    HOH_selecter = brdige.Select_Name('HOH')
     HOH_grp = answer.select(HOH_selecter)
     answer ^= HOH_grp
-    
+
     # search 'WAT'
-    WAT_selecter = pdfbridge.Select_Name('WAT')
+    WAT_selecter = brdige.Select_Name('WAT')
     WAT_grp = answer.select(WAT_selecter)
     answer ^= WAT_grp
 
@@ -57,11 +57,11 @@ def main():
         savefile.close()
     else:
         print(answer)
-        
+
     # end
 
 def remove_wat(atomgroup):
-    answer = pdfbridge.AtomGroup()
+    answer = brdige.AtomGroup()
     for grpkey, grp in atomgroup.groups():
         print(grp.name)
         if grpkey == 'HOH':
@@ -78,9 +78,8 @@ def remove_wat(atomgroup):
         answer.set_atom(atmkey, atm)
 
     return answer
-            
-    
-    
+
+
+
 if __name__ == '__main__':
     main()
-    

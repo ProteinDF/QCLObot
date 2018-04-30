@@ -10,8 +10,8 @@ try:
 except:
     import msgpack_pure as msgpack
 
-import pdfbridge as bridge
-import pdfpytools as pdf
+import proteindf_bridge as bridge
+import proteindf_tools as pdf
 import qclobot as qclo
 
 def main():
@@ -58,7 +58,7 @@ def main():
     template_path = None
     if args.template:
         template_path = args.template[0]
-        
+
     app_logger = logging.getLogger(__name__)
 
     print('brd_path: {}'.format(brd_path))
@@ -68,8 +68,8 @@ def main():
     qcopt.run()
 
     app_logger.info('done.')
-    
-        
+
+
 def setup_logging(logfile_path = '', is_debug = False):
     if len(logfile_path) == 0:
         logfile_path = 'qclobot.log'
@@ -87,9 +87,9 @@ def setup_logging(logfile_path = '', is_debug = False):
         format=format_str,
         datefmt=date_format
     )
-    
+
     formatter = logging.Formatter(format_str, date_format)
-    
+
     console = logging.StreamHandler()
     console.setLevel(logging.WARNING)
     console.setFormatter(formatter)
@@ -104,9 +104,6 @@ def get_atom_group(brd_file_path):
 
     return atom_group
 
-    
+
 if __name__ == '__main__':
     main()
-    
-
-
