@@ -11,7 +11,7 @@ try:
 except:
     import msgpack_pure as msgpack
 
-import pdfbridge
+import proteindf_bridge as bridge
 from .taskobject import TaskObject
 from .process import Process
 from .utils import check_format_model
@@ -19,7 +19,7 @@ from .utils import check_format_model
 class QcProtonate(TaskObject):
     ''' execute protonate
 
-    >>> tmp_pdb = pdfbridge.Pdb('./data/sample/1AKG.pdb')
+    >>> tmp_pdb = bridge.Pdb('./data/sample/1AKG.pdb')
     >>> atomgroup = tmp_pdb.get_atomgroup()
     >>> p = QcProtonate(name='protonate_1akg', atomgroup=atomgroup)
     >>> p.protonate()
@@ -85,7 +85,7 @@ class QcProtonate(TaskObject):
             if len(output_path) > 0:
                 output_path = os.path.join(self.work_dir, output_path)
                 logger.info("output protonated file: {}".format(output_path))
-                protein = pdfbridge.AtomGroup()
+                protein = bridge.AtomGroup()
                 protein.set_group("model_1", self.output_model)
                 self.atomgroup2file(protein, output_path)
 
@@ -97,7 +97,7 @@ class QcProtonate(TaskObject):
         assert(isinstance(pdbfile, str))
 
         logger.info('pdb2brd: from {}'.format(pdbfile))
-        pdb = pdfbridge.Pdb(pdbfile, mode = 'amber')
+        pdb = bridge.Pdb(pdbfile, mode = 'amber')
         return pdb.get_atomgroup()
 
 

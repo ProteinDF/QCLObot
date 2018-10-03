@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 import time
 
-import pdfbridge
+import proteindf_bridge as bridge
 from .mdobject import MdObject
 from .process import Process
 from .utils import get_model, check_format_model, find_max_chain_id, remove_WAT
@@ -16,8 +16,8 @@ class AmberObject(MdObject):
 
     : Example
 
-    prepare molecule by AtomGroup(@pdfbridge)
-    >>> pdb = pdfbridge.Pdb("./data/sample/1AKG.pdb")
+    prepare molecule by AtomGroup(@bridge)
+    >>> pdb = bridge.Pdb("./data/sample/1AKG.pdb")
     >>> models = pdb.get_atomgroup()
     >>> model = get_model(models)
 
@@ -216,7 +216,7 @@ class AmberObject(MdObject):
     # optimization
     # ==================================================================
     def opt(self):
-        model = pdfbridge.AtomGroup(self.model)
+        model = bridge.AtomGroup(self.model)
         self._save_input_pdb(model)
 
         # remove water?
@@ -272,9 +272,9 @@ class AmberObject(MdObject):
         """
         self.cd_workdir("debug input pdb file")
 
-        models = pdfbridge.AtomGroup()
+        models = bridge.AtomGroup()
         models.set_group('model_1', model)
-        pdb = pdfbridge.Pdb(mode="amber")
+        pdb = bridge.Pdb(mode="amber")
         pdb.set_by_atomgroup(models)
 
         with open(self.input_pdb_filepath, "w") as f:
@@ -288,9 +288,9 @@ class AmberObject(MdObject):
         """
         self.cd_workdir("prepare input pdb file")
 
-        models = pdfbridge.AtomGroup()
+        models = bridge.AtomGroup()
         models.set_group('model_1', model)
-        pdb = pdfbridge.Pdb(mode="amber")
+        pdb = bridge.Pdb(mode="amber")
         pdb.set_by_atomgroup(models)
 
         with open(self.leap_input_pdb_filepath, "w") as f:
@@ -303,11 +303,11 @@ class AmberObject(MdObject):
         chain_prefix = chr(ord("A") -1)
 
         if self.bellymask_WAT:
-            model_new = pdfbridge.AtomGroup()
+            model_new = bridge.AtomGroup()
             for chain_id, chain in model.groups():
-                chain_keep = pdfbridge.AtomGroup()
+                chain_keep = bridge.AtomGroup()
                 chain_keep.name = chain.name
-                chain_head = pdfbridge.AtomGroup()
+                chain_head = bridge.AtomGroup()
                 chain_head.name = chain.name
                 for res_id, res in chain.groups():
                     if res.name == "WAT":
@@ -321,11 +321,11 @@ class AmberObject(MdObject):
         if self.bellymask_ions:
             ions = ("Na+", "Na",
                     "Cl-", "Cl")
-            model_new = pdfbridge.AtomGroup()
+            model_new = bridge.AtomGroup()
             for chain_id, chain in model.groups():
-                chain_keep = pdfbridge.AtomGroup()
+                chain_keep = bridge.AtomGroup()
                 chain_keep.name = chain.name
-                chain_head = pdfbridge.AtomGroup()
+                chain_head = bridge.AtomGroup()
                 chain_head.name = chain.name
                 for res_id, res in chain.groups():
                     if res.name in ions:
@@ -339,10 +339,10 @@ class AmberObject(MdObject):
         return model
 
     def _reorder_model(self, model):
-        input_model = pdfbridge.AtomGroup(model)
+        input_model = bridge.AtomGroup(model)
         input_model.sort_groups = "nice"
 
-        output_model = pdfbridge.AtomGroup()
+        output_model = bridge.AtomGroup()
         chain_index = 0
         for chain_id, chain in input_model.groups():
             if chain.get_number_of_all_atoms() > 0:
@@ -362,7 +362,7 @@ class AmberObject(MdObject):
         steps: Number of MD-steps to be performed.
         dt:    The time step (psec).
         """
-        model = pdfbridge.AtomGroup(self.model)
+        model = bridge.AtomGroup(self.model)
         self._save_input_pdb(model)
 
         # remove water?
@@ -470,14 +470,14 @@ class AmberObject(MdObject):
                                                                     z=center.z)
                 (box_min, box_max) = self.model.box()
                 distance = 0.0
-                distance = max(distance, center.distance_from(pdfbridge.Position(box_min.x, box_min.y, box_min.z)))
-                distance = max(distance, center.distance_from(pdfbridge.Position(box_max.x, box_min.y, box_min.z)))
-                distance = max(distance, center.distance_from(pdfbridge.Position(box_max.x, box_max.y, box_min.z)))
-                distance = max(distance, center.distance_from(pdfbridge.Position(box_max.x, box_min.y, box_max.z)))
-                distance = max(distance, center.distance_from(pdfbridge.Position(box_max.x, box_max.y, box_max.z)))
-                distance = max(distance, center.distance_from(pdfbridge.Position(box_min.x, box_max.y, box_min.z)))
-                distance = max(distance, center.distance_from(pdfbridge.Position(box_min.x, box_max.y, box_max.z)))
-                distance = max(distance, center.distance_from(pdfbridge.Position(box_min.x, box_min.y, box_max.z)))
+                distance = max(distance, center.distance_from(bridge.Position(box_min.x, box_min.y, box_min.z)))
+                distance = max(distance, center.distance_from(bridge.Position(box_max.x, box_min.y, box_min.z)))
+                distance = max(distance, center.distance_from(bridge.Position(box_max.x, box_max.y, box_min.z)))
+                distance = max(distance, center.distance_from(bridge.Position(box_max.x, box_min.y, box_max.z)))
+                distance = max(distance, center.distance_from(bridge.Position(box_max.x, box_max.y, box_max.z)))
+                distance = max(distance, center.distance_from(bridge.Position(box_min.x, box_max.y, box_min.z)))
+                distance = max(distance, center.distance_from(bridge.Position(box_min.x, box_max.y, box_max.z)))
+                distance = max(distance, center.distance_from(bridge.Position(box_min.x, box_min.y, box_max.z)))
                 cap_radius = max(distance + 10.0, 30.0)
                 solvent = self.solvation_model
                 answer += "solvateCap {solute} {solvent} {position} {radius} {closeness}\n".format(
@@ -581,7 +581,7 @@ class AmberObject(MdObject):
 
         belly_contents = ""
         if self.use_belly:
-            pdb = pdfbridge.Pdb()
+            pdb = bridge.Pdb()
             pdb.load(self.initial_pdb_filepath)
             initial_model = get_model(pdb.get_atomgroup())
             #print("initial model: #atoms=", initial_model.get_number_of_all_atoms())
@@ -625,7 +625,7 @@ class AmberObject(MdObject):
             belly_contents=belly_contents)
         mdin_contents += lmod_contents
         mdin_contents = mdin_contents.lstrip('\n')
-        mdin_contents = pdfbridge.Utils.unindent_block(mdin_contents)
+        mdin_contents = bridge.Utils.unindent_block(mdin_contents)
 
         with open(self.mdin_filepath, 'w') as f:
             f.write(mdin_contents)
@@ -689,15 +689,15 @@ class AmberObject(MdObject):
                                stdout_through=False,
                                stderr_through=False)
 
-        amb_pdb = pdfbridge.Pdb(self.final_pdb_filepath)
+        amb_pdb = bridge.Pdb(self.final_pdb_filepath)
         amb_models = amb_pdb.get_atomgroup()
         amb_model = get_model(amb_models)
 
         # match the pdb formed by amber with original one
         orig_model = self._rename_amb2orig(amb_model)
-        orig_models = pdfbridge.AtomGroup()
+        orig_models = bridge.AtomGroup()
         orig_models.set_group(1, orig_model)
-        orig_pdb = pdfbridge.Pdb()
+        orig_pdb = bridge.Pdb()
         orig_pdb.set_by_atomgroup(orig_models)
         with open(self.output_pdb_filepath, "w") as f:
             f.write(str(orig_pdb))
@@ -716,7 +716,7 @@ class AmberObject(MdObject):
         next_chain_id = chr(ord(max_chain_id) +1)
 
         # rename model, chain, res_id
-        answer = pdfbridge.AtomGroup()
+        answer = bridge.AtomGroup()
         for amb_chain_id, amb_chain in amb_model.groups():
             for amb_res_id, amb_res in amb_chain.groups():
                 orig_chain_id, orig_res_id = self._get_chainres_match_table(amb_chain_id, amb_res_id)
@@ -725,7 +725,7 @@ class AmberObject(MdObject):
                     orig_res_id = amb_res_id
 
                 if answer.has_groupkey(orig_chain_id) != True:
-                    orig_chain = pdfbridge.AtomGroup(name=amb_chain.name)
+                    orig_chain = bridge.AtomGroup(name=amb_chain.name)
                     answer.set_group(orig_chain_id, orig_chain)
                 answer[orig_chain_id].set_group(orig_res_id, amb_res)
 
@@ -746,7 +746,7 @@ class AmberObject(MdObject):
         self.cd_workdir("match models")
 
         # make model_amber
-        amb_pdb = pdfbridge.Pdb(self.initial_pdb_filepath)
+        amb_pdb = bridge.Pdb(self.initial_pdb_filepath)
         amb_models = amb_pdb.get_atomgroup()
         amb_model = get_model(amb_models)
         assert(check_format_model(amb_model))
@@ -766,12 +766,12 @@ class AmberObject(MdObject):
 
         # 座標が等しい原子をmodelから探す
         def find_atom_path(model, atom):
-            assert(isinstance(model, pdfbridge.AtomGroup))
-            assert(isinstance(atom, pdfbridge.Atom))
+            assert(isinstance(model, bridge.AtomGroup))
+            assert(isinstance(atom, bridge.Atom))
 
             NEAR_DISTANCE = 0.1
-            symbol_selector = pdfbridge.Select_Atom(atom.symbol)
-            range_selector = pdfbridge.Select_Range(atom.xyz, NEAR_DISTANCE)
+            symbol_selector = bridge.Select_Atom(atom.symbol)
+            range_selector = bridge.Select_Range(atom.xyz, NEAR_DISTANCE)
             selection = model.select(symbol_selector).select(range_selector)
             path_list = selection.get_path_list()
 
@@ -791,8 +791,8 @@ class AmberObject(MdObject):
                     if orig_path == None:
                         pass
                     else:
-                        (orig_chain_id, orig_resid, orig_atom_id) = pdfbridge.AtomGroup.divide_path(orig_path)
-                        (amb_model_id, amb_chain_id, amb_resid, amb_atom_id) = pdfbridge.AtomGroup.divide_path(amb_path)
+                        (orig_chain_id, orig_resid, orig_atom_id) = bridge.AtomGroup.divide_path(orig_path)
+                        (amb_model_id, amb_chain_id, amb_resid, amb_atom_id) = bridge.AtomGroup.divide_path(amb_path)
                         self._set_chainres_match_table(amb_chain_id, amb_resid, orig_chain_id, orig_resid)
 
         self._show_amber_chain_res_match_table()
@@ -816,7 +816,7 @@ class AmberObject(MdObject):
         start = -1
         end = -1
 
-        select_WAT = pdfbridge.Select_Name('WAT')
+        select_WAT = bridge.Select_Name('WAT')
         WATs = model.select(select_WAT)
 
         return self._get_ambermask_res_list(WATs)
@@ -827,8 +827,8 @@ class AmberObject(MdObject):
         end = -1
 
         areas = []
-        select_Na = pdfbridge.Select_Name("Na+")
-        select_Cl = pdfbridge.Select_Name("Cl-")
+        select_Na = bridge.Select_Name("Na+")
+        select_Cl = bridge.Select_Name("Cl-")
         model_Na = model.select(select_Na)
         model_Cl = model.select(select_Cl)
         model_X = model_Na

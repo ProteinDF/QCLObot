@@ -12,8 +12,9 @@ try:
 except:
     import msgpack_pure as msgpack
 
-import pdfbridge as bridge
-import pdfpytools as pdf
+
+import proteindf_bridge as bridge
+import proteindf_tools as pdf
 import qclobot as qclo
 
 logger = logging.getLogger(__name__)

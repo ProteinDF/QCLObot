@@ -6,7 +6,7 @@ import cProfile
 from pstats import Stats
 
 from qclobot.qcmodeler import QcModeler
-import pdfbridge
+import proteindf_bridge as bridge
 
 use_profiler = False
 
@@ -22,7 +22,7 @@ class TestQcModeler(unittest.TestCase):
             p.strip_dirs()
             p.sort_stats ('cumtime')
             p.print_stats()
-        
+
     def test_run(self):
         modeler = QcModeler()
         modeler.run("./data/sample/modeler.yml")
@@ -41,5 +41,3 @@ def test_suite():
 if __name__ == '__main__':
     print("check: RUN")
     unittest.main(defaultTest = 'test_suite')
-        
-    

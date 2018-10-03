@@ -4,15 +4,15 @@
 import unittest
 from qclobot.qcprotonate import QcProtonate
 from qclobot.utils import get_model
-import pdfbridge
+import proteindf_bridge as bridge
 
 class TestProtonate(unittest.TestCase):
     def setUp(self):
-        pdb = pdfbridge.Pdb("./data/sample/4tut.pdb")
+        pdb = bridge.Pdb("./data/sample/4tut.pdb")
         models = pdb.get_atomgroup()
         self.protonate = QcProtonate(name="test_protonate")
         self.protonate.model = models["model_1"]
-        
+
     def tearDown(self):
         pass
 
@@ -21,7 +21,7 @@ class TestProtonate(unittest.TestCase):
         self.assertEqual(retcode, 0)
 
         self.protonate.protonate_group()
-        
+
 
 def test_suite():
     """
@@ -37,4 +37,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest = 'test_suite')
-        

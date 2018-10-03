@@ -6,7 +6,7 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-import pdfbridge
+import proteindf_bridge as bridge
 from .taskobject import TaskObject
 
 class QcNeutralize(TaskObject):
@@ -40,14 +40,14 @@ class QcNeutralize(TaskObject):
 
 
     def _neutralize(self, model):
-        ip = pdfbridge.IonPair(model)
+        ip = bridge.IonPair(model)
         ionpairs = ip.get_ion_pairs()
 
         # 処理しやすいように並べ替え
         exempt_list = [] # 免除リスト
         for (anion_path, cation_path, anion_type, cation_type) in ionpairs:
-            (anion_chain_name, anion_res_name) = pdfbridge.AtomGroup.divide_path(anion_path)
-            (cation_chain_name, cation_res_name) = pdfbridge.AtomGroup.divide_path(cation_path)
+            (anion_chain_name, anion_res_name) = bridge.AtomGroup.divide_path(anion_path)
+            (cation_chain_name, cation_res_name) = bridge.AtomGroup.divide_path(cation_path)
             exempt_list.append((anion_chain_name, anion_res_name, anion_type))
             exempt_list.append((cation_chain_name, cation_res_name, cation_type))
             logger.info("ion pair found: {anion_path} <-> {cation_path}".format(
@@ -55,8 +55,8 @@ class QcNeutralize(TaskObject):
                 cation_path=cation_path)
             )
 
-        output_model = pdfbridge.AtomGroup(model)
-        modeling = pdfbridge.Modeling()
+        output_model = bridge.AtomGroup(model)
+        modeling = bridge.Modeling()
         for chain_name, chain in output_model.groups():
             for resid, res in chain.groups():
                 resname = res.name
@@ -118,8 +118,8 @@ class QcNeutralize(TaskObject):
 
 
     def _add_ions(self, atomgroup, ions):
-        assert isinstance(atomgroup, pdfbridge.AtomGroup)
-        assert isinstance(ions, pdfbridge.AtomGroup)
+        assert isinstance(atomgroup, bridge.AtomGroup)
+        assert isinstance(ions, bridge.AtomGroup)
 
         count = 0
         for atom_name, atom in ions.atoms():
@@ -135,7 +135,7 @@ class QcNeutralize(TaskObject):
 
 
     def _reorder_ions_for_amber(self, model):
-        assert isinstance(model, pdfbridge.AtomGroup)
+        assert isinstance(model, bridge.AtomGroup)
 
         def pick_ions(atomgroup):
             ions = []
@@ -151,14 +151,14 @@ class QcNeutralize(TaskObject):
                     ions.append(atom)
             return ions
 
-        new_model = pdfbridge.AtomGroup(model)
+        new_model = bridge.AtomGroup(model)
         ions = pick_ions(new_model)
 
         # atomgroup for ions
-        chain = pdfbridge.AtomGroup()
+        chain = bridge.AtomGroup()
         resid = 1
         for ion in ions:
-            res = pdfbridge.AtomGroup()
+            res = bridge.AtomGroup()
             res.name = ion.name
             res.set_atom(ion.symbol, ion)
             chain.set_group(resid, res)

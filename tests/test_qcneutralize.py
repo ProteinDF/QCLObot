@@ -3,23 +3,22 @@
 
 import unittest
 from qclobot.qcneutralize import QcNeutralize
-import pdfbridge
+import proteindf_bridge as bridge
 
 class TestNeutralize(unittest.TestCase):
     def setUp(self):
-        pdb = pdfbridge.Pdb("./data/sample/GDG_H.pdb")
+        pdb = bridge.Pdb("./data/sample/GDG_H.pdb")
         models = pdb.get_atomgroup()
         self.model = models["model_1"]
-        
+
     def tearDown(self):
         pass
 
     def test_neutralize(self):
         neutralize = QcNeutralize(name="test_neutralize")
         neutralize.model = self.model
-        
-        retcode = neutralize.run()
-        self.assertEqual(retcode, 0)
+
+        neutralize.run()
 
         neutralize.atomgroup2pdb(neutralize.output_model,
                                  "GDG_x.pdb")
@@ -38,4 +37,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest = 'test_suite')
-        

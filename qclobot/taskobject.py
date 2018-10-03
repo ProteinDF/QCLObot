@@ -13,7 +13,7 @@ except:
 import logging
 logger = logging.getLogger(__name__)
 
-import pdfbridge
+import proteindf_bridge as bridge
 from .utils import check_format_model
 
 class TaskObject(object):
@@ -116,7 +116,7 @@ class TaskObject(object):
         answer = None
         model_raw_data = self._data.get("model", None)
         if model_raw_data != None:
-            answer = pdfbridge.AtomGroup(model_raw_data)
+            answer = bridge.AtomGroup(model_raw_data)
         return answer
     def _set_model(self, model):
         if check_format_model(model):
@@ -132,7 +132,7 @@ class TaskObject(object):
         answer = None
         model_raw_data = self._data.get("output_model", None)
         if model_raw_data != None:
-            answer = pdfbridge.AtomGroup(model_raw_data)
+            answer = bridge.AtomGroup(model_raw_data)
         return answer
     def _set_output_model(self, model):
         assert(check_format_model(model))
@@ -151,7 +151,7 @@ class TaskObject(object):
             with open(path, 'rb') as f:
                 packed = f.read()
                 state_dat = msgpack.unpackb(packed)
-                state_dat = pdfbridge.Utils.to_unicode_dict(state_dat)
+                state_dat = bridge.Utils.to_unicode_dict(state_dat)
                 self.set_by_raw_data(state_dat)
         else:
             logger.debug('not found the state file')
@@ -223,13 +223,13 @@ class TaskObject(object):
 
 
     def write_output_model(self, output_path):
-        self._atomgroup2file(self.output_model, output_path)
+        self.atomgroup2file(self.output_model, output_path)
 
 
     def atomgroup2file(self, atomgroup, output_path):
         '''output_pathの拡張子に応じて、bridge形式またはpdb形式でatomgroupをファイルに書き出す
         '''
-        assert(isinstance(atomgroup, pdfbridge.AtomGroup))
+        assert(isinstance(atomgroup, bridge.AtomGroup))
 
         abspath = os.path.abspath(output_path)
         (basename, ext) = os.path.splitext(abspath)
@@ -253,13 +253,13 @@ class TaskObject(object):
         assert(isinstance(pdbfile, str))
 
         self.cd_workdir()
-        pdb = pdfbridge.Pdb(mode = 'amber')
+        pdb = bridge.Pdb(mode = 'amber')
 
         protein = atomgroup
         if check_format_model(atomgroup):
             # transform MODEL object to the protein(models)
             # which has only one model.
-            protein = pdfbridge.AtomGroup()
+            protein = bridge.AtomGroup()
             protein.set_group(model_name, atomgroup)
 
         pdb.set_by_atomgroup(protein)

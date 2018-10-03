@@ -12,7 +12,7 @@ except:
     import msgpack_pure as msgpack
 import jinja2
 
-import pdfbridge
+import proteindf_bridge as bridge
 from .qcprotonate import QcProtonate
 from .qcneutralize import QcNeutralize
 from .amberobject import AmberObject
@@ -48,7 +48,7 @@ class QcControl_Base(object):
     def _load_yaml(self, input_path):
         with open(input_path) as f:
             contents = f.read()
-        contents = pdfbridge.Utils.to_unicode(contents)
+        contents = bridge.Utils.to_unicode(contents)
 
         self._senarios = []
         for d in yaml.load_all(contents):

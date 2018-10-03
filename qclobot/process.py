@@ -3,19 +3,19 @@
 
 # Copyright (C) 2014-2015 The ProteinDF development team.
 # see also AUTHORS and README if provided.
-# 
+#
 # This file is a part of the ProteinDF software package.
-# 
+#
 # The ProteinDF is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # The ProteinDF is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -30,7 +30,7 @@ import select
 import logging
 logger = logging.getLogger(__name__)
 
-import pdfbridge
+import proteindf_bridge as bridge
 
 class Process(object):
     '''
@@ -51,7 +51,7 @@ class Process(object):
     >>> return_code = p.commit()
     ... #doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     Hello python!
-    
+
     ...
     '''
 
@@ -65,7 +65,7 @@ class Process(object):
             'stderr': subprocess.PIPE,
         }
         p_args['shell'] = self._is_shell_script(cmd)
-        
+
         return self._exec(cmd, p_args)
 
     def pipe(self, cmd):
@@ -87,7 +87,7 @@ class Process(object):
 
         if p_args.get('shell', False) == False:
             cmd = shlex.split(cmd)
-            
+
         new_proc = None
         try:
             new_proc = subprocess.Popen(cmd, **p_args)
@@ -100,7 +100,7 @@ class Process(object):
 
         self._procs.append(new_proc)
         return self
-            
+
     def commit(self,
                stdout_filepath=None, stderr_filepath=None,
                stdout_through=True, stderr_through=True):
@@ -120,20 +120,20 @@ class Process(object):
         with io.open(stdout.fileno(), closefd=False) as out_stream, io.open(stderr.fileno(), closefd=False) as err_stream:
             for line in out_stream:
                 #line = line.rstrip('\n')
-                #line = pdfbridge.Utils.to_unicode(line)
+                #line = bridge.Utils.to_unicode(line)
                 if stdout_through:
                     sys.stdout.write(line)
                 if stdout_file != None:
                     stdout_file.write(line)
             for line in err_stream:
                 #line = line.rstrip('\n')
-                #line = pdfbridge.Utils.to_unicode(line)
+                #line = bridge.Utils.to_unicode(line)
                 if stderr_through:
                     sys.stderr.write(line)
                 if stderr_file != None:
                     stderr_file.write(line)
 
-            
+
         self._procs[-1].wait()
         status = self._procs[-1].returncode
 
@@ -146,8 +146,8 @@ class Process(object):
             stdout_file.close()
         if stderr_file != None:
             stderr_file.close()
-            
-        
+
+
         return status
 
     def _is_shell_script(self, cmd):
@@ -160,8 +160,8 @@ class Process(object):
                 answer = True
 
         return answer
-            
-            
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
