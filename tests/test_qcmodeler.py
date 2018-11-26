@@ -24,8 +24,14 @@ class TestQcModeler(unittest.TestCase):
             p.print_stats()
 
     def test_run(self):
+        pr = cProfile.Profile()
+        pr.enable()
+
         modeler = QcModeler()
         modeler.run("./data/sample/modeler.yml")
+
+        pr.disable()
+        pr.dump_stats('test_modeler.profile')
 
 def test_suite():
     """

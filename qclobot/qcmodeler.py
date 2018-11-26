@@ -161,17 +161,12 @@ class QcModeler(QcControl_Base):
         assert(isinstance(name, str))
         assert(isinstance(args, dict))
 
-        steps = 1
-        if "steps" in args:
-            steps = args["steps"]
-        dt = 0.002
-        if "dt" in args:
-            dt = args["dt"]
-
         amber = self._run_amber_setup(name, args)
-        #amber.opt(steps=steps,
-        #          dt=dt)
         amber.opt()
+
+        dest = args.get("dest", None)
+        if dest:
+            amber.write_output_model(dest)
 
         return amber
 
@@ -181,8 +176,20 @@ class QcModeler(QcControl_Base):
         assert(isinstance(name, str))
         assert(isinstance(args, dict))
 
+        steps = 1
+        if "steps" in args:
+            steps = args["steps"]
+        dt = 0.002
+        if "dt" in args:
+            dt = args["dt"]
+
         amber = self._run_amber_setup(name, args)
-        amber.md()
+        amber.md(steps = steps,
+                 dt = dt)
+
+        dest = args.get("dest", None)
+        if dest:
+            amber.write_output_model(dest)
 
         return amber
 
