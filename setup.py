@@ -26,7 +26,7 @@ from imp import reload
 sys.path.append('./qclobot')
 
 setup(name='qclobot',
-      version='2018.10.rc0',
+      version='2018.10.0',
       description='building initial guess scripts based on QCLO for the ProteinDF',
       author='Toshiyuki HIRANO',
       author_email='hiracchi@gmail.com',
@@ -37,6 +37,7 @@ setup(name='qclobot',
           'scripts/qclo_sample.py',
           'scripts/QCLObot.py',
           'scripts/QCLObot_opt.py',
+          'scripts/QCLObot_modeler.py',
           'scripts/relax_protein.py',
           'scripts/relax_protein.sh',
           'scripts/remove_wat.py'
