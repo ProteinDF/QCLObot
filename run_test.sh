@@ -2,6 +2,11 @@
 
 TESTS="\
   qcatom \
+  process \
+  protonate \
+  qcneutralize \
+  amberobject \
+  qcmodeler \
   "
 
 rm -rf test_*

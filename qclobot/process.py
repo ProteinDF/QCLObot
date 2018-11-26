@@ -3,19 +3,19 @@
 
 # Copyright (C) 2014-2015 The ProteinDF development team.
 # see also AUTHORS and README if provided.
-# 
+#
 # This file is a part of the ProteinDF software package.
-# 
+#
 # The ProteinDF is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # The ProteinDF is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -26,6 +26,11 @@ import shlex
 import subprocess
 import fcntl
 import select
+
+import logging
+logger = logging.getLogger(__name__)
+
+import proteindf_bridge as bridge
 
 class Process(object):
     '''
@@ -46,13 +51,12 @@ class Process(object):
     >>> return_code = p.commit()
     ... #doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     Hello python!
-    
+
     ...
     '''
 
-    def __init__(self, logfile_path = ''):
+    def __init__(self):
         self._procs = []
-        self._logfile_path = str(logfile_path)
 
     def cmd(self, cmd):
         p_args = {
@@ -61,7 +65,7 @@ class Process(object):
             'stderr': subprocess.PIPE,
         }
         p_args['shell'] = self._is_shell_script(cmd)
-        
+
         return self._exec(cmd, p_args)
 
     def pipe(self, cmd):
@@ -83,7 +87,7 @@ class Process(object):
 
         if p_args.get('shell', False) == False:
             cmd = shlex.split(cmd)
-            
+
         new_proc = None
         try:
             new_proc = subprocess.Popen(cmd, **p_args)
@@ -96,71 +100,55 @@ class Process(object):
 
         self._procs.append(new_proc)
         return self
-            
-    def commit(self):
+
+    def commit(self,
+               stdout_filepath=None, stderr_filepath=None,
+               stdout_through=True, stderr_through=True):
         stdout = self._procs[-1].stdout
         stderr = self._procs[-1].stderr
-        stdout_fd = stdout.fileno()
-        stderr_fd = stderr.fileno()
-        self._make_non_blocking(stdout_fd)
-        self._make_non_blocking(stderr_fd)
 
-        #stdout_data = []
-        #stderr_data = []
-        stdout_eof = False
-        stderr_eof = False
+        stdout_file = None
+        if stdout_filepath != None:
+            stdout_file = open(stdout_filepath, mode='a')
+        stderr_file = None
+        if stderr_filepath != None:
+            stderr_file = open(stderr_filepath, mode='a')
 
-        logfile = None
-        if len(self._logfile_path) > 0:
-            logfile = open(self._logfile_path, mode='ab')
-        
-        while True:
-            to_check = [stdout_fd]*(not stdout_eof) + [stderr_fd]*(not stderr_eof)
-            ready = select.select(to_check, [], [])
-            if stdout_fd in ready[0]:
-                stdout_chunk = stdout.read()
-                if stdout_chunk == '':
-                    stdout_eof = True
-                else:
-                    sys.stdout.write(stdout_chunk)
-                    sys.stdout.flush()
-                    if logfile != None:
-                        logfile.write(stdout_chunk)
-                    #stdout_data.append(stdout_chunk)
-            if stderr_fd in ready[0]:
-                stderr_chunk = stderr.read()
-                if stderr_chunk == '':
-                    stderr_eof = True
-                else:
-                    sys.stderr.write(stderr_chunk)
-                    sys.stderr.flush()
-                    if logfile != None:
-                        logfile.write(stdout_chunk)
-                    #stderr_data.append(stderr_chunk)
-            if stdout_eof and stderr_eof:
-                break
-            select.select([], [], [], .1)
-            
+        # see also.
+        # http://qiita.com/FGtatsuro/items/0f68ab9c1bcad9c4b320
+        # https://gist.github.com/mattbornski/3299031
+        with io.open(stdout.fileno(), closefd=False) as out_stream, io.open(stderr.fileno(), closefd=False) as err_stream:
+            for line in out_stream:
+                #line = line.rstrip('\n')
+                #line = bridge.Utils.to_unicode(line)
+                if stdout_through:
+                    sys.stdout.write(line)
+                if stdout_file != None:
+                    stdout_file.write(line)
+            for line in err_stream:
+                #line = line.rstrip('\n')
+                #line = bridge.Utils.to_unicode(line)
+                if stderr_through:
+                    sys.stderr.write(line)
+                if stderr_file != None:
+                    stderr_file.write(line)
+
+
         self._procs[-1].wait()
         status = self._procs[-1].returncode
 
         for p in self._procs:
             p.stdout.close()
+            p.stderr.close()
         self._procs = []
 
-        if logfile != None:
-            logfile.close()
-        
+        if stdout_file != None:
+            stdout_file.close()
+        if stderr_file != None:
+            stderr_file.close()
+
+
         return status
-
-
-    def _make_non_blocking(self, fd):
-        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-        try:
-            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NDELAY)
-            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-        except AttributeError:
-            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.FNDELAY)
 
     def _is_shell_script(self, cmd):
         answer = False
@@ -172,8 +160,8 @@ class Process(object):
                 answer = True
 
         return answer
-            
-            
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

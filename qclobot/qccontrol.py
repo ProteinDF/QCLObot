@@ -427,8 +427,12 @@ class QcControl(object):
                 logger.critical(frg_data_str)
                 raise QcControlError('unknown subfragment:', frg_data_str)
 
-            assert(isinstance(subfrg, QcFragment))
-            logger.info("> add fragment to list: {fragment_name}".format(fragment_name=name))
+            assert(isinstance(subfrg, qclo.QcFragment))
+            subfrg_atomgroup = subfrg.get_AtomGroup()
+            logger.info("subfrg append: {name} ({formula}: elec={elec})".format(
+                name=name,
+                formula=subfrg_atomgroup.get_formula(),
+                elec=subfrg_atomgroup.charge))
             answer.append(subfrg)
 
         logger.info("> make list of fragments: end")
