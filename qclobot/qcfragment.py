@@ -653,7 +653,7 @@ class QcFragment(object):
                 continue
             self._check_path(subgrp_guess_QCLO_matrix_path)
 
-            # 行数は変えずに列方向に追加("pdf-mat-ext -c")
+            # 行数は変えずに列方向に追加("pdf-mat-extend -c")
             logger.debug('{} -c '.format(self._cmds['mat-extend']))
             logger.debug('    {}'.format(guess_QCLO_matrix_path))
             logger.debug('    {}'.format(subgrp_guess_QCLO_matrix_path))
@@ -695,7 +695,7 @@ class QcFragment(object):
             my_guess_QCLO_matrix_path = os.path.join(self.work_dir, "guess_QCLO.part.mat")
             guess_QCLO_mat.save(my_guess_QCLO_matrix_path)
 
-            # 行数は変えずに列方向に追加("pdf-mat-ext -c")
+            # 行数は変えずに列方向に追加("pdf-mat-extend -c")
             logger.debug('{} -c '.format('mat-extend'))
             logger.debug('    {}'.format(guess_QCLO_matrix_path))
             logger.debug('    {}'.format(my_guess_QCLO_matrix_path))
