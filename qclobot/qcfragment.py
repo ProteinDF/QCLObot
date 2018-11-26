@@ -653,7 +653,7 @@ class QcFragment(object):
                 continue
             self._check_path(subgrp_guess_QCLO_matrix_path)
 
-            # 行数は変えずに列方向に追加("pdf-mat-ext -c")
+            # 行数は変えずに列方向に追加("pdf-mat-extend -c")
             logger.debug('{} -c '.format(self._cmds['mat-extend']))
             logger.debug('    {}'.format(guess_QCLO_matrix_path))
             logger.debug('    {}'.format(subgrp_guess_QCLO_matrix_path))
@@ -679,6 +679,10 @@ class QcFragment(object):
 
             QCLO_mat = pdf.Matrix()
             QCLO_mat.load(my_qclo_matrix_path)
+            if QCLO_mat.rows != parent_num_of_AOs:
+                logger.warning("QCLO matrix row(= {qclo_row}) is not equal to the parent AOs(= {ao})".format(
+                    qclo_row = QCLO_mat.row,
+                    ao = parent_num_of_AOs))
             num_of_MOs = QCLO_mat.cols
             guess_QCLO_mat = pdf.Matrix(request_num_of_AOs, num_of_MOs)
 
@@ -691,7 +695,7 @@ class QcFragment(object):
             my_guess_QCLO_matrix_path = os.path.join(self.work_dir, "guess_QCLO.part.mat")
             guess_QCLO_mat.save(my_guess_QCLO_matrix_path)
 
-            # 行数は変えずに列方向に追加("pdf-mat-ext -c")
+            # 行数は変えずに列方向に追加("pdf-mat-extend -c")
             logger.debug('{} -c '.format('mat-extend'))
             logger.debug('    {}'.format(guess_QCLO_matrix_path))
             logger.debug('    {}'.format(my_guess_QCLO_matrix_path))

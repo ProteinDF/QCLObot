@@ -1,0 +1,89 @@
+USER  MOD reduce.3.24.130724 H: found=0, std=0, add=37, rem=0, adj=2
+USER  MOD -----------------------------------------------------------------
+USER  MOD scores for adjustable sidechains, with "set" totals for H,N and Q
+USER  MOD "o" means original, "f" means flipped, "180deg" is methyl default
+USER  MOD "!" flags a clash with an overlap of 0.40A or greater
+USER  MOD flip categories: "K"=keep, "C"=clashes, "X"=uncertain, "F"=flip
+USER  MOD Single : A 128 TYR OH  :   rot  180:sc=       0
+USER  MOD Single : A 129 MET CE  :methyl -143:sc=       0   (180deg=-0.0199)
+USER  MOD -----------------------------------------------------------------
+MODEL        1
+ATOM      1  N   GLY A 126      17.293   1.560  23.968  1.00  1.00
+ATOM      2  CA  GLY A 126      16.849   0.827  22.791  1.00  1.00
+ATOM      3  C   GLY A 126      15.759   1.608  22.098  1.00  1.00
+ATOM      4  O   GLY A 126      15.565   2.786  22.386  1.00  1.00
+ATOM      0  HA2 GLY A 126      17.594   0.685  22.186  1.00  1.00           H   new
+ATOM      0  HA3 GLY A 126      16.520  -0.049  23.048  1.00  1.00           H   new
+ATOM      5  N   GLY A 127      15.042   0.968  21.186  1.00  1.00
+ATOM      6  CA  GLY A 127      14.034   1.688  20.438  1.00  1.00
+ATOM      7  C   GLY A 127      13.225   0.763  19.570  1.00  1.00
+ATOM      8  O   GLY A 127      13.387  -0.455  19.626  1.00  1.00
+ATOM      0  H   GLY A 127      15.123   0.135  20.990  1.00  1.00           H   new
+ATOM      0  HA2 GLY A 127      13.446   2.154  21.052  1.00  1.00           H   new
+ATOM      0  HA3 GLY A 127      14.460   2.362  19.886  1.00  1.00           H   new
+ATOM      9  N   TYR A 128      12.346   1.343  18.764  1.00  1.00
+ATOM     10  CA  TYR A 128      11.429   0.542  17.964  1.00  1.00
+ATOM     11  C   TYR A 128      10.906   1.404  16.824  1.00  1.00
+ATOM     12  O   TYR A 128      10.959   2.642  16.877  1.00  1.00
+ATOM     13  CB  TYR A 128      10.261  -0.015  18.826  1.00  1.00
+ATOM     14  CG  TYR A 128       9.455   1.105  19.430  1.00  1.00
+ATOM     15  CD1 TYR A 128       9.869   1.725  20.609  1.00  1.00
+ATOM     16  CD2 TYR A 128       8.325   1.603  18.782  1.00  1.00
+ATOM     17  CE1 TYR A 128       9.179   2.805  21.129  1.00  1.00
+ATOM     18  CE2 TYR A 128       7.628   2.681  19.297  1.00  1.00
+ATOM     19  CZ  TYR A 128       8.063   3.280  20.464  1.00  1.00
+ATOM     20  OH  TYR A 128       7.374   4.361  20.943  1.00  1.00
+ATOM      0  H   TYR A 128      12.264   2.193  18.665  1.00  1.00           H   new
+ATOM      0  HA  TYR A 128      11.901  -0.226  17.605  1.00  1.00           H   new
+ATOM      0  HB2 TYR A 128       9.687  -0.572  18.278  1.00  1.00           H   new
+ATOM      0  HB3 TYR A 128      10.615  -0.580  19.531  1.00  1.00           H   new
+ATOM      0  HD1 TYR A 128      10.622   1.407  21.053  1.00  1.00           H   new
+ATOM      0  HD2 TYR A 128       8.036   1.205  17.993  1.00  1.00           H   new
+ATOM      0  HE1 TYR A 128       9.463   3.208  21.918  1.00  1.00           H   new
+ATOM      0  HE2 TYR A 128       6.871   3.001  18.861  1.00  1.00           H   new
+ATOM      0  HH  TYR A 128       6.727   4.529  20.434  1.00  1.00           H   new
+ATOM     21  N   MET A 129      10.393   0.725  15.804  1.00  1.00
+ATOM     22  CA  MET A 129       9.886   1.367  14.602  1.00  1.00
+ATOM     23  C   MET A 129       8.529   0.778  14.227  1.00  1.00
+ATOM     24  O   MET A 129       8.331  -0.445  14.303  1.00  1.00
+ATOM     25  CB  MET A 129      10.878   1.204  13.444  1.00  1.00
+ATOM     26  CG  MET A 129      10.389   1.773  12.116  1.00  1.00
+ATOM     27  SD  MET A 129      11.651   1.731  10.822  1.00  1.00
+ATOM     28  CE  MET A 129      12.712   3.096  11.307  1.00  1.00
+ATOM      0  H   MET A 129      10.330  -0.133  15.792  1.00  1.00           H   new
+ATOM      0  HA  MET A 129       9.778   2.315  14.779  1.00  1.00           H   new
+ATOM      0  HB2 MET A 129      11.712   1.638  13.683  1.00  1.00           H   new
+ATOM      0  HB3 MET A 129      11.072   0.261  13.328  1.00  1.00           H   new
+ATOM      0  HG2 MET A 129       9.613   1.271  11.821  1.00  1.00           H   new
+ATOM      0  HG3 MET A 129      10.100   2.689  12.249  1.00  1.00           H   new
+ATOM      0  HE1 MET A 129      13.033   3.554  10.514  1.00  1.00           H   new
+ATOM      0  HE2 MET A 129      12.210   3.717  11.858  1.00  1.00           H   new
+ATOM      0  HE3 MET A 129      13.468   2.756  11.811  1.00  1.00           H   new
+ATOM     29  N   LEU A 130       7.616   1.675  13.845  1.00  1.00
+ATOM     30  CA  LEU A 130       6.288   1.336  13.342  1.00  1.00
+ATOM     31  C   LEU A 130       6.201   1.705  11.865  1.00  1.00
+ATOM     32  O   LEU A 130       6.332   2.883  11.515  1.00  1.00
+ATOM     33  CB  LEU A 130       5.197   2.088  14.105  1.00  1.00
+ATOM     34  CG  LEU A 130       5.200   2.010  15.632  1.00  1.00
+ATOM     35  CD1 LEU A 130       4.039   2.827  16.150  1.00  1.00
+ATOM     36  CD2 LEU A 130       5.101   0.573  16.118  1.00  1.00
+ATOM      0  H   LEU A 130       7.760   2.522  13.874  1.00  1.00           H   new
+ATOM      0  HA  LEU A 130       6.151   0.384  13.465  1.00  1.00           H   new
+ATOM      0  HB2 LEU A 130       5.252   3.024  13.856  1.00  1.00           H   new
+ATOM      0  HB3 LEU A 130       4.338   1.762  13.793  1.00  1.00           H   new
+ATOM      0  HG  LEU A 130       6.038   2.365  15.969  1.00  1.00           H   new
+ATOM      0 HD11 LEU A 130       4.024   2.790  17.119  1.00  1.00           H   new
+ATOM      0 HD12 LEU A 130       4.138   3.748  15.864  1.00  1.00           H   new
+ATOM      0 HD13 LEU A 130       3.209   2.468  15.800  1.00  1.00           H   new
+ATOM      0 HD21 LEU A 130       5.105   0.558  17.088  1.00  1.00           H   new
+ATOM      0 HD22 LEU A 130       4.277   0.177  15.793  1.00  1.00           H   new
+ATOM      0 HD23 LEU A 130       5.857   0.065  15.784  1.00  1.00           H   new
+ATOM     37  N   GLY A 131       5.968   0.709  11.012  1.00  1.00
+ATOM     38  CA  GLY A 131       5.756   0.943   9.595  1.00  1.00
+ATOM     39  C   GLY A 131       4.389   0.496   9.111  1.00  1.00
+ATOM     40  O   GLY A 131       3.739  -0.348   9.757  1.00  1.00
+ATOM     41  OXT GLY A 131       3.958   0.976   8.049  1.00  1.00
+ATOM      0  H   GLY A 131       5.929  -0.119  11.243  1.00  1.00           H   new
+ATOM      0  HA2 GLY A 131       5.864   1.889   9.410  1.00  1.00           H   new
+ATOM      0  HA3 GLY A 131       6.440   0.475   9.090  1.00  1.00           H   new
+TER      42      GLY A 131
