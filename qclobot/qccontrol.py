@@ -418,7 +418,7 @@ class QcControl(object):
                 subfrg = self._get_reference_fragment(frg_data)
             else:
                 logger.critical("unknown fragment command/object: {}".format(str(frg_data.keys())))
-                raise QcControlError('unknown fragment: {}'.format(str(frg_data)))
+                raise QcControlError('fragment', 'unknown fragment: {}'.format(str(frg_data)))
 
             if subfrg == None:
                 frg_data_str = pprint.pformat(frg_data)
@@ -427,7 +427,7 @@ class QcControl(object):
                 logger.critical(frg_data_str)
                 raise QcControlError('unknown subfragment:', frg_data_str)
 
-            assert(isinstance(subfrg, qclo.QcFragment))
+            assert(isinstance(subfrg, QcFragment))
             subfrg_atomgroup = subfrg.get_AtomGroup()
             logger.info("subfrg append: {name} ({formula}: elec={elec})".format(
                 name=name,
