@@ -1,0 +1,29 @@
+tasks:
+  - name: 2MGO
+    protonate:
+      src: 2mgo.pdb
+  - name: 2MGO_opt
+    opt:
+      reference: 2MGO
+  - name: 2MGO_optx
+    neutralize:
+      reference: 2MGO_opt
+      dest: 2MGO_optx.pdb
+  - name: 2MGO_optx_mdwatx
+    md:
+      reference: 2MGO_optx
+      solvation:
+        method: cap
+        model: TIP3PBOX
+      belly_mask:
+        - water
+        - ions
+  - name: 2MGO_optx_mdwatx_optwatx
+    opt:
+      reference: 2MGO_optx_mdwatx
+      belly_mask:
+        - water
+        - ions
+      dest: 2MGO_optx_mdwatx.pdb
+     
+
