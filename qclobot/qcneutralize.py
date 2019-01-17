@@ -135,6 +135,7 @@ class QcNeutralize(TaskObject):
 
 
     def _reorder_ions_for_amber(self, model):
+        logger.info("reorder ions: start")
         assert isinstance(model, bridge.AtomGroup)
 
         def pick_ions(atomgroup):
@@ -142,17 +143,24 @@ class QcNeutralize(TaskObject):
             for key, subgrp in atomgroup.groups():
                 new_ions = pick_ions(subgrp)
                 ions.extend(new_ions)
+
+            remove_atom_keys = []
             for key, atom in atomgroup.atoms():
                 if atom.symbol not in ('Na', 'Cl'):
                     logger.debug("pass>'{}':'{}'@{}".format(key, atom.symbol, atomgroup.name))
                 else:
                     logger.debug("FOUND>'{}':'{}'@{}".format(key, atom.symbol, atomgroup.name))
-                    atomgroup.erase_atom(key)
                     ions.append(atom)
+                    remove_atom_keys.append(key)
+
+            for key in remove_atom_keys:
+                atomgroup.remove_atom(key)
+
             return ions
 
         new_model = bridge.AtomGroup(model)
         ions = pick_ions(new_model)
+        logger.info("ions: {}".format(len(ions)))
 
         # atomgroup for ions
         chain = bridge.AtomGroup()
@@ -168,6 +176,7 @@ class QcNeutralize(TaskObject):
         chain.name = new_chain_id
         new_model.set_group(new_chain_id, chain)
 
+        logger.info("reorder ions: end")
         return new_model
 
     def _get_last_chainid(self, model):
