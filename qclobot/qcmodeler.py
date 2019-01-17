@@ -31,6 +31,7 @@ class QcControl_Base(object):
         self.global_tasks = {}
 
     def run(self, input_path):
+        self.show_version()
         self._load_yaml(input_path)
 
         # exec senarios
@@ -90,12 +91,22 @@ class QcControl_Base(object):
         """
         return None
 
+    # ------------------------------------------------------------------
+    # others
+    # ------------------------------------------------------------------
+    def show_version(self):
+        """show version
+        """
+        logger.info(__version__)
 
 
 # ----------------------------------------------------------------------
 class QcModeler(QcControl_Base):
     def __init__(self):
         super(QcModeler, self).__init__()
+
+    def show_version(self):
+        logger.info("QcModeler version: {version}".format(version=str(__version__)))
 
     def _run_task_cmd(self, task):
         task = copy.deepcopy(task)
