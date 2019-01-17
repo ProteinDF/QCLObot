@@ -1,7 +1,7 @@
 ---
 tasks:
   - name: default
-    brd_file: 1NPO_model.brd
+    brd_file: 1NPO.model.brd
     basis_set: DZVP2
     guess: Harris
     XC_functional: B3LYP
@@ -18,79 +18,93 @@ tasks:
     sp: true
     fragments:
       - name: res_1-1
-        brd_select: /model_1/_/1/
+        brd_select: /model_1/A/1/
       - name: NME_1
         add_NME: true
-        brd_select: /model_1/_/2/
+        brd_select: /model_1/A/2/
       - name: ACE_6
         add_ACE: true
-        brd_select: /model_1/_/5/
+        brd_select: /model_1/A/5/
       - name: res_6-6
-        brd_select: /model_1/_/6/
+        brd_select: /model_1/A/6/
       - name: NME_6
-        brd_select: /model_1/_/7/
+        add_NME: true
+        brd_select: /model_1/A/7/
 
   - name: res_2-2
     sp: true
     fragments:
       - name: ACE_2
-        brd_select: /model_1/_/1/
+        add_ACE: true
+        brd_select: /model_1/A/1/
       - name: res_2-2
-        brd_select: /model_1/_/2/
+        brd_select: /model_1/A/2/
       - name: NME_2
-        brd_select: /model_1/_/3/
+        add_NME: true
+        brd_select: /model_1/A/3/
   - name: res_3-3
     sp: true
     fragments:
       - name: ACE_3
-        brd_select: /model_1/_/2/
+        add_ACE: true
+        brd_select: /model_1/A/2/
       - name: res_3-3
-        brd_select: /model_1/_/3/
+        brd_select: /model_1/A/3/
       - name: NME_3
-        brd_select: /model_1/_/4/
+        add_NME: true
+        brd_select: /model_1/A/4/
   - name: res_4-4
     sp: true
     fragments:
       - name: ACE_4
-        brd_select: /model_1/_/3/
+        add_ACE: true
+        brd_select: /model_1/A/3/
       - name: res_4-4
-        brd_select: /model_1/_/4/
+        brd_select: /model_1/A/4/
       - name: NME_4
-        brd_select: /model_1/_/5/
+        add_NME: true
+        brd_select: /model_1/A/5/
   - name: res_5-5
     sp: true
     fragments:
       - name: ACE_5
-        brd_select: /model_1/_/4/
+        add_ACE: true
+        brd_select: /model_1/A/4/
       - name: res_5-5
-        brd_select: /model_1/_/5/
+        brd_select: /model_1/A/5/
       - name: NME_5
-        brd_select: /model_1/_/6/
+        add_NME: true
+        brd_select: /model_1/A/6/
   - name: res_7-7
     sp: true
     fragments:
       - name: ACE_7
-        brd_select: /model_1/_/6/
+        add_ACE: true
+        brd_select: /model_1/A/6/
       - name: res_7-7
-        brd_select: /model_1/_/7/
+        brd_select: /model_1/A/7/
       - name: NME_7
-        brd_select: /model_1/_/8/
+        add_NME: true
+        brd_select: /model_1/A/8/
   - name: res_8-8
     sp: true
     fragments:
       - name: ACE_8
-        brd_select: /model_1/_/7/
+        add_ACE: true
+        brd_select: /model_1/A/7/
       - name: res_8-8
-        brd_select: /model_1/_/8/
+        brd_select: /model_1/A/8/
       - name: NME_8
-        brd_select: /model_1/_/9/
+        add_NME: true
+        brd_select: /model_1/A/9/
   - name: res_9-9
     sp: true
     fragments:
       - name: ACE_9
-        brd_select: /model_1/_/8/
+        add_ACE: true
+        brd_select: /model_1/A/8/
       - name: res_9-9
-        brd_select: /model_1/_/9/
+        brd_select: /model_1/A/9/
 
 # ----------------------------------------------------------------------
 # STEP 2
