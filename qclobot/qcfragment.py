@@ -679,10 +679,10 @@ class QcFragment(object):
 
             QCLO_mat = pdf.Matrix()
             QCLO_mat.load(my_qclo_matrix_path)
-            if QCLO_mat.rows != parent_num_of_AOs:
+            if QCLO_mat.rows != request_num_of_AOs:
                 logger.warning("QCLO matrix row(= {qclo_row}) is not equal to the parent AOs(= {ao})".format(
-                    qclo_row = QCLO_mat.row,
-                    ao = parent_num_of_AOs))
+                    qclo_row = QCLO_mat.rows,
+                    ao = request_num_of_AOs))
             num_of_MOs = QCLO_mat.cols
             guess_QCLO_mat = pdf.Matrix(request_num_of_AOs, num_of_MOs)
 
