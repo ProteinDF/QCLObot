@@ -190,29 +190,6 @@ class AmberObject(MdObject):
     final_pdb_filepath = property(_get_final_pdb_filepath)
 
     # ==================================================================
-    # internal properties
-    # ==================================================================
-    def _set_chainres_match_table(self,
-                                  amb_chain, amb_res,
-                                  orig_chain, orig_res):
-        self._data.setdefault("amber_chain_res_table", {})
-        key = "{}:{}".format(amb_chain, amb_res)
-        value = "{}:{}".format(orig_chain, orig_res)
-        self._data["amber_chain_res_table"][key] = value
-
-    def _get_chainres_match_table(self, amb_chain, amb_res):
-        self._data.setdefault("amber_chain_res_table", {})
-        key = "{}:{}".format(amb_chain, amb_res)
-
-        value = self._data["amber_chain_res_table"].get(key, None)
-        chain = None
-        res = None, None
-        if value:
-            chain, res = value.split(":")
-        answer = (chain, res)
-        return answer
-
-    # ==================================================================
     # optimization
     # ==================================================================
     def opt(self):
@@ -688,6 +665,7 @@ class AmberObject(MdObject):
         return_code = p.commit(self.final_pdb_filepath,
                                stdout_through=False,
                                stderr_through=False)
+        logger.info("save amber pdb file: {}".format(self.final_pdb_filepath));
 
         amb_pdb = bridge.Pdb(self.final_pdb_filepath)
         amb_models = amb_pdb.get_atomgroup()
@@ -699,6 +677,7 @@ class AmberObject(MdObject):
         orig_models.set_group(1, orig_model)
         orig_pdb = bridge.Pdb()
         orig_pdb.set_by_atomgroup(orig_models)
+        logger.info("save reordered pdb file: {}".format(self.output_pdb_filepath))
         with open(self.output_pdb_filepath, "w") as f:
             f.write(str(orig_pdb))
 
@@ -720,7 +699,11 @@ class AmberObject(MdObject):
         for amb_chain_id, amb_chain in amb_model.groups():
             for amb_res_id, amb_res in amb_chain.groups():
                 orig_chain_id, orig_res_id = self._get_chainres_match_table(amb_chain_id, amb_res_id)
+                logger.debug("amb: {amb_chain_id}/{amb_res_id} -> new: {orig_chain_id}/{orig_res_id}".format(
+                    amb_chain_id=amb_chain_id, amb_res_id=amb_res_id, orig_chain_id=orig_chain_id, orig_res_id=orig_res_id))
+
                 if (orig_chain_id == None) or (orig_res_id == None):
+                    # logger.warning("Not found amber ID: {}/{}".format(amb_chain_id, amb_res_id))
                     orig_chain_id = next_chain_id
                     orig_res_id = amb_res_id
 
@@ -799,6 +782,34 @@ class AmberObject(MdObject):
 
         self.restore_cwd()
         return 0
+
+
+    def _set_chainres_match_table(self,
+                                  amb_chain, amb_res,
+                                  orig_chain, orig_res):
+        self._data.setdefault("amber_chain_res_table", {})
+        key = "{}:{}".format(amb_chain, amb_res)
+        value = "{}:{}".format(orig_chain, orig_res)
+        self._data["amber_chain_res_table"][key] = value
+
+        resid_only_key = "*:{}".format(amb_res)
+        self._data["amber_chain_res_table"].setdefault(resid_only_key, value)
+
+
+    def _get_chainres_match_table(self, amb_chain, amb_res):
+        self._data.setdefault("amber_chain_res_table", {})
+        key = "{}:{}".format(amb_chain, amb_res)
+
+        chain = None
+        res = None
+        value = self._data["amber_chain_res_table"].get(key, None)
+        if value == None:
+            resid_only_key = "*:{}".format(amb_res)
+            value = self._data["amber_chain_res_table"].get(resid_only_key, None)
+        if value:
+            chain, res = value.split(":")
+        answer = (chain, res)
+        return answer
 
 
     def _show_amber_chain_res_match_table(self):
