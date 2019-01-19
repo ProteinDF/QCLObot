@@ -22,11 +22,12 @@
 import sys, os
 from setuptools import setup
 from imp import reload
+from qclobot import __version__
 
 sys.path.append('./qclobot')
 
 setup(name='qclobot',
-      version='2018.10.4',
+      version=__version__,
       description='building initial guess scripts based on QCLO for the ProteinDF',
       author='Toshiyuki HIRANO',
       author_email='hiracchi@gmail.com',

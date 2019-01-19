@@ -13,6 +13,8 @@ except:
 import jinja2
 
 import proteindf_bridge as bridge
+
+from ._version import __version__
 from .qcprotonate import QcProtonate
 from .qcneutralize import QcNeutralize
 from .amberobject import AmberObject
@@ -97,7 +99,8 @@ class QcControl_Base(object):
     def show_version(self):
         """show version
         """
-        logger.info(__version__)
+        pass
+        logger.info("QcControl_Base::show_version()")
 
 
 # ----------------------------------------------------------------------
@@ -106,7 +109,9 @@ class QcModeler(QcControl_Base):
         super(QcModeler, self).__init__()
 
     def show_version(self):
+        logger.info("=" * 80)
         logger.info("QcModeler version: {version}".format(version=str(__version__)))
+        logger.info("=" * 80)
 
     def _run_task_cmd(self, task):
         task = copy.deepcopy(task)
