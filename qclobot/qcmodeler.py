@@ -13,6 +13,8 @@ except:
 import jinja2
 
 import proteindf_bridge as bridge
+
+from ._version import __version__
 from .qcprotonate import QcProtonate
 from .qcneutralize import QcNeutralize
 from .amberobject import AmberObject
@@ -31,6 +33,7 @@ class QcControl_Base(object):
         self.global_tasks = {}
 
     def run(self, input_path):
+        self.show_version()
         self._load_yaml(input_path)
 
         # exec senarios
@@ -90,12 +93,25 @@ class QcControl_Base(object):
         """
         return None
 
+    # ------------------------------------------------------------------
+    # others
+    # ------------------------------------------------------------------
+    def show_version(self):
+        """show version
+        """
+        pass
+        logger.info("QcControl_Base::show_version()")
 
 
 # ----------------------------------------------------------------------
 class QcModeler(QcControl_Base):
     def __init__(self):
         super(QcModeler, self).__init__()
+
+    def show_version(self):
+        logger.info("=" * 80)
+        logger.info("QcModeler version: {version}".format(version=str(__version__)))
+        logger.info("=" * 80)
 
     def _run_task_cmd(self, task):
         task = copy.deepcopy(task)

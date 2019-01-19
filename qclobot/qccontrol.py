@@ -51,7 +51,13 @@ class QcControl(object):
 
         self._last_frame_name = ''
 
+    def show_version(self):
+        logger.info("=" * 80)
+        logger.info("QCLObot version: {version}".format(version=str(__version__)))
+        logger.info("=" * 80)
+
     def run(self, path):
+        self.show_version()
         self._load_yaml(path)
 
         # exec senarios
