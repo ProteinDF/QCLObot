@@ -15,6 +15,8 @@ Contents:
   20_setup_model
   80_keyword
   90_API
+  120_tutorial_modeling
+  180_modeler_keyword
 
 Indices and tables
 ==================
