@@ -119,13 +119,14 @@ class QcModeler(QcControl_Base):
 
         if "protonate" in task.keys():
             self.global_tasks[name] = self._run_protonate(name, task['protonate'])
+        elif "ff" in task.keys():
+            self.global_tasks[name] = self._run_ff(name, task['ff'])
         elif "opt" in task.keys():
             self.global_tasks[name] = self._run_opt(name, task['opt'])
         elif "md" in task.keys():
             self.global_tasks[name] = self._run_md(name, task['md'])
         elif "neutralize" in task.keys():
             self.global_tasks[name] = self._run_neutralize(name, task['neutralize'])
-            pass
         else:
             logger.warning("not found task command: {cmds}".format(cmds=str([ x for x in task.keys()])))
 
@@ -171,6 +172,16 @@ class QcModeler(QcControl_Base):
 
         return neutralize_obj
 
+
+    def _run_ff(self, name, args):
+        logger.info("check ff")
+        assert(isinstance(name, str))
+        assert(isinstance(args, dict))
+
+        amber = self._run_amber_setup(name, args)
+        amber.check_force_field()
+
+        return amber
 
     def _run_opt(self, name, args):
         logger.info("run opt")

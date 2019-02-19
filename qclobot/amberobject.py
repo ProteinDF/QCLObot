@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import logging
 logger = logging.getLogger(__name__)
 import time
@@ -188,6 +189,59 @@ class AmberObject(MdObject):
         path = self._data.get('final_pdb_filepath', 'final.pdb')
         return path
     final_pdb_filepath = property(_get_final_pdb_filepath)
+
+    # ==================================================================
+    # check force-field
+    # ==================================================================
+    def check_force_field(self):
+        model = bridge.AtomGroup(self.model)
+        self._save_input_pdb(model)
+
+        self._save_leap_input_pdb(model)
+        self._prepare_leapin()
+        self._do_leap()
+
+        unknown_residues = self._get_unknown_residues()
+        for unk_res in unknown_residues:
+            logger.info("unknown residues: {}".format(unk_res))
+
+
+    def _check_leap_log(self):
+        re_check = re.compile("^\s*check:\s+Errors:\s+(\d+)\s+Warnings:\s+(\d+)$") # check:  Errors:  3   Warnings: 17
+
+        errors = 0
+        warnings = 0
+        with open(self.leap_logfile_filepath) as f:
+            for line  in f:
+                match_obj = re_check.match(line)
+                if match_obj:
+                    errors = match_obj.group(1)
+                    warnings = match_obj.group(2)
+
+        return (errors, warnings)
+
+    def _get_unknown_residues(self):
+        """get unknown residues from leap.log
+        """
+        re_unk_res = re.compile("^Unknown residue:\s+(.+?)\s+") # Unknown residue: NH2   number: 14   type: Terminal/last
+
+        unknwon_residues = list()
+        with open(self.leap_logfile_filepath) as f:
+            for line  in f:
+                match_obj = re_unk_res.match(line)
+                if match_obj:
+                    unk_res = match_obj.group(1)
+                    unknwon_residues.append(unk_res)
+
+        return unknwon_residues
+
+
+    # ==================================================================
+    # create force-field
+    # ==================================================================
+    def create_force_field(self, mol2):
+        pass
+
 
     # ==================================================================
     # optimization
@@ -399,6 +453,7 @@ class AmberObject(MdObject):
         leapin_contents += 'proteinBox = copy protein\n'
         leapin_contents += self.__get_leap_ssbond_lines()
         leapin_contents += self.__get_solvation(solute='proteinBox')
+        leapin_contents += 'check proteinBox\n'
         leapin_contents += 'saveAmberParm proteinBox {prmtop} {inpcrd}\n'.format(prmtop=self.prmtop_filepath,
                                                                                  inpcrd=self.inpcrd_filepath)
         leapin_contents += 'savePdb proteinBox {pdb_file}\n'.format(pdb_file=self.initial_pdb_filepath)
