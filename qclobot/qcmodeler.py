@@ -14,7 +14,7 @@ import jinja2
 
 import proteindf_bridge as bridge
 
-from ._version import __version__
+from . import __version__
 from .qcprotonate import QcProtonate
 from .qcneutralize import QcNeutralize
 from .amberobject import AmberObject

@@ -20,20 +20,27 @@
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys, os
+import io
+import re
+
 from setuptools import setup
 from imp import reload
 from qclobot import __version__
 
 sys.path.append('./qclobot')
 
+with io.open('qclobot/__init__.py', 'rt', encoding='utf8') as f:
+    version = re.search(r'__version__ = \'(.*?)\'', f.read()).group(1)
+
 setup(name='qclobot',
-      version=__version__,
+      version=version,
       description='building initial guess scripts based on QCLO for the ProteinDF',
       author='Toshiyuki HIRANO',
       author_email='hiracchi@gmail.com',
       url='http://proteindf.github.io/',
       license='GPLv3',
       packages=['qclobot'],
+      zip_safe=False,
       scripts=[
           'scripts/qclo_sample.py',
           'scripts/QCLObot.py',

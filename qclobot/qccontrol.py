@@ -30,6 +30,8 @@ except:
 import jinja2
 
 import proteindf_bridge as bridge
+
+from . import __version__
 from .qcframe import QcFrame
 from .qcfragment import QcFragment
 from .qcerror import QcControlError
@@ -78,7 +80,7 @@ class QcControl(object):
         contents = bridge.Utils.to_unicode(contents)
 
         self._senarios = []
-        for d in yaml.load_all(contents):
+        for d in yaml.load_all(contents, Loader=yaml.SafeLoader):
             self._senarios.append(d)
         # logger.debug(pprint.pformat(self._senarios))
 

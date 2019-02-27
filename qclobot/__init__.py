@@ -21,6 +21,7 @@
 
 from __future__ import division, print_function, absolute_import
 
-from ._version import __version__
+__version__ = '2019.2.1'
+
 from .qccontrol import QcControl
 from .qcmodeler import QcModeler
