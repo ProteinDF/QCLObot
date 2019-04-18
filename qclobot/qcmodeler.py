@@ -54,7 +54,7 @@ class QcControl_Base(object):
         contents = bridge.Utils.to_unicode(contents)
 
         self._senarios = []
-        for d in yaml.load_all(contents):
+        for d in yaml.load_all(contents, Loader=yaml.SafeLoader):
             self._senarios.append(d)
 
 
