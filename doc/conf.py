@@ -29,7 +29,7 @@ import shlex
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 sys.path.append(os.path.abspath('../..'))
 # sys.path.append(os.path.abspath('../../../ProteinDF_bridge/'))
 # sys.path.append(os.path.abspath('../../../ProteinDF_pytools/'))
