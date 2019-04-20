@@ -25,15 +25,10 @@ import re
 
 from setuptools import setup
 from imp import reload
-from qclobot import __version__
-
-sys.path.append('./qclobot')
-
-with io.open('qclobot/__init__.py', 'rt', encoding='utf8') as f:
-    version = re.search(r'__version__ = \'(.*?)\'', f.read()).group(1)
+exec(open("qclobot/_version.py").read())
 
 setup(name='qclobot',
-      version=version,
+      version=__version__,
       description='building initial guess scripts based on QCLO for the ProteinDF',
       author='Toshiyuki HIRANO',
       author_email='hiracchi@gmail.com',
