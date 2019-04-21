@@ -43,7 +43,11 @@ setup(name='qclobot',
           'scripts/QCLObot_modeler.py',
           'scripts/relax_protein.py',
           'scripts/relax_protein.sh',
-          'scripts/remove_wat.py'
+          'scripts/remove_wat.py',
+          'scripts/qc-info-frame.py',
+          'scripts/qc-frame-molecule.py',
+          'scripts/qc-frame-checkconv.py',
+          'scripts/qc-frame-orb.py'
       ],
 
       install_requires = [

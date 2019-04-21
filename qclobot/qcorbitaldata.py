@@ -39,13 +39,13 @@ class QcOrbitalData(object):
     # atom -------------------------------------------------------------
     def _get_atom(self):
         return self._atom
-    
+
     atom = property(_get_atom)
-    
+
     # basisset_name ----------------------------------------------------
     def _get_basisset_name(self):
         return self._basisset_name
-        
+
     basisset_name = property(_get_basisset_name)
 
     # CGTO_index -------------------------------------------------------
@@ -59,7 +59,7 @@ class QcOrbitalData(object):
         return self._basis_type
 
     basis_type = property(_get_basis_type)
-    
+
     # operator== -------------------------------------------------------
     def __eq__(self, rhs):
         assert(isinstance(rhs, QcOrbitalData))
@@ -71,8 +71,23 @@ class QcOrbitalData(object):
     # operator!= -------------------------------------------------------
     def __ne__(self, rhs):
         return not self.__eq__(rhs)
-    
-    
+
+    # operator str -----------------------------------------------------
+    def __str__(self):
+        atom_str = str(self.atom)
+        basisset_name = self.basisset_name
+        cgto_index = self.CGTO_index
+        basis_type = self.basis_type
+
+        output = ""
+        output += "{atom}: {basisset_name} {cgto_index}/{basis_type}".format(atom = atom_str,
+                                                                             basisset_name = basisset_name,
+                                                                             cgto_index = cgto_index,
+                                                                             basis_type = basis_type)
+
+        return output
+
+
 class QcOrbitalInfo(object):
     def __init__(self):
         pass
@@ -80,10 +95,10 @@ class QcOrbitalInfo(object):
     def get_orb_info(self):
         basis2 = pdf.Basis2()
         orb_info = []
-        
+
         for subgrp_key, subgrp in qc_fragment.groups():
             orb_info.extend(subgrp.get_orb_info())
-        
+
         for atom_key, qc_atom in qc_fragment.atoms():
             atom = QcAtom(qc_atom)
             bsname = qc_atom.basisset
@@ -102,4 +117,3 @@ class QcOrbitalInfo(object):
                     orb_info.append(data)
 
         return orb_info
-            

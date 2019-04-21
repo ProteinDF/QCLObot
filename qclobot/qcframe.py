@@ -641,21 +641,23 @@ class QcFrame(object):
 
         self.cd_work_dir('calc force')
 
-        pdfsim = pdf.PdfSim()
-        for frg_name, frg in self.fragments():
-            frg.set_basisset(self.pdfparam)
-        self.pdfparam.molecule = self.frame_molecule
-
-        # num_of_electrons
-        num_of_electrons = self.pdfparam.num_of_electrons # calc from the molecule data
-        logger.info('the number of electrons = {}'.format(num_of_electrons))
-        if self.charge != 0:
-            logger.info('specify the charge => {}'.format(self.charge))
-            num_of_electrons -= self.charge # 電子(-)数と電荷(+)の正負が逆なことに注意
-            self.pdfparam.num_of_electrons = num_of_electrons
-            logger.info('update the number of electrons => {}'.format(self.pdfparam.num_of_electrons))
-
+        self._setup_pdf()
         self.pdfparam.step_control = 'force'
+        self.save()
+
+        pdfsim = pdf.PdfSim()
+        # for frg_name, frg in self.fragments():
+        #     frg.set_basisset(self.pdfparam)
+        # self.pdfparam.molecule = self.frame_molecule
+        #
+        # # num_of_electrons
+        # num_of_electrons = self.pdfparam.num_of_electrons # calc from the molecule data
+        # logger.info('the number of electrons = {}'.format(num_of_electrons))
+        # if self.charge != 0:
+        #     logger.info('specify the charge => {}'.format(self.charge))
+        #     num_of_electrons -= self.charge # 電子(-)数と電荷(+)の正負が逆なことに注意
+        #     self.pdfparam.num_of_electrons = num_of_electrons
+        #     logger.info('update the number of electrons => {}'.format(self.pdfparam.num_of_electrons))
         pdfsim.sp(self.pdfparam,
                   workdir = self.work_dir,
                   db_path = self.db_path,
@@ -725,6 +727,54 @@ class QcFrame(object):
             grad[atom_index] = pdfarc.get_force(atom_index)
 
         self.restore_cwd()
+
+    # pop --------------------------------------------------------------
+    def pop(self, dry_run = False, iteration = -1):
+        '''
+        '''
+        if self.is_finished_scf != True:
+            self.calc_sp(dry_run)
+
+        if iteration == -1:
+            iteration = self.pdfparam.iterations
+
+        self._calc_pop(iteration = iteration)
+        pop_vtr = self.get_pop(iteration)
+
+        self.save()
+        self.restore_cwd()
+
+        return pop_vtr
+
+    def _calc_pop(self, iteration = -1, dry_run = False):
+        """
+        """
+        if iteration == -1:
+            iteration = self.pdfparam.iterations
+        self.cd_work_dir('calc pop: iteration={}'.format(iteration))
+
+        pdfsim = pdf.PdfSim()
+        pdfsim.pop(iteration = iteration,
+                   dry_run = dry_run)
+
+        self.restore_cwd()
+
+
+    def get_pop(self, iteration = -1):
+        """
+        """
+        if iteration == -1:
+            iteration = self.pdfparam.iterations
+        self.cd_work_dir('get pop: iteration={}'.format(iteration))
+
+        run_type = "rks"
+        pop_path = self.pdfparam.get_pop_mulliken_path(run_type, iteration = iteration)
+        pop_vtr = pdf.Vector()
+        pop_vtr.load(pop_path)
+
+        self.restore_cwd()
+
+        return pop_vtr
 
     # ------------------------------------------------------------------
 
