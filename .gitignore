@@ -38,6 +38,7 @@ dist/*
 
 # for Sphinx
 _build/doctrees
+doc/_build/doctrees
 
 # working directory for unit test 
 test_*/
