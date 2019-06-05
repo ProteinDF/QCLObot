@@ -152,8 +152,8 @@ class QcControl(object):
             for item in iter_items:
                 logger.info('template render: item={}'.format(repr(item)))
                 yaml_str = template.render(item = item)
-                new_frame_data = yaml.load(yaml_str)
-                self._run_frame(new_frame_data)
+                for new_frame_data in yaml.load_all(yaml_str, Loader=yaml.SafeLoader):
+                    self._run_frame(new_frame_data)
             is_break = True
 
         return is_break
@@ -713,7 +713,7 @@ class QcControl(object):
 
         atomgroup = self._cache['brdfile'][brd_file_path]['atomgroup']
         # selecter = bridge.Select_PathRegex(brd_select)
-        selecter = bridge.Select_Path(brd_select)
+        selecter = bridge.Select_Path_wildcard(brd_select)
         answer = atomgroup.select(selecter)
 
         return answer

@@ -631,14 +631,20 @@ class QcFragment(object):
         logger.info("{header} prepare QCLO matrix: start".format(header=self.header))
         guess_QCLO_matrix_path = get_tmpfile_path()
 
-        request_orbinfo = request_frame.get_orbital_info()
-        request_num_of_AOs = request_frame.get_number_of_AOs()
-
         # 既存のデータを消去する
         if os.path.isfile(guess_QCLO_matrix_path):
-            logger.warning("{header} remove existed fragment QCLO file: {path}".format(
+            logger.debug("{header} remove existed fragment QCLO file: {path}".format(
                 header=self.header, path=guess_QCLO_matrix_path))
             os.remove(guess_QCLO_matrix_path)
+
+        # check the number of AOs
+        logger.debug("{header} #AOs: {AOs}".format(header=self.header, AOs=self.get_number_of_AOs()))
+        if self.get_number_of_AOs() == 0:
+            logger.info("{header} This fragment has no AOs. Skip preparing QCLO matrix.".format(header=self.header))
+            return guess_QCLO_matrix_path
+
+        request_orbinfo = request_frame.get_orbital_info()
+        request_num_of_AOs = request_frame.get_number_of_AOs()
 
         # subgroup
         logger.info("{header} get subgroup QCLO matrix".format(header=self.header))
@@ -706,7 +712,7 @@ class QcFragment(object):
                          guess_QCLO_matrix_path])
             self._check_path(guess_QCLO_matrix_path)
         else:
-            logger.info("{header} no belonging atoms found. No QCLO created.")
+            logger.info("{header} no belonging atoms found. No QCLO created.".format(header=self.header))
 
         # check
         self._check_path(guess_QCLO_matrix_path)
