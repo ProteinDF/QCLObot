@@ -42,7 +42,7 @@ class AmberObject(MdObject):
 
         self._AMBERHOME = os.environ.get('AMBERHOME', '')
         if len(self._AMBERHOME) == 0:
-            logger.warn("The environment variable `AMBERHOME` is empty.")
+            logger.warning("The environment variable `AMBERHOME` is empty.")
 
         self._data['leap_sources'] = ['leaprc.protein.ff14SB',
                                       'leaprc.water.tip3p',
@@ -765,6 +765,7 @@ class AmberObject(MdObject):
             return answer
 
         # make original table
+        self._data.setdefault("amber_chain_res_table", {})
         for chain_id, chain in amb_model.groups():
             for res_id, res in chain.groups():
                 for atom_id, atom in res.atoms():
@@ -787,7 +788,6 @@ class AmberObject(MdObject):
     def _set_chainres_match_table(self,
                                   amb_chain, amb_res,
                                   orig_chain, orig_res):
-        self._data.setdefault("amber_chain_res_table", {})
         key = "{}:{}".format(amb_chain, amb_res)
         value = "{}:{}".format(orig_chain, orig_res)
         self._data["amber_chain_res_table"][key] = value
@@ -816,6 +816,8 @@ class AmberObject(MdObject):
         ''' output matching table
         '''
         logger.debug(">>>> matching table")
+        if len(self._data["amber_chain_res_table"]) == 0:
+            logger.warning("emoty amber chain:res matching table")
         for amb_chain_res, orig_chain_res in self._data["amber_chain_res_table"].items():
             logger.debug("amb: {} <-> orig: {}".format(amb_chain_res, orig_chain_res))
 
