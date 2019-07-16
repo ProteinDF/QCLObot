@@ -905,7 +905,7 @@ class QcFrame(object):
 
         logger.info('calc S*C')
         CSC_path = 'CSC.mat'
-        Clo_path = self.pdfparam.get_clomat_path()
+        Clo_path = self.pdfparam.get_clo_mat_path()
         pdf.run_pdf(['component',
                      '-v',
                      '-S', 'CSC.mat',
@@ -1014,7 +1014,7 @@ class QcFrame(object):
     def _trans_LO2QCLO(self):
         logger.info('trans LO at {}'.format(os.getcwd()))
         run_type = 'rks'
-        F_path = self.pdfparam.get_Fmat_path(run_type)
+        F_path = self.pdfparam.get_f_mat_path(run_type)
         logger.info('F matrix: {}'.format(F_path))
         for frg_name, frg in self.fragments():
             C_QCLO_path = 'C_QCLO.{}.mat'.format(frg_name) # output for each fragment
