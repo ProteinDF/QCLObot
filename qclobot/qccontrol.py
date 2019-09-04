@@ -278,7 +278,7 @@ class QcControl(object):
         if XC_engine:
             frame.pdfparam.xc_engine = XC_engine
 
-        frame.pdfparam.gridfree_dual_level = self._get_value('gridfree/dual_level', frame_data)
+        frame.pdfparam.gridfree_dedicated_basis = self._get_value('gridfree/dedicated_basis', frame_data)
         frame.pdfparam.gridfree_orthogonalize_method = self._get_value('gridfree/orthogonalize_method', frame_data)
         frame.pdfparam.gridfree_CDAM_tau = self._get_value('gridfree/CDAM_tau', frame_data)
         frame.pdfparam.gridfree_CD_epsilon = self._get_value('gridfree/CD_epsilon', frame_data)
