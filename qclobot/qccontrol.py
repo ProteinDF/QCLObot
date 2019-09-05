@@ -461,7 +461,7 @@ class QcControl(object):
                     'orbital_independence_threshold',
                     'orbital_independence_threshold/canonical',
                     'orbital_independence_threshold/lowdin',
-                    'gridfree/dual_level',
+                    'gridfree/dedicated_basis',
                     'gridfree/orthogonalize_method',
                     'gridfree/CDAM_tau',
                     'gridfree/CD_epsilon',
