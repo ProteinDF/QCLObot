@@ -238,7 +238,10 @@ class QcFrame(object):
         カレントディレクトリ下に作業ディレクトリとなる
         nameのディレクトリを作成する。
         '''
-        assert(len(self.name) > 0)
+        # assert(len(self.name) > 0)
+        if len(self.name) == 0:
+            logger.critical("frame name is not defined.")
+            raise
         self._work_dir = os.path.abspath(os.path.join(os.curdir, self.name))
         if not os.path.exists(self.work_dir):
             logger.info("{header} make work dir: {path}".format(
