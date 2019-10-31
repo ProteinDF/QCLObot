@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2014 The ProteinDF development team.
+# Copyright (C) 2019 The ProteinDF development team.
 # see also AUTHORS and README if provided.
 #
 # This file is a part of the ProteinDF software package.
