@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2014 The ProteinDF development team.
+# Copyright (C) 2019 The ProteinDF development team.
 # see also AUTHORS and README if provided.
 #
 # This file is a part of the ProteinDF software package.
@@ -20,19 +20,22 @@
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys, os
+import io
+import re
+
 from setuptools import setup
 from imp import reload
-
-sys.path.append('./qclobot')
+exec(open("qclobot/_version.py").read())
 
 setup(name='qclobot',
-      version='2018.10.5',
+      version=__version__,
       description='building initial guess scripts based on QCLO for the ProteinDF',
       author='Toshiyuki HIRANO',
       author_email='hiracchi@gmail.com',
       url='http://proteindf.github.io/',
       license='GPLv3',
       packages=['qclobot'],
+      zip_safe=False,
       scripts=[
           'scripts/qclo_sample.py',
           'scripts/QCLObot.py',
@@ -40,7 +43,11 @@ setup(name='qclobot',
           'scripts/QCLObot_modeler.py',
           'scripts/relax_protein.py',
           'scripts/relax_protein.sh',
-          'scripts/remove_wat.py'
+          'scripts/remove_wat.py',
+          'scripts/qc-info-frame.py',
+          'scripts/qc-frame-molecule.py',
+          'scripts/qc-frame-checkconv.py',
+          'scripts/qc-frame-orb.py'
       ],
 
       install_requires = [

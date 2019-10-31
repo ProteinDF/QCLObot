@@ -21,5 +21,9 @@
 
 from __future__ import division, print_function, absolute_import
 
+from ._version import __version__
 from .qccontrol import QcControl
 from .qcmodeler import QcModeler
+
+from .qcframe import QcFrame
+from .qcfragment import QcFragment

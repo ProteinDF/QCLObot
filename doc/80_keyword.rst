@@ -4,9 +4,11 @@ explanation of QCLObot YAML File
 
 QCLObot playbook is separated by following two parts:
 - vars section
+
   definition of variables
   
 - tasks section
+
   definition of task for general and for frame molecule
 
 vars section
@@ -177,7 +179,7 @@ the energy gradient is gained in the frame molecule.
 
 
 calculation configuration
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 default frame

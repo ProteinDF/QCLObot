@@ -30,6 +30,8 @@ except:
 import jinja2
 
 import proteindf_bridge as bridge
+
+from . import __version__
 from .qcframe import QcFrame
 from .qcfragment import QcFragment
 from .qcerror import QcControlError
@@ -51,7 +53,13 @@ class QcControl(object):
 
         self._last_frame_name = ''
 
+    def show_version(self):
+        logger.info("=" * 80)
+        logger.info("QCLObot version: {version}".format(version=str(__version__)))
+        logger.info("=" * 80)
+
     def run(self, path):
+        self.show_version()
         self._load_yaml(path)
 
         # exec senarios
@@ -72,7 +80,7 @@ class QcControl(object):
         contents = bridge.Utils.to_unicode(contents)
 
         self._senarios = []
-        for d in yaml.load_all(contents):
+        for d in yaml.load_all(contents, Loader=yaml.SafeLoader):
             self._senarios.append(d)
         # logger.debug(pprint.pformat(self._senarios))
 
@@ -144,8 +152,8 @@ class QcControl(object):
             for item in iter_items:
                 logger.info('template render: item={}'.format(repr(item)))
                 yaml_str = template.render(item = item)
-                new_frame_data = yaml.load(yaml_str)
-                self._run_frame(new_frame_data)
+                for new_frame_data in yaml.load_all(yaml_str, Loader=yaml.SafeLoader):
+                    self._run_frame(new_frame_data)
             is_break = True
 
         return is_break
@@ -270,7 +278,7 @@ class QcControl(object):
         if XC_engine:
             frame.pdfparam.xc_engine = XC_engine
 
-        frame.pdfparam.gridfree_dual_level = self._get_value('gridfree/dual_level', frame_data)
+        frame.pdfparam.gridfree_dedicated_basis = self._get_value('gridfree/dedicated_basis', frame_data)
         frame.pdfparam.gridfree_orthogonalize_method = self._get_value('gridfree/orthogonalize_method', frame_data)
         frame.pdfparam.gridfree_CDAM_tau = self._get_value('gridfree/CDAM_tau', frame_data)
         frame.pdfparam.gridfree_CD_epsilon = self._get_value('gridfree/CD_epsilon', frame_data)
@@ -453,7 +461,7 @@ class QcControl(object):
                     'orbital_independence_threshold',
                     'orbital_independence_threshold/canonical',
                     'orbital_independence_threshold/lowdin',
-                    'gridfree/dual_level',
+                    'gridfree/dedicated_basis',
                     'gridfree/orthogonalize_method',
                     'gridfree/CDAM_tau',
                     'gridfree/CD_epsilon',
@@ -705,7 +713,7 @@ class QcControl(object):
 
         atomgroup = self._cache['brdfile'][brd_file_path]['atomgroup']
         # selecter = bridge.Select_PathRegex(brd_select)
-        selecter = bridge.Select_Path(brd_select)
+        selecter = bridge.Select_Path_wildcard(brd_select)
         answer = atomgroup.select(selecter)
 
         return answer

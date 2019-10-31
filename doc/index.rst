@@ -14,7 +14,8 @@ Contents:
   10_Introduction
   20_setup_model
   80_keyword
-  90_API
+
+  qclobot
 
 Indices and tables
 ==================
