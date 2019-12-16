@@ -54,7 +54,7 @@ class QcLeap(object):
             output += "solvateCap {model} TIP3PBOX ${solcap_center} ${solcap_closeness}\n".format(
                 model = solvatecap["model"],
                 wat_model = solvatecap["wat_model"], # TIP3PBOX etc.
-                solcap_center = solvatecap["solcap_center"]
+                solcap_center = solvatecap["solcap_center"],
                 solcap_closeness = solvatecap["solcap_closeness"]
             )
 
