@@ -30,20 +30,19 @@ except:
     import msgpack_pure as msgpack
 
 from .qcerror import QcControlError
+from .qccontrolobject import QcControlObject
 from .qcfragment import QcFragment
 from .qcframe import QcFrame
 from . import __version__
 import proteindf_bridge as bridge
 
 
-class QcControl(object):
+class QcControl(QcControlObject):
     _modeling = bridge.Modeling()
 
     def __init__(self):
-        self._senarios = []
+        super(QcControl, self).__init__()
         self._cache = {}
-
-        self._vars = {}
 
         self._frames = {}
         self._frames['default'] = {}
@@ -51,44 +50,6 @@ class QcControl(object):
         self._frames['default']['brd_file'] = ''
 
         self._last_frame_name = ''
-
-    def show_version(self):
-        logger.info("=" * 80)
-        logger.info("QCLObot version: {version}".format(
-            version=str(__version__)))
-        logger.info("=" * 80)
-
-    def run(self, path):
-        self.show_version()
-        self._load_yaml(path)
-
-        # exec senarios
-        for senario in self._senarios:
-            if 'vars' in senario:
-                self._run_vars(senario['vars'])
-            if 'tasks' in senario:
-                tasks = senario['tasks']
-                for task in tasks:
-                    self._run_frame(task)
-            else:
-                logger.warn('NOT FOUND "tasks" section')
-
-    def _load_yaml(self, path):
-        f = open(path)
-        contents = f.read()
-        f.close()
-        contents = bridge.Utils.to_unicode(contents)
-
-        self._senarios = []
-        for d in yaml.load_all(contents, Loader=yaml.SafeLoader):
-            self._senarios.append(d)
-        # logger.debug(pprint.pformat(self._senarios))
-
-    def _save_yaml(self, data, path):
-        assert(isinstance(data, dict))
-        f = open(path, 'w')
-        yaml.dump(data, f, encoding='utf8', allow_unicode=True)
-        f.close()
 
     # ------------------------------------------------------------------
     # property
@@ -103,17 +64,9 @@ class QcControl(object):
         return self._frames.get(name, None)
 
     # ------------------------------------------------------------------
-    # vars
-    # ------------------------------------------------------------------
-    def _run_vars(self, in_vars_data):
-        assert(isinstance(in_vars_data, dict))
-
-        self._vars = dict(in_vars_data)
-
-    # ------------------------------------------------------------------
     # task or frame
     # ------------------------------------------------------------------
-    def _run_frame(self, frame_data):
+    def _run_task_cmd(self, frame_data):
         assert(isinstance(frame_data, dict))
 
         # condition ----------------------------------------------------
@@ -305,8 +258,10 @@ class QcControl(object):
         frame.pdfparam.gridfree_CD_epsilon = self._get_value(
             'gridfree/CD_epsilon', frame_data)
 
-        frame.pdfparam.extra_keywords = self._get_value(
-            'pdf_extra_keywords', frame_data)
+        if self._get_value('pdf_extra_keywords', frame_data) != None:
+            frame.pdfparam.extra_keywords = self._get_value(
+                'pdf_extra_keywords', frame_data)
+                
         #print(">>>> qccontrol:")
         # print(repr(frame.pdfparam.extra_keywords))
         # print("<<<<")
@@ -813,6 +768,16 @@ class QcControl(object):
             else:
                 raise QcControlError('type mismatch.', str(input_obj))
         return ans
+
+
+    # ------------------------------------------------------------------
+    # others
+    # ------------------------------------------------------------------
+    def show_version(self):
+        logger.info("=" * 80)
+        logger.info("QCLObot version: {version}".format(
+            version=str(__version__)))
+        logger.info("=" * 80)
 
 
 if __name__ == '__main__':
