@@ -75,8 +75,14 @@ class QcControl(QcControlObject):
         if self._exec_condition_when(frame_data):
             return
 
+        # include ------------------------------------------------------
+        retval_include_tasks = self._exec_include_tasks(frame_data)
+        if retval_include_tasks:
+            return retval_include_tasks
+
         # task ---------------------------------------------------------
-        self._exec_task_debug(frame_data)
+        if self._exec_task_debug(frame_data):
+            return
 
         if self._exec_task_mail(frame_data):
             return
@@ -130,11 +136,6 @@ class QcControl(QcControlObject):
     # ------------------------------------------------------------------
     # task
     # ------------------------------------------------------------------
-    def _exec_task_debug(self, in_task_data):
-        is_break = False
-
-        return is_break
-
     def _exec_task_mail(self, in_task_data):
         is_break = False
 
