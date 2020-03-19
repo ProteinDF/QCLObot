@@ -113,7 +113,7 @@ class QcControl(QcControlObject):
                 logger.info('template render: item={}'.format(repr(item)))
                 yaml_str = template.render(item=item)
                 for new_frame_data in yaml.load_all(yaml_str, Loader=yaml.SafeLoader):
-                    self._run_frame(new_frame_data)
+                    self._run_task(new_frame_data)
             is_break = True
 
         return is_break
@@ -128,7 +128,7 @@ class QcControl(QcControlObject):
             if judge:
                 new_task_data = dict(task_data)
                 new_task_data.pop('when')
-                self._run_frame(new_task_data)
+                self._run_task(new_task_data)
             is_break = True
 
         return is_break
@@ -262,7 +262,7 @@ class QcControl(QcControlObject):
         if self._get_value('pdf_extra_keywords', frame_data) != None:
             frame.pdfparam.extra_keywords = self._get_value(
                 'pdf_extra_keywords', frame_data)
-                
+
         #print(">>>> qccontrol:")
         # print(repr(frame.pdfparam.extra_keywords))
         # print("<<<<")
