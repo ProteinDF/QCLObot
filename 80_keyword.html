@@ -1,0 +1,603 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>explanation of QCLObot YAML File &mdash; QCLObot tutorial 2020.6.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API for QCLObot" href="90_API.html" />
+    <link rel="prev" title="Setting up calculation model" href="30_setup_model.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> QCLObot tutorial
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.6.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="10_Introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="20_install.html">Install QCLObot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="30_setup_model.html">Setting up calculation model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">explanation of QCLObot YAML File</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#vars-section">vars section</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tasks-section">tasks section</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#condition">condition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#with-items">with_items</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#when">when</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#include">include</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#task">task</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mail">mail</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#debug">debug</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#frame">frame</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#frame-definition">frame definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#frame-action">frame action</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default-frame">default frame</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="90_API.html">API for QCLObot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="90_API.html#qclobot-package">qclobot package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_tutorial_modeling.html">Setting up modeling proteins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_modeler_keyword.html">explanation of QCLObot-modeler YAML File</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">QCLObot tutorial</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>explanation of QCLObot YAML File</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/80_keyword.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="explanation-of-qclobot-yaml-file">
+<h1>explanation of QCLObot YAML File<a class="headerlink" href="#explanation-of-qclobot-yaml-file" title="Permalink to this headline">¶</a></h1>
+<p>QCLObot playbook is separated by following two parts:</p>
+<ul>
+<li><p>vars section</p>
+<p>definition of variables</p>
+</li>
+<li><p>tasks section</p>
+<p>definition of task for general and for frame molecule</p>
+</li>
+</ul>
+<div class="section" id="vars-section">
+<h2>vars section<a class="headerlink" href="#vars-section" title="Permalink to this headline">¶</a></h2>
+<p>Declare the variable.
+The declared variables can be used with “with_items” and so on.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">vars</span><span class="p">:</span>
+  <span class="nt">residues</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">27</span><span class="p p-Indicator">,</span> <span class="nv">28</span><span class="p p-Indicator">,</span> <span class="nv">48</span><span class="p p-Indicator">,</span> <span class="nv">97</span><span class="p p-Indicator">,</span> <span class="nv">101</span><span class="p p-Indicator">,</span> <span class="nv">108</span><span class="p p-Indicator">,</span> <span class="nv">248</span><span class="p p-Indicator">,</span> <span class="nv">547</span><span class="p p-Indicator">,</span> <span class="nv">558</span><span class="p p-Indicator">,</span> <span class="nv">559</span><span class="p p-Indicator">]</span>
+
+<span class="nt">tasks</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">frame_{{ item }}</span>
+    <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">fragments</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">AA_{{ item }}</span>
+        <span class="nt">brd_select</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/model_1/A/{{ item }}/</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ACE_{{ item }}</span>
+        <span class="nt">add_ACE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+        <span class="nt">brd_select</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/model_1/A/{{ item -1 }}/</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">NME_{{ item }}</span>
+        <span class="nt">add_NME</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+        <span class="nt">brd_select</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/model_1/A/{{ item +1 }}/</span>
+    <span class="nt">with_items</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">residues</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note that when using templates, especially when operating within a template, there is a distinction between strings and numbers.</p>
+</div>
+</div>
+<div class="section" id="tasks-section">
+<h2>tasks section<a class="headerlink" href="#tasks-section" title="Permalink to this headline">¶</a></h2>
+<p>The tasks section is consist of three parts:</p>
+<ul class="simple">
+<li><p>condition</p></li>
+<li><p>task</p></li>
+<li><p>frame definition</p></li>
+</ul>
+<div class="section" id="condition">
+<h3>condition<a class="headerlink" href="#condition" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="with-items">
+<h4>with_items<a class="headerlink" href="#with-items" title="Permalink to this headline">¶</a></h4>
+<p>repeat the task.</p>
+</div>
+<div class="section" id="when">
+<h4>when<a class="headerlink" href="#when" title="Permalink to this headline">¶</a></h4>
+<p>do the task if the condition is satisfied.</p>
+</div>
+<div class="section" id="include">
+<h4>include<a class="headerlink" href="#include" title="Permalink to this headline">¶</a></h4>
+<p>Insert an external file. Fill in the external file with the “tasks” statement.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tasks</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">include_step1</span>
+    <span class="nt">include_tasks</span><span class="p">:</span> <span class="s">&quot;step1.yaml&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="task">
+<h3>task<a class="headerlink" href="#task" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="mail">
+<h4>mail<a class="headerlink" href="#mail" title="Permalink to this headline">¶</a></h4>
+<p>Send mail.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">send_mail</span>
+  <span class="nt">mail</span><span class="p">:</span>
+    <span class="nt">smtp_server</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxx.xxx.xxx.xxx</span>
+    <span class="nt">smtp_port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xx</span>
+    <span class="nt">use_SSL</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+    <span class="nt">smtp_account</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxxx</span>
+    <span class="nt">smtp_password</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxxx</span>
+    <span class="nt">from_address</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxxx@xxxx.xxxx</span>
+    <span class="nt">to_address</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxxx@xxxx.xxxx</span>
+    <span class="nt">subject</span><span class="p">:</span> <span class="s">&#39;test</span><span class="nv"> </span><span class="s">mail&#39;</span>
+    <span class="nt">msg</span><span class="p">:</span> <span class="s">&#39;job</span><span class="nv"> </span><span class="s">finished.&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="debug">
+<h4>debug<a class="headerlink" href="#debug" title="Permalink to this headline">¶</a></h4>
+<p>do nothing.</p>
+</div>
+</div>
+<div class="section" id="frame">
+<h3>frame<a class="headerlink" href="#frame" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="frame-definition">
+<h4>frame definition<a class="headerlink" href="#frame-definition" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="name-mandatory">
+<h5>name(mandatory)<a class="headerlink" href="#name-mandatory" title="Permalink to this headline">¶</a></h5>
+<p>All frame require the name.
+Based of this name value, the working directory is created on the current directory.</p>
+</div>
+<div class="section" id="fragments">
+<h5>fragments<a class="headerlink" href="#fragments" title="Permalink to this headline">¶</a></h5>
+<p>A frame molecule consists of fragment(s).
+The fragment is defined by following keywords.
+All fragment requires the “name” attribute, which is used as name of the fragment.</p>
+<ul class="simple">
+<li><p>atomlist</p></li>
+</ul>
+<p>‘atomlist’ directive makes fragment from atom list</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">N2</span>
+  <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">fragments</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">N2</span>
+      <span class="nt">atomlist</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="s">&quot;N</span><span class="nv">  </span><span class="s">0.000000</span><span class="nv">   </span><span class="s">0.000000</span><span class="nv">   </span><span class="s">0.000000&quot;</span>
+        <span class="p p-Indicator">-</span> <span class="s">&quot;N</span><span class="nv">  </span><span class="s">1.000000</span><span class="nv">   </span><span class="s">0.000000</span><span class="nv">   </span><span class="s">0.000000&quot;</span>
+</pre></div>
+</div>
+<p>The atomlist is an array object.
+Each atom is defined by string separated white space,
+or by array object as following:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">OH</span>
+  <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">fragments</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">OH</span>
+      <span class="nt">atomlist</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="p p-Indicator">[</span><span class="nv">O</span><span class="p p-Indicator">,</span> <span class="nv">-7.328</span><span class="p p-Indicator">,</span> <span class="nv">-30.909</span><span class="p p-Indicator">,</span>  <span class="nv">17.923</span><span class="p p-Indicator">]</span>
+        <span class="p p-Indicator">-</span> <span class="p p-Indicator">[</span><span class="nv">H</span><span class="p p-Indicator">,</span> <span class="nv">-6.026</span><span class="p p-Indicator">,</span> <span class="nv">-31.757</span><span class="p p-Indicator">,</span>  <span class="nv">17.909</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<ul>
+<li><p>add_CH3</p>
+<p>If the keyword is defined as “yes”,
+a methyl group is add as fragment.</p>
+<ul>
+<li><p>displacement</p>
+<p>This atom is substitute with methyl carbon.
+This value is specified by string as Bridge path.</p>
+</li>
+<li><p>root</p>
+<p>This atom is indicated to the next atom of the displacement atom.
+This value is specified by string as Bridge path.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">small_mol</span>
+  <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">fragments</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">frag1</span>
+      <span class="nt">add_CH3</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+      <span class="nt">displacement</span><span class="p">:</span> <span class="s">&quot;/model_1/A/100/100_C1&quot;</span>
+      <span class="nt">root</span><span class="p">:</span> <span class="s">&quot;/model_1/A/100/100_C2&quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>add_ACE</p></li>
+</ul>
+<p>Place the acetyl group in the specified place and add it as a fragment.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">res_3</span>
+  <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">fragments</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">res_3</span>
+      <span class="nt">brd_select</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ACE_3</span>
+      <span class="nt">add_ACE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+      <span class="nt">brd_select</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/model_1/A/2/</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>add_NME</p></li>
+</ul>
+<p>Place the N-methyl group in the specified place and add it as a fragment.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">res_3</span>
+  <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">fragments</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">res_3</span>
+      <span class="nt">brd_select</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">NME_3</span>
+      <span class="nt">add_NME</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+      <span class="nt">brd_select</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/model_1/A/4/</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>reference</p></li>
+</ul>
+<p>The fragment is created by using the previous calculation result.</p>
+<blockquote>
+<div><ul>
+<li><p>frame</p>
+<p>This value indicates the name of the frame molecule.</p>
+</li>
+<li><p>fragment</p>
+<p>The name of the fragment in the frame molecule.</p>
+</li>
+</ul>
+</div></blockquote>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">frame_3</span>
+  <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">fragments</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">AA_3</span>
+      <span class="nt">brd_select</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ACE_3</span>
+      <span class="nt">add_ACE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+      <span class="nt">brd_select</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">NME_3</span>
+      <span class="nt">add_NME</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+      <span class="nt">brd_select</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span>
+
+<span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">frame_3-7</span>
+  <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">guess</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">QCLO</span>
+  <span class="nt">fragments</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">AA_3</span>
+      <span class="nt">reference</span><span class="p">:</span>
+        <span class="nt">frame</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">frame_3</span>
+        <span class="nt">fragment</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">AA_3</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>brd_select</p></li>
+</ul>
+<p>The group which is indicated by the value of “brd_select” keyword is add as fragment.
+This value is specified by string as Bridge path.</p>
+</div>
+</div>
+<div class="section" id="frame-action">
+<h4>frame action<a class="headerlink" href="#frame-action" title="Permalink to this headline">¶</a></h4>
+<p>The following keyword indicates for the frame object to do.</p>
+<ul>
+<li><p>pre_scf</p>
+<p>If “pre_scf” is defined as “yes”,
+then the processing calculation before SCF loop is carried out in the frame molecule.</p>
+</li>
+<li><p>guess</p>
+<p>Creation of the initial guess is executed.
+How to create guess depends on the value of “guess” keyword.</p>
+<ul>
+<li><p>harris</p>
+<p>The initial guess is created by using Harris functional method.
+This is default.</p>
+</li>
+<li><p>QCLO</p>
+<p>The inigial guess is made of the QCLOs of corresponding fragments by using QCLO method.
+If the QCLO of the child fragment has not been created,
+it is computed automatically.</p>
+</li>
+</ul>
+</li>
+<li><p>sp</p>
+<p>If the “sp” is defined as “yes”,
+the single-point calculation of the frame molecule is carried out.
+If “pre_scf” and “guess” keywords are not indicated,
+these operations are automatically performed.</p>
+</li>
+<li><p>force</p>
+<p>If the “force” is defined as “yes”,
+the energy force is gained in the frame molecule.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">res_3-7</span>
+  <span class="nt">pre_scf</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+  <span class="nt">guess</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">QCLO</span>
+  <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+  <span class="nt">force</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+</pre></div>
+</div>
+</li>
+<li><p>summary</p>
+<p>Displays a summary of the calculation.
+There are three different methods depending on the data format.</p>
+<ul>
+<li><p>boolean</p>
+<p>Outputs a standard summary (True).</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">res_3-7</span>
+  <span class="nt">pre_scf</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+  <span class="nt">guess</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">QCLO</span>
+  <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+  <span class="nt">summary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+</pre></div>
+</div>
+</li>
+<li><p>string</p>
+<p>Output according to the given string.
+Specific strings are replaced by the corresponding content.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>keyword</p></th>
+<th class="head"><p>content</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>{NUM_OF_ATOMS}</p></td>
+<td><p>number of atoms</p></td>
+</tr>
+<tr class="row-odd"><td><p>{NUM_OF_AO}</p></td>
+<td><p>number of AOs</p></td>
+</tr>
+<tr class="row-even"><td><p>{NUM_OF_MO}</p></td>
+<td><p>number of MOs</p></td>
+</tr>
+<tr class="row-odd"><td><p>{METHOD}</p></td>
+<td><p>method</p></td>
+</tr>
+<tr class="row-even"><td><p>{IS_CONVERGED}</p></td>
+<td><p>Whether the SCF is converged or not</p></td>
+</tr>
+<tr class="row-odd"><td><p>{ITERATION}</p></td>
+<td><p>iteration</p></td>
+</tr>
+<tr class="row-even"><td><p>{TOTAL_ENERGY}</p></td>
+<td><p>total energy</p></td>
+</tr>
+<tr class="row-odd"><td><p>{GRADIENT_RMS}</p></td>
+<td><p>gradient RMS</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">res_3-7</span>
+<span class="nt">pre_scf</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+<span class="nt">guess</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">QCLO</span>
+<span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+<span class="nt">summary</span><span class="p">:</span> <span class="s">&quot;atoms:</span><span class="nv"> </span><span class="s">{NUM_OF_ATOMS}</span><span class="nv"> </span><span class="s">iterations:</span><span class="nv"> </span><span class="s">{ITERATION}&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p>dict</p>
+<p>If you want to export to a file, you can use this format. The output file is written in appendix mode.</p>
+<ul>
+<li><p>format</p>
+<p>Output according to the format string.</p>
+</li>
+<li><p>filepath</p>
+<p>Specify the file path to be output.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">res_3-7</span>
+  <span class="nt">pre_scf</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+  <span class="nt">guess</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">QCLO</span>
+  <span class="nt">sp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+  <span class="nt">summary</span><span class="p">:</span>
+    <span class="nt">format</span><span class="p">:</span> <span class="s">&quot;atoms:</span><span class="nv"> </span><span class="s">{NUM_OF_ATOMS}</span><span class="nv"> </span><span class="s">iterations:</span><span class="nv"> </span><span class="s">{ITERATION}&quot;</span>
+    <span class="nt">filepath</span><span class="p">:</span> <span class="s">&quot;summary.txt&quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="default-frame">
+<h4>default frame<a class="headerlink" href="#default-frame" title="Permalink to this headline">¶</a></h4>
+<p>The “default frame” is a special frame.</p>
+<p>If the name section is ‘default’, this frame parameters are used as default values.</p>
+<p>In the following example, the frame is calculated as DZVP2 as the basisset and the exchange correlation functional is used by B3LYP.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tasks</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">default</span>
+    <span class="nt">brd_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sample.brd</span>
+    <span class="nt">basis_set</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DZVP2</span>
+    <span class="nt">XC_functional</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">B3LYP</span>
+
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">N2</span>
+    <span class="nt">atomlist</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;N</span><span class="nv">  </span><span class="s">0.000000</span><span class="nv">   </span><span class="s">0.000000</span><span class="nv">   </span><span class="s">0.000000&quot;</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;N</span><span class="nv">  </span><span class="s">1.000000</span><span class="nv">   </span><span class="s">0.000000</span><span class="nv">   </span><span class="s">0.000000&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="90_API.html" class="btn btn-neutral float-right" title="API for QCLObot" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="30_setup_model.html" class="btn btn-neutral float-left" title="Setting up calculation model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2020, Toshiyuki HIRANO
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
