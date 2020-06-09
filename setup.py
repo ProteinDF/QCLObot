@@ -52,7 +52,7 @@ setup(name='qclobot',
 
       install_requires = [
           'configparser',
-          'msgpack-python',
+          'msgpack',
           'pyyaml',
           'jinja2',
           #'proteindf_bridge',
