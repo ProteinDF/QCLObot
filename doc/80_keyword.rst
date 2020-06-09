@@ -25,10 +25,10 @@ The declared variables can be used with "with_items" and so on.
     residues: [27, 28, 48, 97, 101, 108, 248, 547, 558, 559]
   
   tasks:
-    - name: res_{{ item }}
+    - name: frame_{{ item }}
       sp: true
       fragments:
-        - name: res_{{ item }}
+        - name: AA_{{ item }}
           brd_select: /model_1/A/{{ item }}/
         - name: ACE_{{ item }}
           add_ACE: true
@@ -37,6 +37,11 @@ The declared variables can be used with "with_items" and so on.
           add_NME: true
           brd_select: /model_1/A/{{ item +1 }}/
       with_items: residues
+
+
+.. warning::
+
+  Note that when using templates, especially when operating within a template, there is a distinction between strings and numbers.
 
 
 tasks section
@@ -63,7 +68,19 @@ when
 
 do the task if the condition is satisfied.
   
+
+include
+^^^^^^^
+
+Insert an external file. Fill in the external file with the "tasks" statement.
+
+.. code-block:: yaml
   
+  tasks:
+    - name: include_step1
+      include_tasks: "step1.yaml"
+
+
 task
 ----
 
@@ -147,8 +164,8 @@ or by array object as following:
        
 * add_CH3
 
-If the keyword is defined as "yes",
-a methyl group is add as fragment.
+  If the keyword is defined as "yes",
+  a methyl group is add as fragment.
 
   * displacement
 
@@ -160,15 +177,15 @@ a methyl group is add as fragment.
     This atom is indicated to the next atom of the displacement atom.
     This value is specified by string as Bridge path.
 
-.. code-block:: yaml
+    .. code-block:: yaml
 
-  - name: small_mol
-    sp: true
-    fragments:
-      - name: frag1
-        add_CH3: true
-        displacement: "/model_1/A/100/100_C1"
-        root: "/model_1/A/100/100_C2"
+      - name: small_mol
+        sp: true
+        fragments:
+          - name: frag1
+            add_CH3: true
+            displacement: "/model_1/A/100/100_C1"
+            root: "/model_1/A/100/100_C2"
 
 
 * add_ACE
@@ -177,14 +194,14 @@ Place the acetyl group in the specified place and add it as a fragment.
 
 .. code-block:: yaml
 
-    - name: res_3
-      sp: true
-      fragments:
-        - name: res_3
-          brd_select: /model_1/A/3/
-        - name: ACE_3
-          add_ACE: true
-          brd_select: /model_1/A/2/
+  - name: res_3
+    sp: true
+    fragments:
+      - name: res_3
+        brd_select: /model_1/A/3/
+      - name: ACE_3
+        add_ACE: true
+        brd_select: /model_1/A/2/
 
 
 * add_NME
@@ -217,10 +234,10 @@ The fragment is created by using the previous calculation result.
 
 .. code-block:: yaml
 
-  - name: res_3
+  - name: frame_3
     sp: true
     fragments:
-      - name: res_3
+      - name: AA_3
         brd_select: /model_1/A/3/
       - name: ACE_3
         add_ACE: true
@@ -229,14 +246,14 @@ The fragment is created by using the previous calculation result.
         add_NME: true
         brd_select: /model_1/A/3/
   
-  - name: res_3-7
+  - name: frame_3-7
     sp: true
     guess: QCLO
     fragments:
-      - name: referenced_res_3
+      - name: AA_3
         reference:
-          frame: res_3
-          fragment: res_3
+          frame: frame_3
+          fragment: AA_3
 
 
 * brd_select
@@ -252,14 +269,14 @@ The following keyword indicates for the frame object to do.
 
 * pre_scf
 
-If "pre_scf" is defined as "yes",
-then the processing calculation before SCF loop is carried out in the frame molecule.
+  If "pre_scf" is defined as "yes",
+  then the processing calculation before SCF loop is carried out in the frame molecule.
 
 
 * guess
 
-Creation of the initial guess is executed.
-How to create guess depends on the value of "guess" keyword.
+  Creation of the initial guess is executed.
+  How to create guess depends on the value of "guess" keyword.
 
   * harris
 
@@ -275,25 +292,96 @@ How to create guess depends on the value of "guess" keyword.
     
 * sp
 
-If the "sp" is defined as "yes",
-the single-point calculation of the frame molecule is carried out.
-If "pre_scf" and "guess" keywords are not indicated,
-these operations are automatically performed.
+  If the "sp" is defined as "yes",
+  the single-point calculation of the frame molecule is carried out.
+  If "pre_scf" and "guess" keywords are not indicated,
+  these operations are automatically performed.
 
 
-* gradient
+* force
 
-If the "gradient" is defined as "yes",
-the energy gradient is gained in the frame molecule.
+  If the "force" is defined as "yes",
+  the energy force is gained in the frame molecule.
 
 
-.. code-block:: yaml
+  .. code-block:: yaml
 
-  - name: res_3-7
-    pre_scf: yes
-    guess: QCLO
-    sp: yes
-    gradient: yes
+    - name: res_3-7
+      pre_scf: yes
+      guess: QCLO
+      sp: yes
+      force: yes
+
+
+* summary
+
+  Displays a summary of the calculation. 
+  There are three different methods depending on the data format.
+
+  * boolean
+
+    Outputs a standard summary (True).
+
+    .. code-block:: yaml
+
+      - name: res_3-7
+        pre_scf: yes
+        guess: QCLO
+        sp: yes
+        summary: yes
+
+
+  * string
+
+    Output according to the given string.
+    Specific strings are replaced by the corresponding content.
+
+
+    ============== ===================================
+    keyword        content
+    ============== ===================================
+    {NUM_OF_ATOMS} number of atoms
+    {NUM_OF_AO}    number of AOs
+    {NUM_OF_MO}    number of MOs
+    {METHOD}       method
+    {IS_CONVERGED} Whether the SCF is converged or not
+    {ITERATION}    iteration
+    {TOTAL_ENERGY} total energy
+    {GRADIENT_RMS} gradient RMS
+    ============== ===================================
+
+
+    .. code-block:: yaml
+
+      - name: res_3-7
+      pre_scf: yes
+      guess: QCLO
+      sp: yes
+      summary: "atoms: {NUM_OF_ATOMS} iterations: {ITERATION}"
+
+
+
+  * dict
+
+    If you want to export to a file, you can use this format. The output file is written in appendix mode.
+
+    * format
+
+      Output according to the format string.
+
+    * filepath
+
+      Specify the file path to be output.
+
+      .. code-block:: yaml
+
+        - name: res_3-7
+          pre_scf: yes
+          guess: QCLO
+          sp: yes
+          summary:
+            format: "atoms: {NUM_OF_ATOMS} iterations: {ITERATION}"
+            filepath: "summary.txt"
 
 
 default frame
@@ -318,4 +406,3 @@ In the following example, the frame is calculated as DZVP2 as the basisset and t
       atomlist:
         - "N  0.000000   0.000000   0.000000"
         - "N  1.000000   0.000000   0.000000"
-
