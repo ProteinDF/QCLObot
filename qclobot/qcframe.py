@@ -544,7 +544,7 @@ class QcFrame(object):
     # CALC
     # ==================================================================
     def _setup_pdf(self):
-        logger.info("{header} setup ProteinDF contition".format(header=self.header))
+        logger.info("{header} setup ProteinDF condition".format(header=self.header))
 
         for frg_name, frg in self.fragments():
             frg.set_basisset(self.pdfparam)

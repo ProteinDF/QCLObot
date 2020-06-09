@@ -568,15 +568,17 @@ class AmberObject(MdObject):
 
             belly_maskstr = ""
             if self.bellymask_WAT:
-                wat_resid = self._get_wat_resid(initial_model)
+                #wat_resid = self._get_wat_resid(initial_model)
                 if len(belly_maskstr) > 0:
                     belly_maskstr += " | "
-                belly_maskstr += self._make_maskstr(resid_areas = wat_resid)
+                #belly_maskstr += self._make_maskstr(resid_areas = wat_resid)
+                belly_maskstr += ":WAT"
             if self.bellymask_ions:
                 ion_resid = self._get_ion_resid(initial_model)
                 if len(belly_maskstr) > 0:
                     belly_maskstr += " | "
-                belly_maskstr += self._make_maskstr(resid_areas = ion_resid)
+                #belly_maskstr += self._make_maskstr(resid_areas = ion_resid)
+                belly_maskstr += ":Na+,Cl-"
             belly_contents = "ibelly=1, bellymask='{belly_maskstr}'"
             belly_contents = belly_contents.format(belly_maskstr=belly_maskstr)
 

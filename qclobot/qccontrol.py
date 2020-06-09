@@ -19,32 +19,30 @@
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
+import jinja2
+import pprint
 import yaml
 import logging
 logger = logging.getLogger(__name__)
-import pprint
 try:
     import msgpack
 except:
     import msgpack_pure as msgpack
-import jinja2
 
+from .qcerror import QcControlError
+from .qccontrolobject import QcControlObject
+from .qcfragment import QcFragment
+from .qcframe import QcFrame
+from . import __version__
 import proteindf_bridge as bridge
 
-from . import __version__
-from .qcframe import QcFrame
-from .qcfragment import QcFragment
-from .qcerror import QcControlError
 
-
-class QcControl(object):
+class QcControl(QcControlObject):
     _modeling = bridge.Modeling()
 
     def __init__(self):
-        self._senarios = []
+        super(QcControl, self).__init__()
         self._cache = {}
-
-        self._vars = {}
 
         self._frames = {}
         self._frames['default'] = {}
@@ -52,43 +50,6 @@ class QcControl(object):
         self._frames['default']['brd_file'] = ''
 
         self._last_frame_name = ''
-
-    def show_version(self):
-        logger.info("=" * 80)
-        logger.info("QCLObot version: {version}".format(version=str(__version__)))
-        logger.info("=" * 80)
-
-    def run(self, path):
-        self.show_version()
-        self._load_yaml(path)
-
-        # exec senarios
-        for senario in self._senarios:
-            if 'vars' in senario:
-                self._run_vars(senario['vars'])
-            if 'tasks' in senario:
-                tasks = senario['tasks']
-                for task in tasks:
-                    self._run_frame(task)
-            else:
-                logger.warn('NOT FOUND "tasks" section')
-
-    def _load_yaml(self, path):
-        f = open(path)
-        contents = f.read()
-        f.close()
-        contents = bridge.Utils.to_unicode(contents)
-
-        self._senarios = []
-        for d in yaml.load_all(contents, Loader=yaml.SafeLoader):
-            self._senarios.append(d)
-        # logger.debug(pprint.pformat(self._senarios))
-
-    def _save_yaml(self, data, path):
-        assert(isinstance(data, dict))
-        f = open(path, 'w')
-        yaml.dump(data, f, encoding='utf8', allow_unicode=True)
-        f.close()
 
     # ------------------------------------------------------------------
     # property
@@ -103,17 +64,9 @@ class QcControl(object):
         return self._frames.get(name, None)
 
     # ------------------------------------------------------------------
-    # vars
-    # ------------------------------------------------------------------
-    def _run_vars(self, in_vars_data):
-        assert(isinstance(in_vars_data, dict))
-
-        self._vars = dict(in_vars_data)
-
-    # ------------------------------------------------------------------
     # task or frame
     # ------------------------------------------------------------------
-    def _run_frame(self, frame_data):
+    def _run_task_cmd(self, frame_data):
         assert(isinstance(frame_data, dict))
 
         # condition ----------------------------------------------------
@@ -122,8 +75,14 @@ class QcControl(object):
         if self._exec_condition_when(frame_data):
             return
 
+        # include ------------------------------------------------------
+        retval_include_tasks = self._exec_include_tasks(frame_data)
+        if retval_include_tasks:
+            return retval_include_tasks
+
         # task ---------------------------------------------------------
-        self._exec_task_debug(frame_data)
+        if self._exec_task_debug(frame_data):
+            return
 
         if self._exec_task_mail(frame_data):
             return
@@ -142,7 +101,8 @@ class QcControl(object):
 
         with_items = frame_data.get('with_items', None)
         if with_items:
-            iter_items = list(self._vars.get(bridge.Utils.to_unicode(with_items), []))
+            iter_items = list(self._vars.get(
+                bridge.Utils.to_unicode(with_items), []))
 
             new_frame_data = dict(frame_data)
             new_frame_data.pop('with_items')
@@ -151,9 +111,9 @@ class QcControl(object):
 
             for item in iter_items:
                 logger.info('template render: item={}'.format(repr(item)))
-                yaml_str = template.render(item = item)
+                yaml_str = template.render(item=item)
                 for new_frame_data in yaml.load_all(yaml_str, Loader=yaml.SafeLoader):
-                    self._run_frame(new_frame_data)
+                    self._run_task(new_frame_data)
             is_break = True
 
         return is_break
@@ -168,7 +128,7 @@ class QcControl(object):
             if judge:
                 new_task_data = dict(task_data)
                 new_task_data.pop('when')
-                self._run_frame(new_task_data)
+                self._run_task(new_task_data)
             is_break = True
 
         return is_break
@@ -176,11 +136,6 @@ class QcControl(object):
     # ------------------------------------------------------------------
     # task
     # ------------------------------------------------------------------
-    def _exec_task_debug(self, in_task_data):
-        is_break = False
-
-        return is_break
-
     def _exec_task_mail(self, in_task_data):
         is_break = False
 
@@ -241,8 +196,14 @@ class QcControl(object):
 
         # setup default value
         self._set_default(self._frames['default'], frame_data)
+        # print(">>>> _exec_frame_object")
+        # print(self._frames['default'])
+        # print(frame_data)
+        # print("<<<<")
 
         # frame configuration
+        frame.pdfparam.guess = self._get_value('guess', frame_data)
+
         charge = self._get_value('charge', frame_data)
         if charge:
             frame.charge = charge
@@ -250,19 +211,30 @@ class QcControl(object):
         frame.pdfparam.CDAM_tau = self._get_value('CDAM_tau', frame_data)
         frame.pdfparam.CD_epsilon = self._get_value('CD_epsilon', frame_data)
 
-        frame.pdfparam.convergence_threshold_energy = self._get_value('convergence/threshold_energy', frame_data)
-        frame.pdfparam.convergence_threshold = self._get_value('convergence/threshold', frame_data)
-        frame.pdfparam.convergence_type = self._get_value('convergence/type', frame_data)
+        frame.pdfparam.convergence_threshold_energy = self._get_value(
+            'convergence/threshold_energy', frame_data)
+        frame.pdfparam.convergence_threshold = self._get_value(
+            'convergence/threshold', frame_data)
+        frame.pdfparam.convergence_type = self._get_value(
+            'convergence/type', frame_data)
 
-        frame.pdfparam.orbital_independence_threshold = self._get_value('orbital_independence_threshold', frame_data)
-        frame.pdfparam.orbital_independence_threshold_canonical = self._get_value('orbital_independence_threshold/canonical', frame_data)
-        frame.pdfparam.orbital_independence_threshold_lowdin = self._get_value('orbital_independence_threshold/lowdin', frame_data)
+        frame.pdfparam.orbital_independence_threshold = self._get_value(
+            'orbital_independence_threshold', frame_data)
+        frame.pdfparam.orbital_independence_threshold_canonical = self._get_value(
+            'orbital_independence_threshold/canonical', frame_data)
+        frame.pdfparam.orbital_independence_threshold_lowdin = self._get_value(
+            'orbital_independence_threshold/lowdin', frame_data)
 
-        frame.pdfparam.scf_acceleration = self._get_value('scf_acceleration', frame_data)
-        frame.pdfparam.scf_acceleration_damping_start_number = self._get_value('scf_acceleration/damping/start_number', frame_data)
-        frame.pdfparam.scf_acceleration_damping_damping_factor = self._get_value('scf_acceleration/damping/damping_factor', frame_data)
-        frame.pdfparam.scf_acceleration_anderson_start_number = self._get_value('scf_acceleration/anderson/start_number', frame_data)
-        frame.pdfparam.scf_acceleration_anderson_damping_factor = self._get_value('scf_acceleration/anderson/damping_factor', frame_data)
+        frame.pdfparam.scf_acceleration = self._get_value(
+            'scf_acceleration', frame_data)
+        frame.pdfparam.scf_acceleration_damping_start_number = self._get_value(
+            'scf_acceleration/damping/start_number', frame_data)
+        frame.pdfparam.scf_acceleration_damping_damping_factor = self._get_value(
+            'scf_acceleration/damping/damping_factor', frame_data)
+        frame.pdfparam.scf_acceleration_anderson_start_number = self._get_value(
+            'scf_acceleration/anderson/start_number', frame_data)
+        frame.pdfparam.scf_acceleration_anderson_damping_factor = self._get_value(
+            'scf_acceleration/anderson/damping_factor', frame_data)
 
         XC_functional = self._get_value('XC_functional', frame_data)
         if XC_functional:
@@ -278,37 +250,49 @@ class QcControl(object):
         if XC_engine:
             frame.pdfparam.xc_engine = XC_engine
 
-        frame.pdfparam.gridfree_dedicated_basis = self._get_value('gridfree/dedicated_basis', frame_data)
-        frame.pdfparam.gridfree_orthogonalize_method = self._get_value('gridfree/orthogonalize_method', frame_data)
-        frame.pdfparam.gridfree_CDAM_tau = self._get_value('gridfree/CDAM_tau', frame_data)
-        frame.pdfparam.gridfree_CD_epsilon = self._get_value('gridfree/CD_epsilon', frame_data)
+        frame.pdfparam.gridfree_dedicated_basis = self._get_value(
+            'gridfree/dedicated_basis', frame_data)
+        frame.pdfparam.gridfree_orthogonalize_method = self._get_value(
+            'gridfree/orthogonalize_method', frame_data)
+        frame.pdfparam.gridfree_CDAM_tau = self._get_value(
+            'gridfree/CDAM_tau', frame_data)
+        frame.pdfparam.gridfree_CD_epsilon = self._get_value(
+            'gridfree/CD_epsilon', frame_data)
 
-        frame.pdfparam.extra_keywords = self._get_value('pdf_extra_keywords', frame_data)
+        if self._get_value('pdf_extra_keywords', frame_data) != None:
+            frame.pdfparam.extra_keywords = self._get_value(
+                'pdf_extra_keywords', frame_data)
+
+        #print(">>>> qccontrol:")
         # print(repr(frame.pdfparam.extra_keywords))
+        # print("<<<<")
 
         # cmd alias
         if self._get_value('cmd_alias', frame_data) != None:
             frame.set_command_alias(self._get_value('cmd_alias', frame_data))
 
         # fragments
-        logger.info('> make fragments for [{frame_name}]'.format(frame_name=frame_name))
-        fragments_list = self._get_fragments(frame_data.get('fragments', []), frame_data)
+        logger.info('> make fragments for [{frame_name}]'.format(
+            frame_name=frame_name))
+        fragments_list = self._get_fragments(
+            frame_data.get('fragments', []), frame_data)
         for f in fragments_list:
             assert(isinstance(f, QcFragment))
             frame[f.name] = f
 
             # fragment information
             #parent_frame_name = ""
-            #if f.parent != None:
+            # if f.parent != None:
             #    parent_frame_name = f.parent.name
-            #logger.info("> add fragment {ref_frame}/{ref_fragment} to {frame_name}".format(
+            # logger.info("> add fragment {ref_frame}/{ref_fragment} to {frame_name}".format(
             #    ref_frame=parent_frame_name,
             #    ref_fragment=f.name,
             #    frame_name=frame_name
-            #))
-            #for subgrp_name, subgrp in frame[f.name].groups():
+            # ))
+            # for subgrp_name, subgrp in frame[f.name].groups():
             #    logger.info('  > subfragment: {}, parent={}'.format(subgrp_name, subgrp.parent.name))
-        logger.debug('> make fragments for [{frame_name}]: end'.format(frame_name=frame_name))
+        logger.debug('> make fragments for [{frame_name}]: end'.format(
+            frame_name=frame_name))
 
         # --------------------------------------------------------------
         # action
@@ -322,7 +306,7 @@ class QcControl(object):
         if frame_data.get('pre_scf', False):
             frame.calc_preSCF()
 
-        # guess
+        # make guess by QCLObot
         logger.info('::GUESS')
         guess = frame_data.get('guess', 'harris')
         guess = guess.lower()
@@ -340,7 +324,7 @@ class QcControl(object):
             frame.guess_QCLO(force=guess_force)
         else:
             pass
-            #frame.guess_Harris()
+            # frame.guess_Harris()
 
         # Single point calc.
         if frame_data.get('sp', False):
@@ -403,13 +387,16 @@ class QcControl(object):
 
             subfrg = None
             if 'fragments' in frg_data:
-                logger.info("> create subfragment for {name}: start".format(name=name))
-                subfrg_list = self._get_fragments(frg_data.get('fragments'), default)
+                logger.info(
+                    "> create subfragment for {name}: start".format(name=name))
+                subfrg_list = self._get_fragments(
+                    frg_data.get('fragments'), default)
                 subfrg = QcFragment(name=name)
                 for item in subfrg_list:
                     logger.debug('> list name: {}'.format(item.name))
                     subfrg[item.name] = item
-                logger.info("> create subfragment for {name}: end".format(name=name))
+                logger.info(
+                    "> create subfragment for {name}: end".format(name=name))
             elif 'add_H' in frg_data:
                 subfrg = self._get_add_H(frg_data)
             elif 'add_CH3' in frg_data:
@@ -425,8 +412,10 @@ class QcControl(object):
             elif 'reference' in frg_data:
                 subfrg = self._get_reference_fragment(frg_data)
             else:
-                logger.critical("unknown fragment command/object: {}".format(str(frg_data.keys())))
-                raise QcControlError('fragment', 'unknown fragment: {}'.format(str(frg_data)))
+                logger.critical(
+                    "unknown fragment command/object: {}".format(str(frg_data.keys())))
+                raise QcControlError(
+                    'fragment', 'unknown fragment: {}'.format(str(frg_data)))
 
             if subfrg == None:
                 frg_data_str = pprint.pformat(frg_data)
@@ -477,7 +466,8 @@ class QcControl(object):
                     'XC_engine',
                     'pdf_extra_keywords']
         for keyword in keywords:
-            update_values.setdefault(keyword, default_values.get(keyword, None))
+            update_values.setdefault(
+                keyword, default_values.get(keyword, None))
 
     def _get_default_fragment(self, frg_data):
         assert(isinstance(frg_data, dict))
@@ -500,7 +490,6 @@ class QcControl(object):
 
         return frg
 
-
     def _get_reference_fragment(self, frg_data):
         """return new QcFragment object referenced from input(frg_data)
         """
@@ -513,8 +502,10 @@ class QcControl(object):
             raise QcControlError('NOT FOUND fragment key in reference fragment',
                                  pprint.pformat(frg_data))
 
-        ref_frame_name = bridge.Utils.to_unicode(frg_data['reference']['frame'])
-        ref_fragment_name = bridge.Utils.to_unicode(frg_data['reference']['fragment'])
+        ref_frame_name = bridge.Utils.to_unicode(
+            frg_data['reference']['frame'])
+        ref_fragment_name = bridge.Utils.to_unicode(
+            frg_data['reference']['fragment'])
 
         if ref_frame_name not in self._frames:
             raise QcControlError('UNKNOWN FRAME',
@@ -527,14 +518,14 @@ class QcControl(object):
                                  '{} in {}'.format(ref_fragment_name,
                                                    ref_frame_name))
 
-        logger.info("> reference fragment: [{}/{}]".format(ref_frame_name, ref_fragment_name))
+        logger.info(
+            "> reference fragment: [{}/{}]".format(ref_frame_name, ref_fragment_name))
         ref_fragment = ref_frame[ref_fragment_name]
 
         fragment = QcFragment(ref_fragment)
         fragment.name = frg_data.get('name')
         fragment.ref_fragment = ref_fragment
         return fragment
-
 
     def _get_add_H(self, frg_data):
         assert(isinstance(frg_data, dict))
@@ -571,7 +562,8 @@ class QcControl(object):
         atomgroup_C1 = self._select_atomgroup(brd_file_path, brd_select_C1)
         atomgroup_C1 = atomgroup_C1.get_atom_list()
         if len(atomgroup_C1) == 0:
-            logger.critical('cannnot find displacement atom: key={}'.format(brd_select_C1))
+            logger.critical(
+                'cannnot find displacement atom: key={}'.format(brd_select_C1))
             raise QcControlError('No atoms found for "displacement" in add_CH3',
                                  brd_select_C1)
         atom_C1 = atomgroup_C1[0]
@@ -579,7 +571,8 @@ class QcControl(object):
         atomgroup_C2 = self._select_atomgroup(brd_file_path, brd_select_C2)
         atomgroup_C2 = atomgroup_C2.get_atom_list()
         if len(atomgroup_C2) == 0:
-            logger.critical('cannnot find displacement atom: key={}'.format(brd_select_C2))
+            logger.critical(
+                'cannnot find displacement atom: key={}'.format(brd_select_C2))
             raise QcControlError('No atoms found for "root" in add_CH3')
         atom_C2 = atomgroup_C2[0]
         ag_CH3 = self._modeling.add_methyl(atom_C1, atom_C2)
@@ -588,7 +581,8 @@ class QcControl(object):
         CH3 = QcFragment(ag_CH3)
         CH3.margin = True
         if 'name' not in frg_data:
-            raise QcControlError('NOT FOUND name key in add_CH3', str(frg_data))
+            raise QcControlError(
+                'NOT FOUND name key in add_CH3', str(frg_data))
         CH3.name = frg_data.get('name')
 
         self._set_basis_set(CH3,
@@ -607,7 +601,8 @@ class QcControl(object):
         ACE = QcFragment(ag_ACE)
         ACE.margin = True
         if 'name' not in frg_data:
-            raise QcControlError('NOT FOUND name key in add_ACE', str(frg_data))
+            raise QcControlError(
+                'NOT FOUND name key in add_ACE', str(frg_data))
         ACE.name = frg_data.get('name')
 
         self._set_basis_set(ACE,
@@ -627,7 +622,8 @@ class QcControl(object):
         NME = QcFragment(ag_NME)
         NME.margin = True
         if 'name' not in frg_data:
-            raise QcControlError('NOT FOUND name key in add_NME', str(frg_data))
+            raise QcControlError(
+                'NOT FOUND name key in add_NME', str(frg_data))
         NME.name = frg_data.get('name')
 
         self._set_basis_set(NME,
@@ -643,7 +639,8 @@ class QcControl(object):
 
         atomgroup = bridge.AtomGroup()
         if 'name' not in frg_data:
-            raise QcControlError('NOT FOUND name key in atomlist', str(frg_data))
+            raise QcControlError(
+                'NOT FOUND name key in atomlist', str(frg_data))
         atomgroup.name = frg_data.get('name')
 
         index = 1
@@ -654,7 +651,8 @@ class QcControl(object):
                         # case '/model/...'
                         brd_select = line
                         brd_file_path = frg_data.get('brd_file')
-                        selected_atomgroup = self._select_atomgroup(brd_file_path, brd_select)
+                        selected_atomgroup = self._select_atomgroup(
+                            brd_file_path, brd_select)
                         #logger.debug('select path: {}'.format(brd_select))
                         #logger.debug('selected: {}'.format(str(selected_atomgroup)))
                         if selected_atomgroup.get_number_of_all_atoms() > 0:
@@ -684,9 +682,11 @@ class QcControl(object):
                         atomgroup.set_atom(index, atom)
                         index += 1
                     else:
-                        logger.error("mismatch atom data size: {}".format(str(line)))
+                        logger.error(
+                            "mismatch atom data size: {}".format(str(line)))
                 else:
-                    logger.error("atomlist item shuld be array or string: {}".format(str(line)))
+                    logger.error(
+                        "atomlist item shuld be array or string: {}".format(str(line)))
         else:
             logger.error("atomlist shuld be list: {}".format(str(atomlist)))
 
@@ -709,7 +709,8 @@ class QcControl(object):
             brd_fh.close()
 
             self._cache['brdfile'][brd_file_path] = {}
-            self._cache['brdfile'][brd_file_path]['atomgroup'] = bridge.AtomGroup(brd_data)
+            self._cache['brdfile'][brd_file_path]['atomgroup'] = bridge.AtomGroup(
+                brd_data)
 
         atomgroup = self._cache['brdfile'][brd_file_path]['atomgroup']
         # selecter = bridge.Select_PathRegex(brd_select)
@@ -720,26 +721,34 @@ class QcControl(object):
 
     def _set_basis_set(self, fragment,
                        basis_set,
-                       basis_set_aux = None,
-                       basis_set_gridfree = None):
+                       basis_set_aux=None,
+                       basis_set_gridfree=None):
         """
         set basis set to the fragment object.
         """
         if isinstance(fragment, QcFragment):
             for subfrg_name, subfrg in fragment.groups():
-                self._set_basis_set(subfrg, basis_set, basis_set_aux, basis_set_gridfree)
+                self._set_basis_set(subfrg, basis_set,
+                                    basis_set_aux, basis_set_gridfree)
             for atm_name, atm in fragment.atoms():
-                atm.basisset = 'O-{}.{}'.format(self._find_basis_set_name(atm, basis_set), atm.symbol)
+                atm.basisset = 'O-{}.{}'.format(
+                    self._find_basis_set_name(atm, basis_set), atm.symbol)
                 if basis_set_aux:
-                    atm.basisset_j = 'A-{}.{}'.format(self._find_basis_set_name(atm, basis_set_aux), atm.symbol)
-                    atm.basisset_xc = 'A-{}.{}'.format(self._find_basis_set_name(atm, basis_set_aux), atm.symbol)
+                    atm.basisset_j = 'A-{}.{}'.format(
+                        self._find_basis_set_name(atm, basis_set_aux), atm.symbol)
+                    atm.basisset_xc = 'A-{}.{}'.format(
+                        self._find_basis_set_name(atm, basis_set_aux), atm.symbol)
                 else:
-                    atm.basisset_j = 'A-{}.{}'.format(self._find_basis_set_name(atm, basis_set), atm.symbol)
-                    atm.basisset_xc = 'A-{}.{}'.format(self._find_basis_set_name(atm, basis_set), atm.symbol)
+                    atm.basisset_j = 'A-{}.{}'.format(
+                        self._find_basis_set_name(atm, basis_set), atm.symbol)
+                    atm.basisset_xc = 'A-{}.{}'.format(
+                        self._find_basis_set_name(atm, basis_set), atm.symbol)
                 if basis_set_gridfree:
-                    atm.basisset_gridfree = 'O-{}.{}'.format(self._find_basis_set_name(atm, basis_set_gridfree), atm.symbol)
+                    atm.basisset_gridfree = 'O-{}.{}'.format(
+                        self._find_basis_set_name(atm, basis_set_gridfree), atm.symbol)
                 else:
-                    atm.basisset_gridfree = 'O-{}.{}'.format(self._find_basis_set_name(atm, basis_set), atm.symbol)
+                    atm.basisset_gridfree = 'O-{}.{}'.format(
+                        self._find_basis_set_name(atm, basis_set), atm.symbol)
         else:
             raise QcControlError('Program Error: ', str(fragment))
 
@@ -760,6 +769,17 @@ class QcControl(object):
             else:
                 raise QcControlError('type mismatch.', str(input_obj))
         return ans
+
+
+    # ------------------------------------------------------------------
+    # others
+    # ------------------------------------------------------------------
+    def show_version(self):
+        logger.info("=" * 80)
+        logger.info("QCLObot version: {version}".format(
+            version=str(__version__)))
+        logger.info("=" * 80)
+
 
 if __name__ == '__main__':
     pass
