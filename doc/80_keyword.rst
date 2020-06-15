@@ -123,6 +123,28 @@ All frame require the name.
 Based of this name value, the working directory is created on the current directory. 
 
 
+cmd_alias
+"""""""""
+
+Accept values of the dictionary type. Replaces the default external commands. The following commands are currently supported:
+
+.. It can be found in _get_default_cmds() of qcframe.py.
+
+- archive
+- mat-extend
+- mat-mul
+- mat-select
+- mat-symetrize
+- mat-transpose
+- mat-diagonal
+
+
+.. db_filename
+.. """""""""""
+
+.. Specify the name of the DB file to be used.
+
+
 fragments
 """""""""
 

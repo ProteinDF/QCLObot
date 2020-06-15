@@ -266,11 +266,15 @@ class QcControl(QcControlObject):
         # print(repr(frame.pdfparam.extra_keywords))
         # print("<<<<")
 
+        # properties -----------
         # cmd alias
         if self._get_value('cmd_alias', frame_data) != None:
             frame.set_command_alias(self._get_value('cmd_alias', frame_data))
 
-        # fragments
+        if self._get_value('db_filename', frame_data) != None:
+            frame.set_db_filename(self._get_value('db_filename', frame_data))
+
+        # fragments ------------
         logger.info('> make fragments for [{frame_name}]'.format(
             frame_name=frame_name))
         fragments_list = self._get_fragments(
