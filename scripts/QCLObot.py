@@ -19,9 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import argparse
 import logging
 import logging.config
+from rainbow_logging_handler import RainbowLoggingHandler
 
 try:
     import msgpack
@@ -32,8 +34,10 @@ import proteindf_bridge as bridge
 import proteindf_tools as pdf
 import qclobot as qclo
 
+
 def main():
-    parser = argparse.ArgumentParser(description='QCLObot: QM solver based on QCLO method for large-system.')
+    parser = argparse.ArgumentParser(
+        description='QCLObot: QM solver based on QCLO method for large-system.')
     parser.add_argument('senario_file_path',
                         nargs=1,
                         help='QCLO senario file (YAML_format)')
@@ -62,7 +66,8 @@ def main():
     if args.logconfig:
         # logging module setup by config-file
         logconfig_path = args.logconfig[0]
-        logging.config.fileConfig(logconfig_path)
+        logging.config.fileConfig(
+            logconfig_path, disable_existing_loggers=False)
     else:
         # logging module setup
         logfile_path = ''
@@ -71,6 +76,7 @@ def main():
         setup_logging(logfile_path, is_debug)
 
     app_logger = logging.getLogger(__name__)
+
     app_logger.info('loading senario: {}'.format(senario_file_path))
 
     qcctrl = qclo.QcControl()
@@ -79,7 +85,7 @@ def main():
     app_logger.info('QCLObot done.')
 
 
-def setup_logging(logfile_path = '', is_debug = False):
+def setup_logging(logfile_path='', is_debug=False):
     if len(logfile_path) == 0:
         logfile_path = 'qclobot.log'
 
@@ -88,10 +94,10 @@ def setup_logging(logfile_path = '', is_debug = False):
     date_format = '%Y-%m-%d %H:%M:%S'
     if is_debug:
         logging_level = logging.DEBUG
-        format_str ='%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
+        format_str = '%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
 
     logging.basicConfig(
-        filename = logfile_path,
+        filename=logfile_path,
         level=logging_level,
         format=format_str,
         datefmt=date_format
@@ -99,7 +105,9 @@ def setup_logging(logfile_path = '', is_debug = False):
 
     formatter = logging.Formatter(format_str, date_format)
 
-    console = logging.StreamHandler()
+    # console = logging.StreamHandler()
+    console = RainbowLoggingHandler(sys.stdout)
+
     console.setLevel(logging.WARNING)
     console.setFormatter(formatter)
     logging.getLogger().addHandler(console)
@@ -122,5 +130,5 @@ if __name__ == '__main__':
 
     #import pstats
     #ps = pstats.Stats('qclo_prof')
-    #ps.sort_stats('cumulative').print_stats()
-    #ps.sort_stats('time').print_stats()
+    # ps.sort_stats('cumulative').print_stats()
+    # ps.sort_stats('time').print_stats()

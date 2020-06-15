@@ -1,11 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import proteindf_bridge as bridge
 import os
+import inspect
 import logging
 logger = logging.getLogger(__name__)
 
-import proteindf_bridge as bridge
+
+def locate(depth=0):
+    """
+    return tuple of (file, function, line number)
+    cf.) https://qiita.com/ymko/items/b46d32b98f013f06d805
+    """
+    frame = inspect.currentframe().f_back
+    return os.path.basename(frame.f_code.co_filename), frame.f_code.co_name, frame.f_lineno
 
 
 def file2atomgroup(input_path):
@@ -51,10 +60,12 @@ def check_format_models(models):
         for model_id, model in models.groups():
             answer &= check_format_model(model)
     else:
-        logger.warning("no groups found in models: name={}".format(models.name))
+        logger.warning(
+            "no groups found in models: name={}".format(models.name))
 
     if models.get_number_of_atoms() != 0:
-        logger.error("not allowed any atoms in models: name={}".format(models.name))
+        logger.error(
+            "not allowed any atoms in models: name={}".format(models.name))
         answer = False
     return answer
 
@@ -70,7 +81,8 @@ def check_format_model(model):
         logger.warning("no groups found in model: name={}".format(model.name))
 
     if model.get_number_of_atoms() != 0:
-        logger.error("not allowed any atoms in model: name={}".format(model.name))
+        logger.error(
+            "not allowed any atoms in model: name={}".format(model.name))
         answer = False
 
     return answer
@@ -87,7 +99,8 @@ def check_format_chain(chain):
         logger.warning("no groups found in chain: name={}".format(chain.name))
 
     if chain.get_number_of_atoms() != 0:
-        logger.error("not allowed any atoms in chain: name={}".format(chain.name))
+        logger.error(
+            "not allowed any atoms in chain: name={}".format(chain.name))
         answer = False
 
     return answer
