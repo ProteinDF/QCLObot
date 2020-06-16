@@ -21,18 +21,14 @@
 
 import sys
 import argparse
-import logging
-import logging.config
-from rainbow_logging_handler import RainbowLoggingHandler
-
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
 
 import proteindf_bridge as bridge
 import proteindf_tools as pdf
 import qclobot as qclo
+
+import logging
+import logging.config
+from rainbow_logging_handler import RainbowLoggingHandler
 
 
 def main():
@@ -114,10 +110,7 @@ def setup_logging(logfile_path='', is_debug=False):
 
 
 def load_brdfile(brdfile_path):
-    brdfile = open(brdfile_path, 'rb')
-    brddata = msgpack.unpackb(brdfile.read())
-    brdfile.close()
-    atomgroup = bridge.AtomGroup(brddata)
+    atomgroup = bridge.load_atomgroup(brdfile_path)
 
     return atomgroup
 

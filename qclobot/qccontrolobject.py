@@ -4,16 +4,14 @@
 import copy
 import yaml
 import pprint
-import logging
-logger = logging.getLogger(__name__)
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
 
 import proteindf_bridge as bridge
 
 from .qcerror import QcError, QcControlError
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 class QcControlObject(object):
     def __init__(self):
@@ -71,13 +69,14 @@ class QcControlObject(object):
         self._tasks_index = 0
         while self._tasks_index < len(self._tasks):
             logger.debug("[run_tasks] begin")
-            logger.debug("[run_tasks] {}/{}".format(self._tasks_index, len(self._tasks)))
+            logger.debug(
+                "[run_tasks] {}/{}".format(self._tasks_index, len(self._tasks)))
             logger.debug(pprint.pformat(self._tasks, width=2))
             logger.debug("[run_tasks] end")
 
             task = self._tasks[self._tasks_index]
             #logger.info("[RUN TASK] {}/{}".format(self._task_index, len(self._tasks)))
-            #logger.info(pprint.pformat(task))
+            # logger.info(pprint.pformat(task))
 
             self._run_task(task)
 
@@ -142,7 +141,7 @@ class QcControlObject(object):
         re_enter = False
         include_tasks = in_task.get("include_tasks", None)
         if include_tasks != None:
-            #in_task.pop("include_tasks")
+            # in_task.pop("include_tasks")
             if isinstance(include_tasks, str):
                 include_path = str(include_tasks)
                 logger.info("#include tasks from: {}".format(include_path))
@@ -159,12 +158,13 @@ class QcControlObject(object):
                 # insert tasks
                 self._tasks.pop(self._tasks_index)
                 #self._tasks.insert(self._tasks_index, insert_tasks)
-                self._tasks[self._tasks_index : self._tasks_index] = insert_tasks
-                
+                self._tasks[self._tasks_index: self._tasks_index] = insert_tasks
+
                 # re-enter task
                 self._tasks_index -= 1
 
-                logger.debug("[include_tasks] begin insert of the following contents")
+                logger.debug(
+                    "[include_tasks] begin insert of the following contents")
                 logger.debug("self._tasks_index: {}".format(self._tasks_index))
                 logger.debug(pprint.pformat(self._tasks))
                 logger.debug("[include_tasks] end of insert")
@@ -172,7 +172,8 @@ class QcControlObject(object):
                 re_enter = True
 
             else:
-                raise QcControlError("the value of include_tasks was not string.", include_tasks)
+                raise QcControlError(
+                    "the value of include_tasks was not string.", include_tasks)
 
         return re_enter
 

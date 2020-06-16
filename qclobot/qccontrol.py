@@ -19,21 +19,21 @@
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
+import jinja2
+import pprint
+import yaml
+
 import proteindf_bridge as bridge
+
 from . import __version__
 from .qcframe import QcFrame
 from .qcfragment import QcFragment
 from .qccontrolobject import QcControlObject
 from .qcerror import QcControlError
-import jinja2
-import pprint
-import yaml
+
+
 import logging
 logger = logging.getLogger(__name__)
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
 
 
 class QcControl(QcControlObject):
@@ -707,13 +707,10 @@ class QcControl(QcControlObject):
 
         self._cache.setdefault('brdfile', {})
         if brd_file_path not in self._cache['brdfile']:
-            brd_fh = open(brd_file_path, 'rb')
-            brd_data = msgpack.unpackb(brd_fh.read())
-            brd_fh.close()
+            atomgroup = bridge.load_atomgroup(brd_file_path)
 
             self._cache['brdfile'][brd_file_path] = {}
-            self._cache['brdfile'][brd_file_path]['atomgroup'] = bridge.AtomGroup(
-                brd_data)
+            self._cache['brdfile'][brd_file_path]['atomgroup'] = atomgroup
 
         atomgroup = self._cache['brdfile'][brd_file_path]['atomgroup']
         # selecter = bridge.Select_PathRegex(brd_select)

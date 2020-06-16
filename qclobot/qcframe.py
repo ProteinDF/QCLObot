@@ -19,20 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
-from .qcfragment import QcFragment
-import proteindf_tools as pdf
-import proteindf_bridge as bridge
 import shutil
 from collections import OrderedDict
 import math
 import os
+
+import proteindf_tools as pdf
+import proteindf_bridge as bridge
+
+from .qcfragment import QcFragment
+
 import logging
 logger = logging.getLogger(__name__)
-
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
 
 
 class QcFrame(object):
@@ -96,11 +94,7 @@ class QcFrame(object):
         path = os.path.join(self.work_dir, 'qcframe.mpac')
         if os.path.exists(path):
             logger.info('load the fragment state: {}'.format(path))
-            f = open(path, 'rb')
-            packed = f.read()
-            state_dat = msgpack.unpackb(packed)
-            f.close()
-            state_dat = bridge.Utils.to_unicode_dict(state_dat)
+            state_dat = bridge.load_msgpack(path)
             self.set_by_raw_data(state_dat)
         else:
             logger.debug('not found the state file')
@@ -110,10 +104,7 @@ class QcFrame(object):
         # logger.info('save the fragment state: {}'.format(path))
 
         state_dat = self.get_raw_data()
-        packed = msgpack.packb(state_dat)
-        f = open(path, 'wb')
-        f.write(packed)
-        f.close()
+        bridge.save_msgpack(state_dat, path)
 
     def get_raw_data(self):
         return self.__getstate__()
@@ -154,10 +145,7 @@ class QcFrame(object):
 
         if 'pdfparam' not in self._cache:
             if os.path.exists(pdfparam_path):
-                mpac_file = open(pdfparam_path, 'rb')
-                mpac_data = msgpack.unpackb(mpac_file.read())
-                mpac_data = bridge.Utils.to_unicode_dict(mpac_data)
-                mpac_file.close()
+                mpac_data = bridge.load_msgpack(pdfparam_path)
                 logger.debug('pdfparam({}) is loaded.'.format(pdfparam_path))
                 self._cache['pdfparam'] = pdf.PdfParam(mpac_data)
             else:

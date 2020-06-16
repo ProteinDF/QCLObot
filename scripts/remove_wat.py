@@ -3,14 +3,16 @@
 
 import argparse
 import re
-import msgpack
 
 import proteindf_bridge as bridge
+import proteindf_tools as pdf
+import qclobot as qclo
 
 
 def main():
     # parse args
-    parser = argparse.ArgumentParser(description='remove water molecules in bridge file')
+    parser = argparse.ArgumentParser(
+        description='remove water molecules in bridge file')
     parser.add_argument('FILE',
                         nargs=1,
                         help='bridge file')
@@ -19,7 +21,7 @@ def main():
                         help='output bridge file')
     parser.add_argument("-v", "--verbose",
                         action="store_true",
-                        default = False)
+                        default=False)
     args = parser.parse_args()
 
     # setting
@@ -30,13 +32,10 @@ def main():
     # reading
     if verbose:
         print("reading: %s\n" % (mpac_file_path))
-    mpac_file = open(mpac_file_path, "rb")
-    mpac_data = msgpack.unpackb(mpac_file.read())
-    mpac_file.close()
 
     # prepare atomgroup
-    answer = brdige.AtomGroup(mpac_data)
-    #print(atomgroup)
+    answer = bridge.load_atomgroup(mpac_file_path)
+    # print(atomgroup)
 
     # search 'HOH'
     HOH_selecter = brdige.Select_Name('HOH')
@@ -52,13 +51,12 @@ def main():
     if output:
         if (verbose == True):
             print("writing: %s\n" % (output))
-        savefile = open(output, "wb");
-        savefile.write(msgpack.packb(answer.get_raw_data()))
-        savefile.close()
+        bridge.save_msgpack(answer.get_raw_data(), output)
     else:
         print(answer)
 
     # end
+
 
 def remove_wat(atomgroup):
     answer = brdige.AtomGroup()
@@ -78,7 +76,6 @@ def remove_wat(atomgroup):
         answer.set_atom(atmkey, atm)
 
     return answer
-
 
 
 if __name__ == '__main__':

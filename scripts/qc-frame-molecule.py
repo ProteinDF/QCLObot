@@ -3,19 +3,14 @@
 
 import os
 import argparse
-import logging
-import logging.config
-
 import pprint
-
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
 
 import proteindf_bridge as bridge
 import proteindf_tools as pdf
 import qclobot as qclo
+
+import logging
+import logging.config
 
 
 def main():
@@ -42,7 +37,7 @@ def main():
     frame_name = args.frame[0]
     reference_path = args.reference[0]
     output_path = args.output_path[0]
-    #if len(output_path) == 0:
+    # if len(output_path) == 0:
     #    output_path = "{frame_name}.brd".format(frame_name=frame_name)
     calc_charge = args.calc_charges_at_iteration
     verbose = args.verbose
@@ -59,7 +54,7 @@ def main():
             if verbose:
                 print("calculate Mulliken population")
 
-            pop_vtr = frame.pop(iteration = calc_charge)
+            pop_vtr = frame.pop(iteration=calc_charge)
             frame_molecule.assign_charges(pop_vtr)
 
         if reference_path:

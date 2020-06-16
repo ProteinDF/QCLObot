@@ -3,22 +3,17 @@
 
 import os
 import argparse
-import logging
-import logging.config
-
 import pprint
-
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
 
 import proteindf_bridge as bridge
 import proteindf_tools as pdf
 import qclobot as qclo
 
+import logging
+import logging.config
 
-def assign_charges(atomgroup, charges, charge_index = 0):
+
+def assign_charges(atomgroup, charges, charge_index=0):
     assert(isinstance(atomgroup, bridge.AtomGroup))
     assert(isinstance(charges, bridge.Vector))
 
@@ -59,13 +54,12 @@ def main():
         print("SCF: {}".format(is_finished_scf))
         if is_finished_scf:
             #summary = frame.summary()
-            #print(summary)
+            # print(summary)
             pop_vtr = frame.pop()
             # print(pop_vtr)
 
             assign_charges(frame_molecule, pop_vtr)
             print(frame_molecule)
-
 
     else:
         print("{} is not directory.".format(frame))

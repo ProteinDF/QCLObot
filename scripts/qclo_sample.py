@@ -20,18 +20,14 @@
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import logging
-import logging.config
 import pprint
-
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
 
 import proteindf_bridge as bridge
 import proteindf_tools as pdf
 import qclobot as qclo
+
+import logging
+import logging.config
 
 
 def main():
@@ -56,17 +52,14 @@ def main():
     # load
     if verbose:
         print("reading: {}".format(brdfile_path))
-    brdfile = open(brdfile_path, 'rb')
-    brddata = msgpack.unpackb(brdfile.read())
-    brdfile.close()
 
     # manager = qclo.QcFrameManager()
 
     # all models
-    models = bridge.AtomGroup(brddata)
+    models = bridge.load_atomgroup(brdfile_path)
     #print('>>>> models')
-    #print(models)
-    #print('----')
+    # print(models)
+    # print('----')
 
     # model
     model = models["model_1"]
@@ -74,15 +67,15 @@ def main():
 
     frames = {}
     #
-    N_TERM = 0 # N-termがNMEなら1
-    C_TERM = 0 # C-termがACEなら1
+    N_TERM = 0  # N-termがNMEなら1
+    C_TERM = 0  # C-termがACEなら1
     modeling = bridge.Modeling()
     for chain_name, chain in model.groups():
         max_resid = chain.get_number_of_groups()
         logging.info("chain {}: max_resid={}".format(chain_name, max_resid))
-        #logging.info(str(chain))
+        # logging.info(str(chain))
 
-        #for resid, res in chain.groups():
+        # for resid, res in chain.groups():
         for resid in range(1, 6):
             #resid = int(resid)
             res = chain[resid]
@@ -99,7 +92,7 @@ def main():
             if resid > 1 + N_TERM:
                 #logging.debug("add ACE")
 
-                prev = chain[resid -1]
+                prev = chain[resid - 1]
                 #logging.debug(">>> prev")
                 #logging.debug("\n" + str(prev))
                 # ag_ACE = modeling.get_ACE(res_model, prev)
@@ -110,7 +103,7 @@ def main():
             if resid + C_TERM < max_resid:
                 #logging.debug("add NME")
 
-                ahead = chain[resid +1]
+                ahead = chain[resid + 1]
                 #logging.debug(">>> ahead")
                 #logging.debug("\n" + str(ahead))
                 # ag_NME = modeling.get_NME(res_model, ahead)
@@ -118,21 +111,21 @@ def main():
                 NME = qclo.QcFragment(ag_NME)
 
             name = 'res_{}-{}'.format(resid, resid)
-            frame = qclo.QcFrame(name = name)
+            frame = qclo.QcFrame(name=name)
             frame[name] = fragment_res
             frame['ACE'] = ACE
             frame['NME'] = NME
 
             frames[frame.name] = frame
             setup_calc_conf(frame.pdfparam)
-            frame.calc_sp(dry_run = False)
+            frame.calc_sp(dry_run=False)
             frame.pickup_density_matrix()
 
         # step2
-        #for resid, res in chain.groups():
+        # for resid, res in chain.groups():
         for resid in range(1, 6):
             resid = int(resid)
-            if (resid +2) > chain.get_number_of_groups():
+            if (resid + 2) > chain.get_number_of_groups():
                 break
             calc3res(frames, chain, resid)
 
@@ -143,15 +136,16 @@ def main():
 
     exit()
 
+
 def calc3res(frames, chain, start):
     res1 = start
-    res2 = start +1
-    res3 = start +2
+    res2 = start + 1
+    res3 = start + 2
 
     if res1 >= 4:
         return
 
-    frame = qclo.QcFrame(name = 'res_{}-{}'.format(res1, res3))
+    frame = qclo.QcFrame(name='res_{}-{}'.format(res1, res3))
 
     res1str = 'res_{res1}-{res1}'.format(res1=res1)
     res2str = 'res_{res2}-{res2}'.format(res2=res2)
@@ -168,20 +162,21 @@ def calc3res(frames, chain, start):
     try:
         setup_calc_conf(frame.pdfparam)
         frame.guess_density()
-        frame.calc_sp(dry_run = False)
+        frame.calc_sp(dry_run=False)
         frame.calc_lo()
         frame.pickup_lo()
     except:
         raise
 
+
 def calc5res(frames, chain, start):
     res1 = start
-    res2 = start +1
-    res3 = start +2
-    res4 = start +3
-    res5 = start +4
+    res2 = start + 1
+    res3 = start + 2
+    res4 = start + 3
+    res5 = start + 4
 
-    frame = qclo.QcFrame(name = 'res_{}-{}'.format(1, 5))
+    frame = qclo.QcFrame(name='res_{}-{}'.format(1, 5))
 
     res1str = 'res_{res1}-{res1}'.format(res1=res1)
     res2str = 'res_{res2}-{res2}'.format(res2=res2)
@@ -217,8 +212,9 @@ def calc5res(frames, chain, start):
     except:
         raise
 
+
 def calc_test(frames):
-    frame = qclo.QcFrame(name = 'res_1-3.QCLO')
+    frame = qclo.QcFrame(name='res_1-3.QCLO')
 
     frame['res_1-3'] = qclo.QcFragment()
     frame['res_1-3'].set_group('res1', frames['res_1-3']['res_1-1'])
@@ -237,11 +233,13 @@ def calc_test(frames):
     except:
         raise
 
+
 def setup_calc_conf(pdfparam):
     pdfparam.j_engine = 'CD'
     pdfparam.k_engine = 'CD'
     pdfparam.xc_engine = 'gridfree_CD'
     pdfparam.xc_functional = 'b3lyp'
+
 
 if __name__ == '__main__':
     logging.config.fileConfig('logconfig.ini')

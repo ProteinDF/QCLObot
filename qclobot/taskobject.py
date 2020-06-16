@@ -5,16 +5,13 @@ import os
 import copy
 import pprint
 
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
+import proteindf_bridge as bridge
+
+from .utils import check_format_model
 
 import logging
 logger = logging.getLogger(__name__)
 
-import proteindf_bridge as bridge
-from .utils import check_format_model
 
 class TaskObject(object):
     """Task management base class
@@ -68,10 +65,8 @@ class TaskObject(object):
         # directory
         self._prepare_work_dir()
 
-
     def __del__(self):
         self.save()
-
 
     def _initialize(self):
         self._data = {}
@@ -92,8 +87,8 @@ class TaskObject(object):
         return self._data.get('name')
     name = property(_get_name)
 
-
     # work_dir ---------------------------------------------------------
+
     def _get_work_dir(self):
         """get working directory
 
@@ -103,21 +98,22 @@ class TaskObject(object):
         return work_dir
     work_dir = property(_get_work_dir)
 
-
     # state_filename ---------------------------------------------------
+
     def _get_state_filename(self):
         return self._data.get('state_filename')
     state_filename = property(_get_state_filename)
 
-
     # model (input atomgroup) -----------------------------------------
     #   "model" data is an AtomGroup object formatted by 'MODEL', not 'protein'.
+
     def _get_model(self):
         answer = None
         model_raw_data = self._data.get("model", None)
         if model_raw_data != None:
             answer = bridge.AtomGroup(model_raw_data)
         return answer
+
     def _set_model(self, model):
         if check_format_model(model):
             self._data['model'] = model.get_raw_data()
@@ -126,32 +122,30 @@ class TaskObject(object):
             raise
     model = property(_get_model, _set_model)
 
-
     # output_model -----------------------------------------------------
+
     def _get_output_model(self):
         answer = None
         model_raw_data = self._data.get("output_model", None)
         if model_raw_data != None:
             answer = bridge.AtomGroup(model_raw_data)
         return answer
+
     def _set_output_model(self, model):
         assert(check_format_model(model))
         self._data['output_model'] = model.get_raw_data()
     output_model = property(_get_output_model, _set_output_model)
 
-
-
     # ------------------------------------------------------------------
     # Archive
     # ------------------------------------------------------------------
+
     def load(self):
         path = os.path.join(self.work_dir, self.state_filename)
         if os.path.exists(path):
             logger.debug('load the fragment state: {}'.format(path))
-            with open(path, 'rb') as f:
-                packed = f.read()
-                state_dat = msgpack.unpackb(packed)
-                state_dat = bridge.Utils.to_unicode_dict(state_dat)
+            state_dat = bridge.load_msgpack(path)
+            if state_dat != None:
                 self.set_by_raw_data(state_dat)
         else:
             logger.debug('not found the state file')
@@ -162,9 +156,7 @@ class TaskObject(object):
 
         state_dat = self.get_raw_data()
         # pprint.pprint(state_dat)
-        packed = msgpack.packb(state_dat)
-        with open(path, 'wb') as f:
-            f.write(packed)
+        bridge.save_msgpack(state_dat, path)
 
     def get_raw_data(self):
         return self.__getstate__()
@@ -197,22 +189,21 @@ class TaskObject(object):
             os.mkdir(self.work_dir)
             self.save()
         else:
-            logger.debug('make work dir, but it already exists: {}'.format(self.work_dir))
+            logger.debug(
+                'make work dir, but it already exists: {}'.format(self.work_dir))
             self.load()
-
 
     def cd_workdir(self, job_name=''):
         '''
         作業ディレクトリをオブジェクトのwork_dirに移動する
         '''
         logger.info('=' * 20)
-        logger.info('>>>> {job_name}@{frame_name}'.format(job_name = job_name,
-                                                          frame_name = self.name))
+        logger.info('>>>> {job_name}@{frame_name}'.format(job_name=job_name,
+                                                          frame_name=self.name))
         logger.info('work dir: {work_dir}'.format(work_dir=self.work_dir))
 
         logger.info('=' * 20)
         os.chdir(self.work_dir)
-
 
     def restore_cwd(self):
         '''
@@ -221,10 +212,8 @@ class TaskObject(object):
         os.chdir(self._basedir)
         logger.info('<<<< (basedir: {})\n'.format(self._basedir))
 
-
     def write_output_model(self, output_path):
         self.atomgroup2file(self.output_model, output_path)
-
 
     def atomgroup2file(self, atomgroup, output_path):
         '''output_pathの拡張子に応じて、bridge形式またはpdb形式でatomgroupをファイルに書き出す
@@ -238,10 +227,7 @@ class TaskObject(object):
             self.atomgroup2pdb(atomgroup, abspath)
         else:
             logger.info("save {path} as bridge file.".format(path=abspath))
-            with open(abspath, "wb") as f:
-                mpac_data = msgpack.packb(atomgroup.get_raw_data())
-                f.write(mpac_data)
-
+            bridge.save_msgpack(atomgroup.get_raw_data(), abspath)
 
     def atomgroup2pdb(self, atomgroup, pdbfile,
                       model_name="model_1"):
@@ -253,7 +239,7 @@ class TaskObject(object):
         assert(isinstance(pdbfile, str))
 
         self.cd_workdir()
-        pdb = bridge.Pdb(mode = 'amber')
+        pdb = bridge.Pdb(mode='amber')
 
         protein = atomgroup
         if check_format_model(atomgroup):
@@ -271,7 +257,7 @@ class TaskObject(object):
 
 if __name__ == '__main__':
     #import sys,os
-    #sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     import doctest
     doctest.testmod()

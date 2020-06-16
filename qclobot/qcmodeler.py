@@ -5,11 +5,6 @@ import os
 import copy
 import pprint
 import yaml
-
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
 import jinja2
 
 import proteindf_bridge as bridge
@@ -31,11 +26,11 @@ class QcModeler(QcControlObject):
     def __init__(self):
         super(QcModeler, self).__init__()
         self.global_tasks = {}
-        
 
     def show_version(self):
         logger.info("=" * 80)
-        logger.info("QcModeler version: {version}".format(version=str(__version__)))
+        logger.info("QcModeler version: {version}".format(
+            version=str(__version__)))
         logger.info("=" * 80)
 
     def _run_task_cmd(self, task):
@@ -43,17 +38,19 @@ class QcModeler(QcControlObject):
         name = task.pop("name")
 
         if "protonate" in task.keys():
-            self.global_tasks[name] = self._run_protonate(name, task['protonate'])
+            self.global_tasks[name] = self._run_protonate(
+                name, task['protonate'])
         elif "opt" in task.keys():
             self.global_tasks[name] = self._run_opt(name, task['opt'])
         elif "md" in task.keys():
             self.global_tasks[name] = self._run_md(name, task['md'])
         elif "neutralize" in task.keys():
-            self.global_tasks[name] = self._run_neutralize(name, task['neutralize'])
+            self.global_tasks[name] = self._run_neutralize(
+                name, task['neutralize'])
             pass
         else:
-            logger.warning("not found task command: {cmds}".format(cmds=str([ x for x in task.keys()])))
-
+            logger.warning("not found task command: {cmds}".format(
+                cmds=str([x for x in task.keys()])))
 
     def _run_protonate(self, name, args):
         logger.info("run prptonate")
@@ -76,7 +73,6 @@ class QcModeler(QcControlObject):
 
         return prot_obj
 
-
     def _run_neutralize(self, name, args):
         logger.info("run neutralize")
         assert(isinstance(name, str))
@@ -96,7 +92,6 @@ class QcModeler(QcControlObject):
 
         return neutralize_obj
 
-
     def _run_opt(self, name, args):
         logger.info("run opt")
         assert(isinstance(name, str))
@@ -111,7 +106,6 @@ class QcModeler(QcControlObject):
 
         return amber
 
-
     def _run_md(self, name, args):
         logger.info("run md")
         assert(isinstance(name, str))
@@ -125,15 +119,14 @@ class QcModeler(QcControlObject):
             dt = args["dt"]
 
         amber = self._run_amber_setup(name, args)
-        amber.md(steps = steps,
-                 dt = dt)
+        amber.md(steps=steps,
+                 dt=dt)
 
         dest = args.get("dest", None)
         if dest:
             amber.write_output_model(dest)
 
         return amber
-
 
     def _run_amber_setup(self, name, args):
         amber = AmberObject(name=name)
@@ -161,7 +154,6 @@ class QcModeler(QcControlObject):
 
         return amber
 
-
     def _get_input_model(self, args):
         """入力model(AtomGroup)を返す
 
@@ -182,22 +174,23 @@ class QcModeler(QcControlObject):
                 logger.info("this model is MODELS. pickup first model.")
                 models = atomgroup
                 if models.get_number_of_groups() > 0:
-                    model_list = [ k for k, v in models.groups() ]
+                    model_list = [k for k, v in models.groups()]
                     assert(len(model_list) > 0)
                     answer = models.get_group(model_list[0])
             else:
                 answer = atomgroup
         else:
-            logger.critical("NOT found input model. use \"reference\" or \"src\" command.")
+            logger.critical(
+                "NOT found input model. use \"reference\" or \"src\" command.")
         assert(check_format_model(answer))
 
         return answer
-
 
     def _get_reference_task(self, reference_task_name):
         assert(isinstance(reference_task_name, str))
         if reference_task_name in self.global_tasks.keys():
             return self.global_tasks[reference_task_name]
         else:
-            logger.critical("unknown task name: {name}".format(name = reference_task_name))
+            logger.critical("unknown task name: {name}".format(
+                name=reference_task_name))
             raise

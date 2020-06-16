@@ -53,8 +53,6 @@ setup(name='qclobot',
 
       install_requires=[
           'configparser',
-          'msgpack',
-          # 'msgpack-pure',
           'pyyaml',
           'jinja2',
           'rainbow_logging_handler',

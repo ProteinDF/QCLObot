@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import proteindf_bridge as bridge
 import os
 import inspect
+
+import proteindf_bridge as bridge
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -31,9 +33,7 @@ def file2atomgroup(input_path):
         atomgroup = pdb_obj.get_atomgroup()
     else:
         logger.info("load {path} as bridge file.".format(path=abspath))
-        with open(abspath, "rb") as f:
-            mpac_data = msgpack.unpackb(f.read())
-            aromgroup = bridge.AtomGroup(mpac_data)
+        atomgroup = bridge.load_atomgroup(abspath)
 
     return atomgroup
 
