@@ -21,7 +21,6 @@
 
 import jinja2
 import pprint
-import yaml
 
 import proteindf_bridge as bridge
 
@@ -105,13 +104,13 @@ class QcControl(QcControlObject):
 
             new_frame_data = dict(frame_data)
             new_frame_data.pop('with_items')
-            yaml_str = yaml.dump(new_frame_data)
+            yaml_str = bridge.get_yaml(new_frame_data)
             template = jinja2.Template(yaml_str)
 
             for item in iter_items:
                 logger.info('template render: item={}'.format(repr(item)))
                 yaml_str = template.render(item=item)
-                for new_frame_data in yaml.load_all(yaml_str, Loader=yaml.SafeLoader):
+                for new_frame_data in bridge.parse_yaml(yaml_str):
                     self._run_task(new_frame_data)
             is_break = True
 

@@ -4,7 +4,6 @@
 import os
 import copy
 import pprint
-import yaml
 import jinja2
 
 import proteindf_bridge as bridge

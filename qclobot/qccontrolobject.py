@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import copy
-import yaml
 import pprint
 
 import proteindf_bridge as bridge
@@ -41,18 +40,15 @@ class QcControlObject(object):
             self._senarios_index += 1
 
     def _load_yaml(self, input_path):
-        with open(input_path) as f:
-            contents = f.read()
-        contents = bridge.Utils.to_unicode(contents)
+        playbooks_yaml = bridge.load_yaml(input_path)
 
         self._senarios = []
-        for d in yaml.load_all(contents, Loader=yaml.SafeLoader):
+        for d in playbooks_yaml:
             self._senarios.append(d)
 
     def _save_yaml(self, data, path):
         assert(isinstance(data, dict))
-        with open(path, 'w') as f:
-            yaml.dump(data, f, encoding='utf8', allow_unicode=True)
+        bridge.save_yaml(data, path)
 
     # ------------------------------------------------------------------
     # vars
@@ -152,7 +148,7 @@ class QcControlObject(object):
                     contents = f.read()
                     contents = bridge.Utils.to_unicode(contents)
 
-                    for d in yaml.load_all(contents, Loader=yaml.SafeLoader):
+                    for d in bridge.parse_yaml(contents):
                         insert_tasks.extend(d)
 
                 # insert tasks

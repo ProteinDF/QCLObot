@@ -53,7 +53,6 @@ setup(name='qclobot',
 
       install_requires=[
           'configparser',
-          'pyyaml',
           'jinja2',
           'rainbow_logging_handler',
           # 'proteindf_bridge',

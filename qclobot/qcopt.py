@@ -6,7 +6,6 @@ import os.path
 import shutil
 import copy
 import math
-import yaml
 
 import proteindf_bridge as bridge
 
@@ -225,8 +224,7 @@ class QcOpt(object):
     def _make_input(self):
         input_data = {}
         if self._template_path:
-            with open(self._template_path, 'r') as file:
-                input_data = yaml.load(file)
+            input_data = bridge.load_yaml(self._template_path)
 
         # check 'default' task in template
         input_data.setdefault('tasks', [])
@@ -249,9 +247,7 @@ class QcOpt(object):
 
         # save YAML file
         yaml_file_path = os.path.join(self._get_workdir(), 'senario.yaml')
-        yaml_file = open(yaml_file_path, 'w')
-        yaml_file.write(yaml.dump(input_data))
-        yaml_file.close
+        bridge.save_yaml(yaml_file_path, input_data)
 
         return yaml_file_path
 
