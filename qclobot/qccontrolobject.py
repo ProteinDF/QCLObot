@@ -12,6 +12,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+"""
+TODO: 
+    * 将来的にtaskobjectクラスに統合する
+"""
+
+
 class QcControlObject(object):
     def __init__(self):
         self._senarios = []

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import inspect
 
 import proteindf_bridge as bridge
 
@@ -10,18 +9,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def locate(depth=0):
-    """
-    return tuple of (file, function, line number)
-    cf.) https://qiita.com/ymko/items/b46d32b98f013f06d805
-    """
-    frame = inspect.currentframe().f_back
-    return os.path.basename(frame.f_code.co_filename), frame.f_code.co_name, frame.f_lineno
-
-
 def file2atomgroup(input_path):
     assert(isinstance(input_path, str))
-    aromgroup = None
+    atomgroup = None
 
     abspath = os.path.abspath(input_path)
     (basename, ext) = os.path.splitext(abspath)
@@ -39,7 +29,7 @@ def file2atomgroup(input_path):
 
 
 def get_model(models):
-    assert(check_format_models(models))
+    assert(check_format_model_list(models))
 
     model = None
     if models.get_number_of_groups() > 0:
@@ -52,7 +42,7 @@ def get_model(models):
     return model
 
 
-def check_format_models(models):
+def check_format_model_list(models):
     assert(isinstance(models, bridge.AtomGroup))
     answer = True
 

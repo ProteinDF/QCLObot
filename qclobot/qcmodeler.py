@@ -9,12 +9,13 @@ import jinja2
 import proteindf_bridge as bridge
 
 from . import __version__
+from .modeler_task_edit import ModelerEdit
 from .qccontrolobject import QcControlObject
-from .qcprotonate import QcProtonate
+from .modeler_task_protonate import QcProtonate
 from .qcneutralize import QcNeutralize
 from .amberobject import AmberObject
 from .utils import (file2atomgroup,
-                    check_format_models,
+                    check_format_model_list,
                     check_format_model)
 
 import logging
@@ -34,41 +35,40 @@ class QcModeler(QcControlObject):
 
     def _run_task_cmd(self, task):
         task = copy.deepcopy(task)
-        name = task.pop("name")
+        # pprint.pprint(task)
+        #name = task.pop("name")
+        task_name = task.get("name")
+        # print("name:", name)
 
-        if "protonate" in task.keys():
-            self.global_tasks[name] = self._run_protonate(
-                name, task['protonate'])
-        elif "opt" in task.keys():
-            self.global_tasks[name] = self._run_opt(name, task['opt'])
-        elif "md" in task.keys():
-            self.global_tasks[name] = self._run_md(name, task['md'])
+        if "edit" in task.keys():
+            # pprint.pprint(task['edit'])
+            self.global_tasks[task_name] = self._run_edit(task)
+        elif "protonate" in task.keys():
+            self.global_tasks[task_name] = self._run_protonate(task)
         elif "neutralize" in task.keys():
-            self.global_tasks[name] = self._run_neutralize(
-                name, task['neutralize'])
-            pass
+            self.global_tasks[task_name] = self._run_neutralize(
+                task_name, task['neutralize'])
+        elif "opt" in task.keys():
+            self.global_tasks[task_name] = self._run_opt(
+                task_name, task['opt'])
+        elif "md" in task.keys():
+            self.global_tasks[task_name] = self._run_md(task_name, task['md'])
         else:
             logger.warning("not found task command: {cmds}".format(
                 cmds=str([x for x in task.keys()])))
 
-    def _run_protonate(self, name, args):
-        logger.info("run prptonate")
-        assert(isinstance(name, str))
-        assert(isinstance(args, dict))
+    def _run_edit(self, task):
+        logger.info("run edit")
+        modeler_edit = ModelerEdit(self, task)
+        modeler_edit.run()
 
-        backend = "reduce"
-        prot_obj = QcProtonate(name=name,
-                               backend=backend)
+        return modeler_edit
 
-        input_model = self._get_input_model(args)
-        prot_obj.model = input_model
+    def _run_protonate(self, task):
+        logger.info("run protonate")
 
+        prot_obj = QcProtonate(self, task)
         prot_obj.run()
-        assert(check_format_model(prot_obj.output_model))
-
-        dest = args.get("dest", None)
-        if dest:
-            prot_obj.write_output_model(dest)
 
         return prot_obj
 
@@ -161,7 +161,7 @@ class QcModeler(QcControlObject):
         """
         answer = None
         if "reference" in args:
-            ref_task = self._get_reference_task(args["reference"])
+            ref_task = self.get_reference_task(args["reference"])
             answer = ref_task.output_model
         elif "src" in args:
             src = args.get("src", None)
@@ -169,7 +169,7 @@ class QcModeler(QcControlObject):
                 logger.critical('not found "src"')
                 raise
             atomgroup = file2atomgroup(src)
-            if check_format_models(atomgroup):
+            if check_format_model_list(atomgroup):
                 logger.info("this model is MODELS. pickup first model.")
                 models = atomgroup
                 if models.get_number_of_groups() > 0:
@@ -185,7 +185,7 @@ class QcModeler(QcControlObject):
 
         return answer
 
-    def _get_reference_task(self, reference_task_name):
+    def get_reference_task(self, reference_task_name):
         assert(isinstance(reference_task_name, str))
         if reference_task_name in self.global_tasks.keys():
             return self.global_tasks[reference_task_name]

@@ -3,7 +3,7 @@
 
 import os
 import copy
-import pprint
+# import pprint
 
 import proteindf_bridge as bridge
 
@@ -73,6 +73,7 @@ class TaskObject(object):
         self._data['state_filename'] = 'qclobot_state.mpac'
 
         # not stored data
+        self._cache = {}
         self._basedir = os.path.abspath(os.curdir)
 
     def _copy_constructor(self, rhs):
@@ -106,11 +107,12 @@ class TaskObject(object):
 
     # model (input atomgroup) -----------------------------------------
     #   "model" data is an AtomGroup object formatted by 'MODEL', not 'protein'.
+    # TODO: move to ModelerTaskObject
 
     def _get_model(self):
         answer = None
         model_raw_data = self._data.get("model", None)
-        if model_raw_data != None:
+        if model_raw_data is not None:
             answer = bridge.AtomGroup(model_raw_data)
         return answer
 
@@ -123,11 +125,12 @@ class TaskObject(object):
     model = property(_get_model, _set_model)
 
     # output_model -----------------------------------------------------
+    # TODO: move to ModelerTaskObject
 
     def _get_output_model(self):
         answer = None
         model_raw_data = self._data.get("output_model", None)
-        if model_raw_data != None:
+        if model_raw_data is not None:
             answer = bridge.AtomGroup(model_raw_data)
         return answer
 
@@ -145,7 +148,7 @@ class TaskObject(object):
         if os.path.exists(path):
             logger.debug('load the fragment state: {}'.format(path))
             state_dat = bridge.load_msgpack(path)
-            if state_dat != None:
+            if state_dat is not None:
                 self.set_by_raw_data(state_dat)
         else:
             logger.debug('not found the state file')
@@ -254,9 +257,33 @@ class TaskObject(object):
 
         self.restore_cwd()
 
+    # ------------------------------------------------------------------
+    # Utility
+    # ------------------------------------------------------------------
+    def _select_atomgroup(self, ref_atomgroup, brd_select, use_regex=False):
+        """Returns atomgroup object from reference atomgroup and select string
+
+        Args:
+            ref_atomgroup (bridge.atomgroup): atomgroup object as reference
+            brd_select (str): select string
+            use_regex (bool): Whether or not to use regular expression selection module
+
+        Returns:
+            bridge.atomgroup: 
+        """
+        # logger.debug('_get_atomgroup(): brd_path={}, select={}'.format(brd_file_path, brd_select))
+
+        if use_regex:
+            selecter = bridge.Select_PathRegex(brd_select)
+        else:
+            selecter = bridge.Select_Path_wildcard(brd_select)
+        answer = ref_atomgroup.select(selecter)
+
+        return answer
+
 
 if __name__ == '__main__':
-    #import sys,os
+    # import sys,os
     # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     import doctest

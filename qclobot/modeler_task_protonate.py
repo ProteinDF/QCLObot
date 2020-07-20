@@ -5,7 +5,8 @@ import os
 
 import proteindf_bridge as bridge
 
-from .taskobject import TaskObject
+from .modeler_task_object import ModelerTaskObject
+# from .taskobject import TaskObject
 from .process import Process
 from .utils import check_format_model
 
@@ -13,7 +14,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class QcProtonate(TaskObject):
+class QcProtonate(ModelerTaskObject):
     ''' execute protonate
 
     >>> tmp_pdb = bridge.Pdb('./data/sample/1AKG.pdb')
@@ -26,16 +27,14 @@ class QcProtonate(TaskObject):
     >>> p.protonate_group()
     '''
 
-    def __init__(self, name, backend='reduce'):
+    def __init__(self, parent, task):
         """ initialize protonate object
 
         :param str pdbfile: pdb file for protonation
         """
         # initialize base object
-        super(QcProtonate, self).__init__(name=name)
+        super(QcProtonate, self).__init__(parent, task)
 
-        # backend
-        self._data['backend'] = str(backend)
         self._AMBERHOME = os.environ.get('AMBERHOME', '')
         self._check_AMBERHOME()
 
@@ -46,10 +45,12 @@ class QcProtonate(TaskObject):
     ####################################################################
     # property
     ####################################################################
-    # backend ----------------------------------------------------------
 
+    # backend ----------------------------------------------------------
     def _get_backend(self):
-        return self._data.get("backend")
+        if 'backend' not in self._data:
+            self._data['backend'] = 'reduce'
+        return self._data.get('backend')
     backend = property(_get_backend)
 
     # model_name -------------------------------------------------------

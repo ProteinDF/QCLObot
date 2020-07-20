@@ -19,36 +19,48 @@
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
+
 class QcError(Exception):
     """
     Base class for QCLO module
     """
-    def __init__(self, errmsg =""):
+
+    def __init__(self, errmsg=""):
         self.errmsg = errmsg
-    
+
     def __str__(self):
         return "QCLObot error: {}".format(self.errmsg)
+
 
 class QcControlError(QcError):
     """
     Exception raised for errors in the control input.
 
     Attributes:
-        expr -- input expression in which the error occurred
-        msg  -- explanation of the error
+        expr (str): input expression in which the error occurred
+        msg (str): explanation of the error
     """
+
     def __init__(self, expr, msg):
         self.errmsg = "Input Error: {} ({})".format(msg, str(expr))
+
 
 class QcScriptRunningError(QcError):
     """
     Exception raised for errors to run script.
 
     Attributes:
-        cmd_name -- command name
-        err_msg  -- error message on running
+        cmd_name (str, list): command name
+        err_msg (str): error message on running
     """
+
     def __init__(self, cmd_name, err_msg):
         if isinstance(cmd_name, list):
             cmd_name = ' '.join(cmd_name)
-        self.errmsg = 'The following script could not run: "{}"\nerr_msg:{}'.format(cmd_name, err_msg)
+        self.errmsg = 'The following script could not run: "{}"\nerr_msg:{}'.format(
+            cmd_name, err_msg)
+
+
+class QcTaskError(QcError):
+    def __inti__(self, expr, msg):
+        self.errmsg = "Input Error: {} ({})".format(msg, str(expr))
