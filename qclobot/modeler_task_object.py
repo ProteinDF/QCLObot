@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import pprint
-
 import proteindf_bridge as bridge
 
 from .taskobject import TaskObject
-from .utils import check_format_model_list, check_format_model, file2atomgroup
+from .utils import atomgroup2file, check_format_model_list, check_format_model, file2atomgroup
 
 import logging
 logger = logging.getLogger(__name__)
@@ -38,8 +35,9 @@ class ModelerTaskObject(TaskObject):
         # print("<<<<")
         self.model = self._get_input_model(self._data)
 
-    def __del__(self):
+    def finalize(self):
         self._write_output_model()
+        super().finalize()
 
     # -------------------------------------------------------------------------
     # model (input atomgroup)
@@ -114,40 +112,29 @@ class ModelerTaskObject(TaskObject):
             self._atomgroup2file(self.output_model, output_path)
 
     def _atomgroup2file(self, atomgroup, output_path):
-        '''output_pathの拡張子に応じて、bridge形式またはpdb形式でatomgroupをファイルに書き出す
-        '''
-        assert(isinstance(atomgroup, bridge.AtomGroup))
+        atomgroup2file(atomgroup, output_path)
 
-        abspath = os.path.abspath(output_path)
-        (basename, ext) = os.path.splitext(abspath)
-        ext = ext.lower()
-        if ext in (".pdb", ".ent"):
-            self._atomgroup2pdb(atomgroup, abspath)
-        else:
-            logger.info("save {path} as bridge file.".format(path=abspath))
-            bridge.save_msgpack(atomgroup.get_raw_data(), abspath)
+    # def _atomgroup2pdb(self, atomgroup, pdbfile,
+    #                    model_name="model_1"):
+    #     '''atomgroupをpdb形式で出力する
 
-    def _atomgroup2pdb(self, atomgroup, pdbfile,
-                       model_name="model_1"):
-        '''atomgroupをpdb形式で出力する
+    #     atomgroupがmodels(複数のmodelで構成されている)の場合はそのまま出力する。
+    #     atomgroupがmodelの場合は、model_nameを付加して出力する。
+    #     '''
+    #     assert(isinstance(pdbfile, str))
 
-        atomgroupがmodels(複数のmodelで構成されている)の場合はそのまま出力する。
-        atomgroupがmodelの場合は、model_nameを付加して出力する。
-        '''
-        assert(isinstance(pdbfile, str))
+    #     pdb = bridge.Pdb(mode='amber')
 
-        pdb = bridge.Pdb(mode='amber')
+    #     protein = atomgroup
+    #     if check_format_model(atomgroup):
+    #         # transform MODEL object to the protein(models)
+    #         # which has only one model.
+    #         protein = bridge.AtomGroup()
+    #         protein.set_group(model_name, atomgroup)
 
-        protein = atomgroup
-        if check_format_model(atomgroup):
-            # transform MODEL object to the protein(models)
-            # which has only one model.
-            protein = bridge.AtomGroup()
-            protein.set_group(model_name, atomgroup)
-
-        pdb.set_by_atomgroup(protein)
-        with open(pdbfile, 'w') as f:
-            f.write(str(pdb))
+    #     pdb.set_by_atomgroup(protein)
+    #     with open(pdbfile, 'w') as f:
+    #         f.write(str(pdb))
 
     # output_model -----------------------------------------------------
     def _get_output_model(self):

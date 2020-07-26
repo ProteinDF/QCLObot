@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+# import os
 import copy
-import pprint
-import jinja2
+# import pprint
+# import jinja2
 
-import proteindf_bridge as bridge
+# import proteindf_bridge as bridge
 
 from . import __version__
 from .modeler_task_edit import ModelerEdit
 from .qccontrolobject import QcControlObject
 from .modeler_task_protonate import QcProtonate
+from .modeler_task_complement import ModelerTaskComplement
 from .qcneutralize import QcNeutralize
 from .amberobject import AmberObject
 from .utils import (file2atomgroup,
@@ -36,7 +37,7 @@ class QcModeler(QcControlObject):
     def _run_task_cmd(self, task):
         task = copy.deepcopy(task)
         # pprint.pprint(task)
-        #name = task.pop("name")
+        # name = task.pop("name")
         task_name = task.get("name")
         # print("name:", name)
 
@@ -46,8 +47,9 @@ class QcModeler(QcControlObject):
         elif "protonate" in task.keys():
             self.global_tasks[task_name] = self._run_protonate(task)
         elif "neutralize" in task.keys():
-            self.global_tasks[task_name] = self._run_neutralize(
-                task_name, task['neutralize'])
+            self.global_tasks[task_name] = self._run_neutralize(task)
+        elif "complement" in task.keys():
+            self.global_tasks[task_name] = self._run_complement(task)
         elif "opt" in task.keys():
             self.global_tasks[task_name] = self._run_opt(
                 task_name, task['opt'])
@@ -61,35 +63,36 @@ class QcModeler(QcControlObject):
         logger.info("run edit")
         modeler_edit = ModelerEdit(self, task)
         modeler_edit.run()
+        modeler_edit.finalize()
 
         return modeler_edit
 
     def _run_protonate(self, task):
         logger.info("run protonate")
 
-        prot_obj = QcProtonate(self, task)
-        prot_obj.run()
+        modeler_protonate = QcProtonate(self, task)
+        modeler_protonate.run()
+        modeler_protonate.finalize()
 
-        return prot_obj
+        return modeler_protonate
 
-    def _run_neutralize(self, name, args):
+    def _run_neutralize(self, task):
         logger.info("run neutralize")
-        assert(isinstance(name, str))
-        assert(isinstance(args, dict))
 
-        neutralize_obj = QcNeutralize(name=name)
+        modeler_neutralize = QcNeutralize(self, task)
+        modeler_neutralize.run()
+        modeler_neutralize.finalize()
 
-        input_model = self._get_input_model(args)
-        neutralize_obj.model = input_model
+        return modeler_neutralize
 
-        neutralize_obj.run()
-        assert(check_format_model(neutralize_obj.output_model))
+    def _run_complement(self, task):
+        logger.info("run complement")
 
-        dest = args.get("dest", None)
-        if dest:
-            neutralize_obj.write_output_model(dest)
+        modeler_task_complement = ModelerTaskComplement(self, task)
+        modeler_task_complement.run()
+        modeler_task_complement.finalize()
 
-        return neutralize_obj
+        return modeler_task_complement
 
     def _run_opt(self, name, args):
         logger.info("run opt")
@@ -165,7 +168,7 @@ class QcModeler(QcControlObject):
             answer = ref_task.output_model
         elif "src" in args:
             src = args.get("src", None)
-            if src == None:
+            if src is None:
                 logger.critical('not found "src"')
                 raise
             atomgroup = file2atomgroup(src)

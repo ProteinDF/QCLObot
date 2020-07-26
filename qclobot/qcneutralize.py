@@ -1,33 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+import proteindf_bridge as bridge
+
+from .modeler_task_object import ModelerTaskObject
 
 import logging
 logger = logging.getLogger(__name__)
 
-import proteindf_bridge as bridge
-from .taskobject import TaskObject
 
-class QcNeutralize(TaskObject):
+class QcNeutralize(ModelerTaskObject):
     ''' neutralize protein
     '''
-    def __init__(self, *args, **kwargs):
-        super(QcNeutralize, self).__init__(*args, **kwargs)
+
+    def __init__(self, parent, task):
+        super(QcNeutralize, self).__init__(parent, task)
 
     # ==================================================================
     # properties
     # ==================================================================
-    def _get_input_pdb_filepath(self):
-        path = self._data.get('input_pdb_filepath', 'input.pdb')
-        return path
-    input_pdb_filepath = property(_get_input_pdb_filepath)
+    # def _get_input_pdb_filepath(self):
+    #     path = self._data.get('input_pdb_filepath', 'input.pdb')
+    #     return path
+    # input_pdb_filepath = property(_get_input_pdb_filepath)
 
-
-    def _get_output_pdb_filepath(self):
-        path = self._data.get('output_pdb_filepath', 'output.pdb')
-        return path
-    output_pdb_filepath = property(_get_output_pdb_filepath)
+    # def _get_output_pdb_filepath(self):
+    #     path = self._data.get('output_pdb_filepath', 'output.pdb')
+    #     return path
+    # output_pdb_filepath = property(_get_output_pdb_filepath)
 
     # ==================================================================
     # method
@@ -38,13 +38,12 @@ class QcNeutralize(TaskObject):
 
         return self
 
-
     def _neutralize(self, model):
         ip = bridge.IonPair(model)
         ionpairs = ip.get_ion_pairs()
 
         # 処理しやすいように並べ替え
-        exempt_list = [] # 免除リスト
+        exempt_list = []  # 免除リスト
         for (anion_path, cation_path, anion_type, cation_type) in ionpairs:
             (anion_chain_name, anion_res_name) = bridge.AtomGroup.divide_path(anion_path)
             (cation_chain_name, cation_res_name) = bridge.AtomGroup.divide_path(cation_path)
@@ -100,9 +99,7 @@ class QcNeutralize(TaskObject):
                     else:
                         logger.info('exempt adding ion: {}/{} LYS'.format(chain_name, resname))
                 elif resname == 'ARG':
-                    if (((chain_name, resid, 'ARG') not in exempt_list) and
-                        ((chain_name, resid, 'ARG1') not in exempt_list) and
-                        ((chain_name, resid, 'ARG2') not in exempt_list)):
+                    if (((chain_name, resid, 'ARG') not in exempt_list) and ((chain_name, resid, 'ARG1') not in exempt_list) and ((chain_name, resid, 'ARG2') not in exempt_list)):
                         ag = modeling.neutralize_ARG(res)
                         logger.info("add ion for ARG({}): {}".format(resid, ag))
                         self._add_ions(res, ag)
@@ -115,7 +112,6 @@ class QcNeutralize(TaskObject):
                     self._add_ions(res, ag)
 
         return output_model
-
 
     def _add_ions(self, atomgroup, ions):
         assert isinstance(atomgroup, bridge.AtomGroup)
@@ -132,7 +128,6 @@ class QcNeutralize(TaskObject):
                     break
                 count += 1
             atomgroup.set_atom(new_name, atom)
-
 
     def _reorder_ions_for_amber(self, model):
         logger.info("reorder ions: start")

@@ -9,6 +9,56 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def atomgroup2file(atomgroup, output_path):
+    """save atomgroup object
+
+    Exporting the AtomGroup object to a file as bridge or PDB format,
+    depending on the suffix of output_path.
+
+    Args:
+        atomgroup (AtomGroup): AtomGroup object to save
+        output_path (str): path
+    """
+    assert(isinstance(atomgroup, bridge.AtomGroup))
+
+    abspath = os.path.abspath(output_path)
+    (basename, ext) = os.path.splitext(abspath)
+    ext = ext.lower()
+    if ext in (".pdb", ".ent"):
+        atomgroup2pdb(atomgroup, abspath)
+    else:
+        logger.info("save {path} as bridge file.".format(path=abspath))
+        bridge.save_msgpack(atomgroup.get_raw_data(), abspath)
+
+
+def atomgroup2pdb(atomgroup, output_path, model_name="model_1", mode="amber"):
+    """atomgroupをpdb形式で出力する
+
+    atomgroupがmodels(複数のmodelで構成されている)の場合はそのまま出力する。
+    atomgroupがmodelの場合は、model_nameを付加して出力する。
+
+    Args:
+        atomgroup (AtomGroup): AtomGroup object to save
+        output_path (str): PDB file path
+        model_name (str): default MODEL name in the PDB
+        mode (str): mode for bridge.Pdb parameter
+    """
+    assert(isinstance(output_path, str))
+
+    pdb = bridge.Pdb(mode=mode)
+
+    protein = atomgroup
+    if check_format_model(atomgroup):
+        # transform MODEL object to the protein(models)
+        # which has only one model.
+        protein = bridge.AtomGroup()
+        protein.set_group(model_name, atomgroup)
+
+    pdb.set_by_atomgroup(protein)
+    with open(output_path, 'w') as f:
+        f.write(str(pdb))
+
+
 def file2atomgroup(input_path):
     assert(isinstance(input_path, str))
     atomgroup = None
@@ -29,13 +79,20 @@ def file2atomgroup(input_path):
 
 
 def get_model(models):
+    """return the first model from the input models
+
+    Args:
+        models (AtomGroup): models
+
+    Returns:
+        [AtomGroup]: the first model
+    """
     assert(check_format_model_list(models))
 
     model = None
     if models.get_number_of_groups() > 0:
         model_ids = models.get_group_list()
         model = models.get_group(model_ids.pop())
-
     else:
         logger.critical("not found any model.")
         raise

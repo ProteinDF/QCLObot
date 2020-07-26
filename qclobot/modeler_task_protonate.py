@@ -6,9 +6,7 @@ import os
 import proteindf_bridge as bridge
 
 from .modeler_task_object import ModelerTaskObject
-# from .taskobject import TaskObject
 from .process import Process
-from .utils import check_format_model
 
 import logging
 logger = logging.getLogger(__name__)
@@ -32,8 +30,7 @@ class QcProtonate(ModelerTaskObject):
 
         :param str pdbfile: pdb file for protonation
         """
-        # initialize base object
-        super(QcProtonate, self).__init__(parent, task)
+        super().__init__(parent, task)
 
         self._AMBERHOME = os.environ.get('AMBERHOME', '')
         self._check_AMBERHOME()
@@ -80,12 +77,12 @@ class QcProtonate(ModelerTaskObject):
             # pickup first model as result
             self.output_model = output_atomgroup.get_group(self.model_name)
 
-            if len(output_path) > 0:
-                output_path = os.path.join(self.work_dir, output_path)
-                logger.info("output protonated file: {}".format(output_path))
-                protein = bridge.AtomGroup()
-                protein.set_group("model_1", self.output_model)
-                self.atomgroup2file(protein, output_path)
+            # if len(output_path) > 0:
+            #     output_path = os.path.join(self.work_dir, output_path)
+            #     logger.info("output protonated file: {}".format(output_path))
+            #     protein = bridge.AtomGroup()
+            #     protein.set_group("model_1", self.output_model)
+            #     self.atomgroup2file(protein, output_path)
 
         self.restore_cwd()
         return return_code

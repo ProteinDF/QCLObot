@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
 import os
+import shutil
 
-from .utils import get_model, check_format_model, find_max_chain_id, remove_WAT
+from .utils import atomgroup2file, file2atomgroup, get_model, check_format_model, find_max_chain_id, remove_WAT
 from .process import Process
 from .mdobject import MdObject
 
@@ -35,13 +35,13 @@ class AmberObject(MdObject):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        super(AmberObject, self).__init__(*args, **kwargs)
+    def __init__(self, model, work_dir):
+        super().__init__(model, work_dir)
 
     def _initialize(self):
         ''' initialize object
         '''
-        super(AmberObject, self)._initialize()  # called from the parents class
+        super()._initialize()  # called from the parents class
 
         self._AMBERHOME = os.environ.get('AMBERHOME', '')
         if len(self._AMBERHOME) == 0:
@@ -52,15 +52,26 @@ class AmberObject(MdObject):
                                       'leaprc.gaff']
         self._data['leap_amberparams'] = []
 
+        # default values
+        self._is_save_amberparam = True
+
     # ==================================================================
     # properties
     # ==================================================================
+    def _get_is_save_amberparam(self):
+        return self._is_save_amberparam
+
+    def _set_is_save_amberparam(self, yn):
+        self._is_save_amberparam = bool(yn)
+    is_save_amberparam = property(_get_is_save_amberparam,
+                                  _set_is_save_amberparam)
+
     # solvation
     # def _get_is_solvation(self):
     #    return self._data.get('is_solvation', False)
     # def _set_is_solvation(self, yn):
     #    self._data['is_solvation'] = bool(yn)
-    #is_solvation = property(_get_is_solvation, _set_is_solvation)
+    # is_solvation = property(_get_is_solvation, _set_is_solvation)
 
     def _get_solvation_method(self):
         return self._data.get("solvation_method", None)
@@ -130,12 +141,10 @@ class AmberObject(MdObject):
         return self._data['leap_amberparams']
     leap_amberparams = property(_get_leap_amberparams)
 
-    def _get_leap_input_pdb_filepath(self):
-        path = self._data.get('leap_input_pdb_filepath', 'leap_input.pdb')
-        return path
-    leap_input_pdb_filepath = property(_get_leap_input_pdb_filepath)
-
-    # for this task
+    # def _get_leap_input_pdb_filepath(self):
+    #     self._data.setdefault('leap_input_pdb_filepath', 'leap_input.pdb')
+    #     return self._data['leap_input_pdb_filepath']
+    # leap_input_pdb_filepath = property(_get_leap_input_pdb_filepath)
 
     def _get_input_pdb_filepath(self):
         path = self._data.get('input_pdb_filepath', 'input.pdb')
@@ -198,8 +207,35 @@ class AmberObject(MdObject):
     final_pdb_filepath = property(_get_final_pdb_filepath)
 
     # ==================================================================
+    # complement
+    # ==================================================================
+    def complement(self):
+        """complement protein model
+        """
+        self._save_input_pdb(self.model)
+
+        self.is_save_amberparam = False
+        self._prepare_leapin(input_pdb_filepath=self.input_pdb_filepath,
+                             initial_pdb_filepath=self.initial_pdb_filepath)
+
+        answer = self._do_leap()
+        self._make_matching_table(self.initial_pdb_filepath)
+
+        shutil.copyfile(self.initial_pdb_filepath,
+                        self.final_pdb_filepath)
+
+        models = file2atomgroup(self.initial_pdb_filepath)
+        model = get_model(models)
+
+        model2 = self._rename_amb2orig(model)
+        self.output_model = model2
+
+        return answer
+
+    # ==================================================================
     # optimization
     # ==================================================================
+
     def opt(self):
         model = bridge.AtomGroup(self.model)
         self._save_input_pdb(model)
@@ -253,33 +289,36 @@ class AmberObject(MdObject):
         """
         入力ファイルを保存する
         """
-        self.cd_workdir("debug input pdb file")
+        atomgroup2file(model, self.input_pdb_filepath)
 
-        models = bridge.AtomGroup()
-        models.set_group('model_1', model)
-        pdb = bridge.Pdb(mode="amber")
-        pdb.set_by_atomgroup(models)
+        # self.cd_workdir("debug input pdb file")
 
-        with open(self.input_pdb_filepath, "w") as f:
-            f.write(str(pdb))
+        # models = bridge.AtomGroup()
+        # models.set_group('model_1', model)
+        # pdb = bridge.Pdb(mode="amber")
+        # pdb.set_by_atomgroup(models)
 
-        self.restore_cwd()
+        # with open(self.input_pdb_filepath, "w") as f:
+        #     f.write(str(pdb))
 
-    def _save_leap_input_pdb(self, model):
-        """
-        leapで処理する前のmodelをpdb形式で保存する
-        """
-        self.cd_workdir("prepare input pdb file")
+        # self.restore_cwd()
 
-        models = bridge.AtomGroup()
-        models.set_group('model_1', model)
-        pdb = bridge.Pdb(mode="amber")
-        pdb.set_by_atomgroup(models)
+    # def _save_leap_input_pdb(self, model):
+    #     """
+    #     leapで処理する前のmodelをpdb形式で保存する
+    #     """
+    #     atomgroup2file(model, self.leap_input_pdb_filepath)
+        # self.cd_workdir("prepare input pdb file")
 
-        with open(self.leap_input_pdb_filepath, "w") as f:
-            f.write(str(pdb))
+        # models = bridge.AtomGroup()
+        # models.set_group('model_1', model)
+        # pdb = bridge.Pdb(mode="amber")
+        # pdb.set_by_atomgroup(models)
 
-        self.restore_cwd()
+        # with open(self.leap_input_pdb_filepath, "w") as f:
+        #     f.write(str(pdb))
+
+        # self.restore_cwd()
 
     def _reform_model_for_belly(self, model):
         chain_prefix = chr(ord("A") - 1)
@@ -360,7 +399,7 @@ class AmberObject(MdObject):
         self._prepare_leapin()
         self._do_leap()
 
-        #self.set_param("imin", 0)
+        # self.set_param("imin", 0)
         self.set_param("irest", 0)
 
         self.set_param("ntpr", 5000)
@@ -391,10 +430,17 @@ class AmberObject(MdObject):
     # leap setting
     # ==================================================================
 
-    def _prepare_leapin(self):
+    def _prepare_leapin(self,
+                        input_pdb_filepath=None,
+                        initial_pdb_filepath=None):
         """make input file for xleap command
         """
-        self.cd_workdir("prepare leapin")
+        if input_pdb_filepath is None:
+            input_pdb_filepath = self.input_pdb_filepath
+        if initial_pdb_filepath is None:
+            initial_pdb_filepath = self.initial_pdb_filepath
+
+        # self.cd_workdir("prepare leapin")
 
         leapin_contents = ''
         leapin_contents += 'logFile {logfile_filepath}\n'.format(
@@ -402,21 +448,23 @@ class AmberObject(MdObject):
         leapin_contents += self.__get_leap_source_lines()
         leapin_contents += self.__get_leap_amberparams_lines()
         leapin_contents += 'protein = loadPdb {pdb_file}\n'.format(
-            pdb_file=self.leap_input_pdb_filepath)
+            pdb_file=self.input_pdb_filepath)
         leapin_contents += 'proteinBox = copy protein\n'
         leapin_contents += self.__get_leap_ssbond_lines()
         leapin_contents += self.__get_solvation(solute='proteinBox')
-        leapin_contents += 'saveAmberParm proteinBox {prmtop} {inpcrd}\n'.format(prmtop=self.prmtop_filepath,
-                                                                                 inpcrd=self.inpcrd_filepath)
-        leapin_contents += 'savePdb proteinBox {pdb_file}\n'.format(
-            pdb_file=self.initial_pdb_filepath)
+
+        if self.is_save_amberparam:
+            leapin_contents += 'saveAmberParm proteinBox {prmtop} {inpcrd}\n'.format(prmtop=self.prmtop_filepath,
+                                                                                     inpcrd=self.inpcrd_filepath)
+        leapin_contents += 'savePdb proteinBox {pdb_filepath}\n'.format(
+            pdb_filepath=initial_pdb_filepath)
         leapin_contents += 'quit\n'
 
         logger.debug('save leap inputfile: {}'.format(self.leapin_filepath))
         with open(self.leapin_filepath, 'w') as f:
             f.write(leapin_contents)
 
-        self.restore_cwd()
+        # self.restore_cwd()
 
     def __get_leap_source_lines(self):
         """return source command lines for leap.in
@@ -447,7 +495,7 @@ class AmberObject(MdObject):
         """
         answer = ''
 
-        if self.solvation_method != None:
+        if self.solvation_method is not None:
             if self.solvation_method == 'cap':
                 center = self.model.center()
                 cap_center = "{{ {x:.3f} {y:.3f} {z:.3f} }}".format(x=center.x,
@@ -489,7 +537,7 @@ class AmberObject(MdObject):
     # do leap
     # ==================================================================
     def _do_leap(self):
-        self.cd_workdir("do leap")
+        # elf.cd_workdir("do leap")
 
         p = Process()
         leap_cmd = os.path.join(self._AMBERHOME, 'bin', 'tleap')
@@ -499,7 +547,7 @@ class AmberObject(MdObject):
         return_code = p.commit(stdout_through=False,
                                stderr_through=False)
 
-        self.restore_cwd()
+        # self.restore_cwd()
         return return_code
 
     # ==================================================================
@@ -509,15 +557,15 @@ class AmberObject(MdObject):
                       opt=True):
         self.cd_workdir("prepare md inputfile")
 
-        imin = 1 if opt else 0
-        basic_input_options = "imin={imin}".format(
-            imin=imin
-        )
+        # imin = 1 if opt else 0
+        # basic_input_options = "imin={imin}".format(
+        #     imin=imin
+        # )
 
-        ntx = 1
-        format_of_input = "ntx={ntx}".format(
-            ntx=ntx
-        )
+        # ntx = 1
+        # format_of_input = "ntx={ntx}".format(
+        #     ntx=ntx
+        # )
 
         minimization_contents = ""
         lmod_contents = ""
@@ -576,24 +624,24 @@ class AmberObject(MdObject):
         if self.use_belly:
             pdb = bridge.Pdb()
             pdb.load(self.initial_pdb_filepath)
-            initial_model = get_model(pdb.get_atomgroup())
+            # initial_model = get_model(pdb.get_atomgroup())
             # print("initial model: #atoms=", initial_model.get_number_of_all_atoms())
-            #print("model: ", self.model.get_number_of_all_atoms())
-            #print("BM ions", self.bellymask_ions)
-            #assert(initial_model.get_number_of_all_atoms() == self.model.get_number_of_all_atoms())
+            # print("model: ", self.model.get_number_of_all_atoms())
+            # print("BM ions", self.bellymask_ions)
+            # assert(initial_model.get_number_of_all_atoms() == self.model.get_number_of_all_atoms())
 
             belly_maskstr = ""
             if self.bellymask_WAT:
-                #wat_resid = self._get_wat_resid(initial_model)
+                # wat_resid = self._get_wat_resid(initial_model)
                 if len(belly_maskstr) > 0:
                     belly_maskstr += " | "
-                #belly_maskstr += self._make_maskstr(resid_areas = wat_resid)
+                # belly_maskstr += self._make_maskstr(resid_areas = wat_resid)
                 belly_maskstr += ":WAT"
             if self.bellymask_ions:
-                ion_resid = self._get_ion_resid(initial_model)
+                # ion_resid = self._get_ion_resid(initial_model)
                 if len(belly_maskstr) > 0:
                     belly_maskstr += " | "
-                #belly_maskstr += self._make_maskstr(resid_areas = ion_resid)
+                # belly_maskstr += self._make_maskstr(resid_areas = ion_resid)
                 belly_maskstr += ":Na+,Cl-"
             belly_contents = "ibelly=1, bellymask='{belly_maskstr}'"
             belly_contents = belly_contents.format(belly_maskstr=belly_maskstr)
@@ -719,12 +767,12 @@ class AmberObject(MdObject):
                 logger.debug("amb: {amb_chain_id}/{amb_res_id} -> new: {orig_chain_id}/{orig_res_id}".format(
                     amb_chain_id=amb_chain_id, amb_res_id=amb_res_id, orig_chain_id=orig_chain_id, orig_res_id=orig_res_id))
 
-                if (orig_chain_id == None) or (orig_res_id == None):
+                if (orig_chain_id is None) or (orig_res_id is None):
                     # logger.warning("Not found amber ID: {}/{}".format(amb_chain_id, amb_res_id))
                     orig_chain_id = next_chain_id
                     orig_res_id = amb_res_id
 
-                if answer.has_groupkey(orig_chain_id) != True:
+                if answer.has_groupkey(orig_chain_id) is not True:
                     orig_chain = bridge.AtomGroup(name=amb_chain.name)
                     answer.set_group(orig_chain_id, orig_chain)
                 answer[orig_chain_id].set_group(orig_res_id, amb_res)
@@ -734,7 +782,7 @@ class AmberObject(MdObject):
     # ==================================================================
     # make matching table
     # ==================================================================
-    def _make_matching_table(self):
+    def _make_matching_table(self, initial_pdb_filepath=None):
         """
         make matching table between original and leap model.
 
@@ -743,10 +791,14 @@ class AmberObject(MdObject):
 
         TODO: time-consuming routine!
         """
-        self.cd_workdir("match models")
+        if initial_pdb_filepath is None:
+            initial_pdb_filepath = self.initial_pdb_filepath
+
+        logger.info("begin: make matching table")
+        # self.cd_workdir("match models")
 
         # make model_amber
-        amb_pdb = bridge.Pdb(self.initial_pdb_filepath)
+        amb_pdb = bridge.Pdb(initial_pdb_filepath)
         amb_models = amb_pdb.get_atomgroup()
         amb_model = get_model(amb_models)
         assert(check_format_model(amb_model))
@@ -770,8 +822,12 @@ class AmberObject(MdObject):
             assert(isinstance(atom, bridge.Atom))
 
             NEAR_DISTANCE = 0.1
-            symbol_selector = bridge.Select_Atom(atom.symbol)
+            symbol_selector = bridge.Select_Symbol(atom.symbol)
             range_selector = bridge.Select_Range(atom.xyz, NEAR_DISTANCE)
+
+            # selection1 = model.select(symbol_selector)
+            # print(atom.symbol, str(selection1))
+
             selection = model.select(symbol_selector).select(range_selector)
             path_list = selection.get_path_list()
 
@@ -782,6 +838,7 @@ class AmberObject(MdObject):
             return answer
 
         # make original table
+        print(self.model)
         self._data.setdefault("amber_chain_res_table", {})
         for chain_id, chain in amb_model.groups():
             for res_id, res in chain.groups():
@@ -789,7 +846,8 @@ class AmberObject(MdObject):
                     amb_path = atom.path
                     orig_path = find_atom_path(self.model, atom)
 
-                    if orig_path == None:
+                    print("{} <-> {}".format(amb_path, orig_path))
+                    if orig_path is None:
                         pass
                     else:
                         (orig_chain_id, orig_resid,
@@ -801,7 +859,8 @@ class AmberObject(MdObject):
 
         self._show_amber_chain_res_match_table()
 
-        self.restore_cwd()
+        # self.restore_cwd()
+        logger.info("end: make matching table")
         return 0
 
     def _set_chainres_match_table(self,
@@ -821,7 +880,7 @@ class AmberObject(MdObject):
         chain = None
         res = None
         value = self._data["amber_chain_res_table"].get(key, None)
-        if value == None:
+        if value is None:
             resid_only_key = "*:{}".format(amb_res)
             value = self._data["amber_chain_res_table"].get(
                 resid_only_key, None)
@@ -845,8 +904,8 @@ class AmberObject(MdObject):
     # ==================================================================
 
     def _get_wat_resid(self, model):
-        start = -1
-        end = -1
+        # start = -1
+        # end = -1
 
         select_WAT = bridge.Select_Name('WAT')
         WATs = model.select(select_WAT)
@@ -854,10 +913,10 @@ class AmberObject(MdObject):
         return self._get_ambermask_res_list(WATs)
 
     def _get_ion_resid(self, model):
-        start = -1
-        end = -1
+        # start = -1
+        # end = -1
 
-        areas = []
+        # areas = []
         select_Na = bridge.Select_Name("Na+")
         select_Cl = bridge.Select_Name("Cl-")
         model_Na = model.select(select_Na)

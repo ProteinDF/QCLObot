@@ -65,8 +65,8 @@ class TaskObject(object):
         # directory
         self._prepare_work_dir()
 
-    def __del__(self):
-        self.save()
+    # def __del__(self):
+    #     self.finalize()
 
     def _initialize(self):
         self._data = {}
@@ -80,6 +80,9 @@ class TaskObject(object):
         assert(isinstance(rhs, TaskObject))
         self._data = copy.deepcopy(rhs._data)
 
+    def finalize(self):
+        self.save()
+
     # ------------------------------------------------------------------
     # Properties
     # ------------------------------------------------------------------
@@ -89,7 +92,6 @@ class TaskObject(object):
     name = property(_get_name)
 
     # work_dir ---------------------------------------------------------
-
     def _get_work_dir(self):
         """get working directory
 

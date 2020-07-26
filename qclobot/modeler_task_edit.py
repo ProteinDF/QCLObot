@@ -15,10 +15,8 @@ logger = logging.getLogger(__name__)
 
 class ModelerEdit(ModelerTaskObject):
     def __init__(self, parent, task):
-        super(ModelerEdit, self).__init__(parent, task)
-
+        super().__init__(parent, task)
         assert('edit' in task.keys())
-        # self._data['edit'] = copy.deepcopy(task['edit'])
 
     # ==================================================================
     # method
