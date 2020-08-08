@@ -20,6 +20,7 @@ import shlex
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
+sys.path.append(os.path.abspath('exts'))
 
 # -- General configuration ------------------------------------------------
 
@@ -29,7 +30,15 @@ import shlex
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.githubpages']
+extensions = [
+  'sphinx.ext.autodoc',
+  'sphinx.ext.githubpages',
+  'sphinx.ext.mathjax',
+  'sphinx.ext.todo',
+  'sphinx.ext.viewcode',
+  'numfig',
+  ]
+
 sys.path.append(os.path.abspath('../..'))
 # sys.path.append(os.path.abspath('../../../ProteinDF_bridge/'))
 # sys.path.append(os.path.abspath('../../../ProteinDF_pytools/'))
@@ -53,7 +62,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'QCLObot tutorial'
+project = u'QCLObot User\'s Manual'
 copyright = u'2014-2020, Toshiyuki HIRANO'
 author = u'Toshiyuki HIRANO'
 
@@ -71,13 +80,13 @@ release = '2020.6.0'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
 #today = ''
 # Else, today_fmt is used as the format for a strftime call.
-#today_fmt = '%B %d, %Y'
+today_fmt = '%B %d, %Y'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -209,7 +218,14 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'QCLObottutorialdoc'
+htmlhelp_basename = 'QCLObotusermanualdoc'
+
+html_context = {
+  'support_languages': {
+    'en': 'English',
+    'ja': '日本語',
+  }
+}
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -231,7 +247,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'QCLObottutorial.tex', u'QCLObot tutorial Documentation',
+  (master_doc, 'QCLObotusermanual.tex', u'QCLObot user manual Documentation',
    u'Toshiyuki HIRANO', 'manual'),
 ]
 
@@ -261,7 +277,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'qclobottutorial', u'QCLObot tutorial Documentation',
+    (master_doc, 'qclobotusermanual', u'QCLObot user manual Documentation',
      [author], 1)
 ]
 
@@ -292,6 +308,25 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
 
-# for international ------------------------------------------------------------
-locale_dirs = ["locale/"]
-gettext_compact = False 
+# -- TODO ----------------------------------------------------------------------
+todo_include_todos = False
+
+# -- numfix --------------------------------------------------------------------
+number_figures = True
+figure_caption_prefix = "Fig."
+
+# common -----------------------------------------------------------------------
+blockdiag_antialias = True
+#seqdiag_fontpath = blockdiag_fontpath
+#seqdiag_antialias = True
+#nwdiag_fontpath = blockdiag_fontpath
+#nwdiag_antialias = True
+#actdiag_fontpath = blockdiag_fontpath
+#actdiag_antialias = True
+
+# Mac OSXでOsakaフォントを使う場合
+blockdiag_fontpath = '/Library/Fonts/Osaka.ttf'
+
+# sphinx-intl
+locale_dirs = ['locale/']
+gettext_compact = False

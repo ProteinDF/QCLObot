@@ -37,8 +37,7 @@ dist/*
 *.egg-info
 
 # for Sphinx
-_build/doctrees
-doc/_build/doctrees
+doc/_build/*
 
 # working directory for unit test 
 test_*/
