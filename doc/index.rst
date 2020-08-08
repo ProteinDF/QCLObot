@@ -18,6 +18,7 @@ Contents:
   90_API
   120_tutorial_modeling
   180_modeler_keyword
+  800_QCLO
 
 Indices and tables
 ==================
