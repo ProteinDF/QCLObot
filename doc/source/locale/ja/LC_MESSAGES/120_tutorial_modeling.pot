@@ -1,0 +1,53 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2014-2020, Toshiyuki HIRANO
+# This file is distributed under the same license as the QCLObot User's Manual package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: QCLObot User's Manual 2020.6.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-26 12:47+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../source/120_tutorial_modeling.rst:2
+msgid "Setting up modeling proteins"
+msgstr ""
+
+#: ../../source/120_tutorial_modeling.rst:5
+msgid "Prepare Applications"
+msgstr ""
+
+#: ../../source/120_tutorial_modeling.rst:7
+msgid "Before running QCLObot-modeler, AmberTools is required. Please set the environment variable, `AMBERHOME`."
+msgstr ""
+
+#: ../../source/120_tutorial_modeling.rst:12
+msgid "Prepare Oxytocin model"
+msgstr ""
+
+#: ../../source/120_tutorial_modeling.rst:14
+msgid "You can get Oxytocin model (2MGO.pdb) from PDB or :download:`here <_static/2MGO.pdb>`."
+msgstr ""
+
+#: ../../source/120_tutorial_modeling.rst:16
+msgid "Or you save the following text as 2MGO.pdb."
+msgstr ""
+
+#: ../../source/120_tutorial_modeling.rst:23
+msgid "Create input file for QCLObot-modeler"
+msgstr ""
+
+#: ../../source/120_tutorial_modeling.rst:25
+msgid "You save the following text as :download:`2MGO_modeling.yaml <_static/2MGO_modeling.yaml>`."
+msgstr ""
+
+#: ../../source/120_tutorial_modeling.rst:32
+msgid "Run QCLObot-modeler"
+msgstr ""

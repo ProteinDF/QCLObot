@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2015, Toshiyuki HIRANO
-# This file is distributed under the same license as the QCLObot tutorial package.
+# Copyright (C) 2014-2020, Toshiyuki HIRANO
+# This file is distributed under the same license as the QCLObot User's Manual package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: QCLObot tutorial 2015.0\n"
+"Project-Id-Version: QCLObot User's Manual 2020.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-16 00:50-0500\n"
+"POT-Creation-Date: 2020-08-26 12:47+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,27 +16,26 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../../index.rst:7
+#: ../../source/index.rst:7
 msgid "Welcome to QCLObot tutorial's documentation!"
 msgstr ""
 
-#: ../../index.rst:9
+#: ../../source/index.rst:9
 msgid "Contents:"
 msgstr ""
 
-#: ../../index.rst:20
+#: ../../source/index.rst:24
 msgid "Indices and tables"
 msgstr ""
 
-#: ../../index.rst:22
+#: ../../source/index.rst:26
 msgid ":ref:`genindex`"
 msgstr ""
 
-#: ../../index.rst:23
+#: ../../source/index.rst:27
 msgid ":ref:`modindex`"
 msgstr ""
 
-#: ../../index.rst:24
+#: ../../source/index.rst:28
 msgid ":ref:`search`"
 msgstr ""
-

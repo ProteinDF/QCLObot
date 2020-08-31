@@ -16,18 +16,15 @@ Upon execution of the QCLObot program, the ProteinDF program is obtained the ini
 and the all-electron canonical calculation by the ProteinDF program is performed, according to the calculation playbook.
 
 
-半自動計算法プログラム QCLObot
----------------------------
+automatic computation program based on the QCLO method QCLObot
+--------------------------------------------------------------
 
-タンパク質全電子自動計算法プログラムは、
-QCLO法またはRMO法を用いた収束過程支援のプログラムです。
-アミノ酸残基などの単位で局在化していますが、
-その中ではアミノ酸残基単体の軌道であるカノニカル軌道に近いQCLOやRMOを切り貼りすると、
-ペプチド鎖の分子軌道計算のよい初期値になります。
-ペプチド鎖の分子軌道計算結果から再度QCLOやRMOを求め、
-さらに大きなペプチド鎖の計算の初期値とし、
-これらのペプチド延長過程を繰り返して全電子計算を行う手法をタンパク質の全電子自動計算収束過程法と呼びます。
-これにより容易に機能性に富んだタンパク質の精密な量子化学計算を実行できるようになります。
+QCLObot is an automated calculation program to assist in the calculation of giant system canonical molecular orbitals; 
+QCLOs are localized orbitals that are localized in one region but are close to canonical molecular orbitals in that region. 
+By cutting and pasting subunit QCLOs, 
+we can obtain good initial values for molecular orbital calculations in larger regions. 
+The QCLO method is a method to calculate canonical molecular orbitals of large systems by repeating the process of expanding the computational domain by obtaining the QCLO again. 
+This method enables us to perform precise quantum chemical calculations of functionally rich proteins in an easy and safe manner.
 
 
 タンパク質全電子計算の収束過程
@@ -151,7 +148,7 @@ It has the ability to generate initial guess (LCAO) for the ProteinDF program.
 
 
 In the ProteinDF program, the Roothaan equation :math:`FC=SC\epsilon` is solved 
-by using the converting matrix :math:`X=U \cross s^{-1/2}`.
+by using the converting matrix :math:`X=U s^{-1/2}`.
 
 
 1. Convert the Khon-Sham matrix based on Atomic orbital (AO) basis to an orthogonalized basis

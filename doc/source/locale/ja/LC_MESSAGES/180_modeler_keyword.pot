@@ -1,0 +1,133 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2014-2020, Toshiyuki HIRANO
+# This file is distributed under the same license as the QCLObot User's Manual package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: QCLObot User's Manual 2020.6.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-26 12:47+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../source/180_modeler_keyword.rst:3
+msgid "explanation of QCLObot-modeler YAML File"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:5
+msgid "QCLObot-modeler playbook is separated by following two parts:"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:7
+#: ../../source/180_modeler_keyword.rst:16
+msgid "vars section"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:9
+msgid "definition of variables"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:11
+#: ../../source/180_modeler_keyword.rst:23
+msgid "tasks section"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:13
+msgid "definition of task for general and for frame molecule"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:18
+msgid "Declare the variable. The declared variables can be used with \"with_items\" and so on."
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:25
+msgid "The tasks section is consist of three parts:"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:27
+#: ../../source/180_modeler_keyword.rst:31
+msgid "protonate"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:33
+msgid "Protonate the molecule."
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:35
+msgid "src"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:37
+msgid "Specify the PDB file."
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:48
+msgid "neutralize"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:50
+msgid "Add ions to neutralize. Ignore ions on the ion-pairs."
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:62
+msgid "opt"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:64
+msgid "Do energy minimization simulation."
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:66
+#: ../../source/180_modeler_keyword.rst:100
+msgid "reference"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:68
+#: ../../source/180_modeler_keyword.rst:102
+msgid "Specify the task to be the input structure."
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:70
+#: ../../source/180_modeler_keyword.rst:109
+msgid "belly_mask:"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:72
+#: ../../source/180_modeler_keyword.rst:111
+msgid "(option)"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:74
+#: ../../source/180_modeler_keyword.rst:113
+msgid "Use the belly method. The force of a specified molecule is considered to be zero."
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:90
+msgid "md"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:92
+msgid "Run molecular dynamics simulation."
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:94
+msgid "name"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:96
+msgid "(mandatory) Give this task a name. A directory of this name is created. The task is executed in this directory."
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:104
+msgid "solvation:"
+msgstr ""
+
+#: ../../source/180_modeler_keyword.rst:106
+msgid "(option) Specify the solvation model."
+msgstr ""
