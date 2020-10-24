@@ -112,29 +112,7 @@ class ModelerTaskObject(TaskObject):
             self._atomgroup2file(self.output_model, output_path)
 
     def _atomgroup2file(self, atomgroup, output_path):
-        atomgroup2file(atomgroup, output_path)
-
-    # def _atomgroup2pdb(self, atomgroup, pdbfile,
-    #                    model_name="model_1"):
-    #     '''atomgroupをpdb形式で出力する
-
-    #     atomgroupがmodels(複数のmodelで構成されている)の場合はそのまま出力する。
-    #     atomgroupがmodelの場合は、model_nameを付加して出力する。
-    #     '''
-    #     assert(isinstance(pdbfile, str))
-
-    #     pdb = bridge.Pdb(mode='amber')
-
-    #     protein = atomgroup
-    #     if check_format_model(atomgroup):
-    #         # transform MODEL object to the protein(models)
-    #         # which has only one model.
-    #         protein = bridge.AtomGroup()
-    #         protein.set_group(model_name, atomgroup)
-
-    #     pdb.set_by_atomgroup(protein)
-    #     with open(pdbfile, 'w') as f:
-    #         f.write(str(pdb))
+        atomgroup2file(atomgroup, output_path, mode="formal")
 
     # output_model -----------------------------------------------------
     def _get_output_model(self):

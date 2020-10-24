@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import proteindf_bridge as bridge
-
 from .modeler_task_object import ModelerTaskObject
 from .amberobject import AmberObject
 # from .qcerror import QcTaskError

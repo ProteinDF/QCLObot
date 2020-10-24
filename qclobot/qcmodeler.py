@@ -13,6 +13,7 @@ from .modeler_task_edit import ModelerEdit
 from .qccontrolobject import QcControlObject
 from .modeler_task_protonate import QcProtonate
 from .modeler_task_complement import ModelerTaskComplement
+from .modeler_task_opt import ModelerTaskOpt
 from .qcneutralize import QcNeutralize
 from .amberobject import AmberObject
 from .utils import (file2atomgroup,
@@ -51,8 +52,7 @@ class QcModeler(QcControlObject):
         elif "complement" in task.keys():
             self.global_tasks[task_name] = self._run_complement(task)
         elif "opt" in task.keys():
-            self.global_tasks[task_name] = self._run_opt(
-                task_name, task['opt'])
+            self.global_tasks[task_name] = self._run_opt(task)
         elif "md" in task.keys():
             self.global_tasks[task_name] = self._run_md(task_name, task['md'])
         else:
@@ -94,19 +94,14 @@ class QcModeler(QcControlObject):
 
         return modeler_task_complement
 
-    def _run_opt(self, name, args):
+    def _run_opt(self, task):
         logger.info("run opt")
-        assert(isinstance(name, str))
-        assert(isinstance(args, dict))
 
-        amber = self._run_amber_setup(name, args)
-        amber.opt()
+        modeler_task_opt = ModelerTaskOpt(self, task)
+        modeler_task_opt.run()
+        modeler_task_opt.finalize()
 
-        dest = args.get("dest", None)
-        if dest:
-            amber.write_output_model(dest)
-
-        return amber
+        return modeler_task_opt
 
     def _run_md(self, name, args):
         logger.info("run md")

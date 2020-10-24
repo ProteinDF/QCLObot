@@ -60,6 +60,9 @@ class QcNeutralize(ModelerTaskObject):
             for resid, res in chain.groups():
                 resname = res.name
 
+                if resname in ['ACE', 'NME']:
+                    continue
+
                 if res.has_atom('H3'):
                     if (chain_name, resid, 'NTM') not in exempt_list:
                         # N-term

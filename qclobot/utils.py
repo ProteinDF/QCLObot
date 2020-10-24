@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def atomgroup2file(atomgroup, output_path):
+def atomgroup2file(atomgroup, output_path, mode="formal"):
     """save atomgroup object
 
     Exporting the AtomGroup object to a file as bridge or PDB format,
@@ -25,13 +25,14 @@ def atomgroup2file(atomgroup, output_path):
     (basename, ext) = os.path.splitext(abspath)
     ext = ext.lower()
     if ext in (".pdb", ".ent"):
-        atomgroup2pdb(atomgroup, abspath)
+        print("atomgroup2file: mode={}".format(mode))
+        atomgroup2pdb(atomgroup, abspath, mode=mode)
     else:
         logger.info("save {path} as bridge file.".format(path=abspath))
         bridge.save_msgpack(atomgroup.get_raw_data(), abspath)
 
 
-def atomgroup2pdb(atomgroup, output_path, model_name="model_1", mode="amber"):
+def atomgroup2pdb(atomgroup, output_path, model_name="model_1", mode="formal"):
     """atomgroupをpdb形式で出力する
 
     atomgroupがmodels(複数のmodelで構成されている)の場合はそのまま出力する。
@@ -45,6 +46,7 @@ def atomgroup2pdb(atomgroup, output_path, model_name="model_1", mode="amber"):
     """
     assert(isinstance(output_path, str))
 
+    print("atomgroup2pdb: mode={}".format(mode))
     pdb = bridge.Pdb(mode=mode)
 
     protein = atomgroup

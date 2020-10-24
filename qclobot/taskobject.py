@@ -202,12 +202,12 @@ class TaskObject(object):
         '''
         作業ディレクトリをオブジェクトのwork_dirに移動する
         '''
-        logger.info('=' * 20)
+        # logger.info('=' * 20)
         logger.info('>>>> {job_name}@{frame_name}'.format(job_name=job_name,
                                                           frame_name=self.name))
         logger.info('work dir: {work_dir}'.format(work_dir=self.work_dir))
 
-        logger.info('=' * 20)
+        # logger.info('=' * 20)
         os.chdir(self.work_dir)
 
     def restore_cwd(self):
