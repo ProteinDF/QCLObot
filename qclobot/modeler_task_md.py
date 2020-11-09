@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class ModelerTaskMd(ModelerTaskObject):
     ''' execute MD
     '''
+    _task_name = "md"
 
     def __init__(self, parent, task):
         super().__init__(parent, task)
@@ -27,7 +28,7 @@ class ModelerTaskMd(ModelerTaskObject):
     engine = property(_get_engine)
 
     def run(self):
-        self.cd_workdir("Opt")
+        self.cd_workdir("MD")
 
         self.engine.model = self.model
 

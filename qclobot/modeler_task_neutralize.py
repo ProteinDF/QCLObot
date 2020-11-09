@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class ModelerTaskNeutralize(ModelerTaskObject):
     ''' neutralize protein
     '''
+    _task_name = "neutralize"
 
     def __init__(self, parent, task):
         super().__init__(parent, task)

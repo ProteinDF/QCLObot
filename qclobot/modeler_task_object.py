@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 class ModelerTaskObject(TaskObject):
     """Task Object for Modeler
     """
+    _task_name = None
 
     def __init__(self, parent, task):
         from .qcmodeler import QcModeler
@@ -33,7 +34,12 @@ class ModelerTaskObject(TaskObject):
         # print("self._data(update):")
         # pprint.pprint(self._data)
         # print("<<<<")
-        self.model = self._get_input_model(self._data)
+
+        # setup input model
+        if self._task_name is not None:
+            self.model = self._get_input_model(self._data[self._task_name])
+        else:
+            logger.critical("program error: _task_name is not defined.")
 
     def finalize(self):
         self._write_output_model()
@@ -67,8 +73,9 @@ class ModelerTaskObject(TaskObject):
         'src'が指定されている場合は、そのファイルから作成されたAtomGroupを返す
         """
         answer = None
-        # print(">>>> _get_input_model()")
+        logger.info("input_model: ")
         # pprint.pprint(args)
+
         if "reference" in args:
             ref_task = self._parent.get_reference_task(args["reference"])
             answer = ref_task.output_model
@@ -89,7 +96,7 @@ class ModelerTaskObject(TaskObject):
                 answer = atomgroup
         else:
             logger.critical(
-                "NOT found input model. use \"reference\" or \"src\" command.")
+                "NOT found \"reference\" or \"src\" argument in [{}] section.".format(self._task_name))
         # pprint.pprint(answer)
         assert(check_format_model(answer))
 

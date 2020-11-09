@@ -10,9 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 class ModelerTaskComplement(ModelerTaskObject):
+    _task_name = "complement"
+
     def __init__(self, parent, task):
         super().__init__(parent, task)
-        assert('complement' in task.keys())
 
     def run(self):
         self.cd_workdir()

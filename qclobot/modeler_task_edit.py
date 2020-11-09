@@ -14,9 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 class ModelerEdit(ModelerTaskObject):
+    _task_name = "edit"
+
     def __init__(self, parent, task):
         super().__init__(parent, task)
-        assert('edit' in task.keys())
 
     # ==================================================================
     # method
@@ -28,7 +29,7 @@ class ModelerEdit(ModelerTaskObject):
         # print(">>>> model")
         # print(self.model)
 
-        edit = self._data.get('edit')
+        edit = self._data.get(self._task_name)
         keys = edit.keys()
         if 'add_ACE' in keys:
             target_path = edit['add_ACE'].get('name', 'ACE')

@@ -25,6 +25,8 @@ class ModelerTaskProtonate(ModelerTaskObject):
     >>> p.protonate_group()
     '''
 
+    _task_name = "protonate"
+
     def __init__(self, parent, task):
         """ initialize protonate object
 
@@ -37,12 +39,11 @@ class ModelerTaskProtonate(ModelerTaskObject):
 
         print(task)
 
-        assert("protonate" in task)
-        if isinstance(task["protonate"], dict):
+        if isinstance(task[self._task_name], dict):
             # print(task["protonate"])
             if "trim" in task["protonate"]:
                 # print(task["protonate"]["trim"])
-                self.use_trim = task["protonate"]["trim"]
+                self.use_trim = task[self._task_name]["trim"]
                 # print("trim: ", self.use_trim)
 
     def _check_AMBERHOME(self):

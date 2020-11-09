@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class ModelerTaskOpt(ModelerTaskObject):
     ''' execute opt
     '''
+    _task_name = "opt"
 
     def __init__(self, parent, task):
         super().__init__(parent, task)
@@ -31,7 +32,7 @@ class ModelerTaskOpt(ModelerTaskObject):
 
         self.engine.model = self.model
 
-        opt = self._data.get('opt')
+        opt = self._data.get(self._task_name)
         if isinstance(opt, dict):
             logger.warn("`opt` keywords accept dict format.")
             opt = {}
