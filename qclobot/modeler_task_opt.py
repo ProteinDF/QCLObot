@@ -32,6 +32,10 @@ class ModelerTaskOpt(ModelerTaskObject):
         self.engine.model = self.model
 
         opt = self._data.get('opt')
+        if isinstance(opt, dict):
+            logger.warn("`opt` keywords accept dict format.")
+            opt = {}
+
         if "solvation" in opt:
             solvation_args = opt["solvation"]
 

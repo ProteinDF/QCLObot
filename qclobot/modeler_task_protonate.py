@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class QcProtonate(ModelerTaskObject):
+class ModelerTaskProtonate(ModelerTaskObject):
     ''' execute protonate
 
     >>> tmp_pdb = bridge.Pdb('./data/sample/1AKG.pdb')
@@ -76,31 +76,26 @@ class QcProtonate(ModelerTaskObject):
     ####################################################################
     # method
     ####################################################################
-    def run(self, output_path=""):
+    def run(self):
         return_code = -1
         self.cd_workdir()
 
+        input_pdbfile = os.path.join(self.work_dir, 'original.pdb')
+        out_pdbfile = os.path.join(self.work_dir, 'protonated.pdb')
+
         if self.backend == 'reduce':
-            input_pdbfile = os.path.join(self.work_dir, 'original.pdb')
             self._atomgroup2file(self.model, input_pdbfile)
             # self._atomgroup2file(self.model, input_pdbfile, model_name=self.model_name)
 
-            out_pdbfile = os.path.join(self.work_dir, 'protonated.pdb')
             return_code = self._run_reduce(input_pdbfile,
                                            out_pdbfile)
+
         if return_code == 0:
             output_atomgroup = self._pdb2brd(out_pdbfile)
             print(output_atomgroup)
 
             # pickup first model as result
             self.output_model = output_atomgroup.get_group(self.model_name)
-
-            # if len(output_path) > 0:
-            #     output_path = os.path.join(self.work_dir, output_path)
-            #     logger.info("output protonated file: {}".format(output_path))
-            #     protein = bridge.AtomGroup()
-            #     protein.set_group("model_1", self.output_model)
-            #     self.atomgroup2file(protein, output_path)
 
         self.restore_cwd()
         return return_code
@@ -160,7 +155,7 @@ class QcProtonate(ModelerTaskObject):
     # Archive
     ####################################################################
     def __setstate__(self, state):
-        super(QcProtonate, self).__setstate__(state)
+        super().__setstate__(state)
 
         if "backend" in state:
             self._data["backend"] = state["backend"]

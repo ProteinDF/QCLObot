@@ -9,25 +9,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class QcNeutralize(ModelerTaskObject):
+class ModelerTaskNeutralize(ModelerTaskObject):
     ''' neutralize protein
     '''
 
     def __init__(self, parent, task):
-        super(QcNeutralize, self).__init__(parent, task)
+        super().__init__(parent, task)
 
     # ==================================================================
     # properties
     # ==================================================================
-    # def _get_input_pdb_filepath(self):
-    #     path = self._data.get('input_pdb_filepath', 'input.pdb')
-    #     return path
-    # input_pdb_filepath = property(_get_input_pdb_filepath)
-
-    # def _get_output_pdb_filepath(self):
-    #     path = self._data.get('output_pdb_filepath', 'output.pdb')
-    #     return path
-    # output_pdb_filepath = property(_get_output_pdb_filepath)
 
     # ==================================================================
     # method

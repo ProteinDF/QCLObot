@@ -11,11 +11,11 @@ import copy
 from . import __version__
 from .modeler_task_edit import ModelerEdit
 from .qccontrolobject import QcControlObject
-from .modeler_task_protonate import QcProtonate
+from .modeler_task_protonate import ModelerTaskProtonate
 from .modeler_task_complement import ModelerTaskComplement
+from .modeler_task_md import ModelerTaskMd
 from .modeler_task_opt import ModelerTaskOpt
-from .qcneutralize import QcNeutralize
-from .amberobject import AmberObject
+from .modeler_task_neutralize import ModelerTaskNeutralize
 from .utils import (file2atomgroup,
                     check_format_model_list,
                     check_format_model)
@@ -54,7 +54,7 @@ class QcModeler(QcControlObject):
         elif "opt" in task.keys():
             self.global_tasks[task_name] = self._run_opt(task)
         elif "md" in task.keys():
-            self.global_tasks[task_name] = self._run_md(task_name, task['md'])
+            self.global_tasks[task_name] = self._run_md(task)
         else:
             logger.warning("not found task command: {cmds}".format(
                 cmds=str([x for x in task.keys()])))
@@ -70,7 +70,7 @@ class QcModeler(QcControlObject):
     def _run_protonate(self, task):
         logger.info("run protonate")
 
-        modeler_protonate = QcProtonate(self, task)
+        modeler_protonate = ModelerTaskProtonate(self, task)
         modeler_protonate.run()
         modeler_protonate.finalize()
 
@@ -79,7 +79,7 @@ class QcModeler(QcControlObject):
     def _run_neutralize(self, task):
         logger.info("run neutralize")
 
-        modeler_neutralize = QcNeutralize(self, task)
+        modeler_neutralize = ModelerTaskNeutralize(self, task)
         modeler_neutralize.run()
         modeler_neutralize.finalize()
 
@@ -94,6 +94,7 @@ class QcModeler(QcControlObject):
 
         return modeler_task_complement
 
+
     def _run_opt(self, task):
         logger.info("run opt")
 
@@ -103,53 +104,16 @@ class QcModeler(QcControlObject):
 
         return modeler_task_opt
 
-    def _run_md(self, name, args):
+
+    def _run_md(self, task):
         logger.info("run md")
-        assert(isinstance(name, str))
-        assert(isinstance(args, dict))
 
-        steps = 1
-        if "steps" in args:
-            steps = args["steps"]
-        dt = 0.002
-        if "dt" in args:
-            dt = args["dt"]
+        modeler_task_md = ModelerTaskMd(self, task)
+        modeler_task_md.run()
+        modeler_task_md.finalize()
 
-        amber = self._run_amber_setup(name, args)
-        amber.md(steps=steps,
-                 dt=dt)
+        return modeler_task_md
 
-        dest = args.get("dest", None)
-        if dest:
-            amber.write_output_model(dest)
-
-        return amber
-
-    def _run_amber_setup(self, name, args):
-        amber = AmberObject(name=name)
-        model = self._get_input_model(args)
-        amber.model = model
-
-        if "solvation" in args:
-            solvation_args = args["solvation"]
-
-            amber.solvation_method = "cap"
-            if "method" in solvation_args:
-                amber.solvation_method = solvation_args["method"]
-
-            if "model" in solvation_args:
-                amber.solvation_model = solvation_args["model"]
-
-        if "belly_mask" in args:
-            amber.use_belly = True
-            for bellymask_target in args["belly_mask"]:
-                bellymask_target = bellymask_target.lower()
-                if bellymask_target == "water":
-                    amber.bellymask_WAT = True
-                if bellymask_target == "ions":
-                    amber.bellymask_ions = True
-
-        return amber
 
     def _get_input_model(self, args):
         """入力model(AtomGroup)を返す

@@ -447,9 +447,12 @@ class AmberObject(MdObject):
 
         # self.solvation_model = "cap"
 
-        self._save_leap_input_pdb(model)
-        self._prepare_leapin()
+        # self._save_leap_input_pdb(model)
+        self._prepare_leapin(input_pdb_filepath=self.input_pdb_filepath,
+                             initial_pdb_filepath=self.initial_pdb_filepath)
         self._do_leap()
+
+        self._setup_restraint()
 
         self._set_md_param("imin", 0)
         self._set_md_param("irest", 0)
@@ -473,10 +476,12 @@ class AmberObject(MdObject):
         self._set_md_param("ntb", 0)
         self._set_md_param("cut", 10.0)
 
-        self._prepare_mdin(opt=False)
+        self._prepare_mdin()
 
         self._do_sander()
         self._restrt2pdb()
+
+        return True
 
     # ==================================================================
     # leap setting
