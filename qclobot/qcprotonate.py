@@ -7,7 +7,6 @@ import proteindf_bridge as bridge
 
 from .taskobject import TaskObject
 from .process import Process
-from .utils import check_format_model
 
 import logging
 logger = logging.getLogger(__name__)
@@ -71,8 +70,7 @@ class QcProtonate(TaskObject):
                                model_name=self.model_name)
 
             out_pdbfile = os.path.join(self.work_dir, 'protonated.pdb')
-            return_code = self._run_reduce(input_pdbfile,
-                                           out_pdbfile)
+            return_code = self._run_reduce(input_pdbfile, out_pdbfile)
         if return_code == 0:
             output_atomgroup = self._pdb2brd(out_pdbfile)
 

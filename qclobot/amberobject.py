@@ -4,7 +4,7 @@
 import time
 import os
 
-from .utils import get_model, check_format_model, find_max_chain_id, remove_WAT
+from .utils import get_model, find_max_chain_id, remove_WAT
 from .process import Process
 from .mdobject import MdObject
 
@@ -198,6 +198,50 @@ class AmberObject(MdObject):
     final_pdb_filepath = property(_get_final_pdb_filepath)
 
     # ==================================================================
+    # others
+    # ==================================================================
+    def charge(self):
+        model = bridge.AtomGroup(self.model)
+        self._save_input_pdb(model)
+
+        # SS-bond
+        ssb = bridge.SSBond(model)
+        ssbonds = ssb.get_bonds()
+        for (path1, path2) in ssbonds:
+            path1_items = bridge.Path.split_path(path1)
+            path2_items = bridge.Path.split_path(path2)
+            model[path1_items[0]][path1_items[1]].name = "CYX"
+            model[path2_items[0]][path2_items[1]].name = "CYX"
+
+        self._save_leap_input_pdb(model)
+        self._prepare_leapin()
+        self._do_leap()
+
+        prmtop_path = os.path.join(self.work_dir, 'protein.prmtop')
+        inpcrd_path = os.path.join(self.work_dir, 'protein.inpcrd')
+        prmtop = bridge.AmberPrmtop(prmtop_path, inpcrd_path)
+        charges = prmtop.charges
+        # print(charges)
+
+        pdb_obj = bridge.Pdb()
+        pdb_obj.load(os.path.join(self.work_dir, self.initial_pdb_filepath))
+        initial = pdb_obj.get_atomgroup()
+        # model2 = initial.get_group('model_1')
+
+        num_of_charges = len(charges)
+        charge_index = 0
+        for chain_name, chain in model.groups():
+            for res_name, residue in chain.groups():
+                for atom_name, atom in residue.atoms():
+                    atom.charge = charges[charge_index]
+                    charge_index += 1
+        print("{}/{}".format(charge_index, num_of_charges))
+
+        self.output_model = model
+
+        # self._restrt2pdb()
+
+    # ==================================================================
     # optimization
     # ==================================================================
     def opt(self):
@@ -213,6 +257,16 @@ class AmberObject(MdObject):
 
         # self.solvation_model = "cap"
 
+        # SS-bond
+        ssb = bridge.SSBond(model)
+        ssbonds = ssb.get_bonds()
+        for (path1, path2) in ssbonds:
+            path1_items = bridge.Path.split_path(path1)
+            path2_items = bridge.Path.split_path(path2)
+            model[path1_items[0]][path1_items[1]].name = "CYX"
+            model[path2_items[0]][path2_items[1]].name = "CYX"
+
+        # leap
         self._save_leap_input_pdb(model)
         self._prepare_leapin()
         self._do_leap()
@@ -251,7 +305,9 @@ class AmberObject(MdObject):
 
     def _save_input_pdb(self, model):
         """
-        入力ファイルを保存する
+        save the input file.
+
+        filename: self.input_pdb_filepath
         """
         self.cd_workdir("debug input pdb file")
 
@@ -397,19 +453,16 @@ class AmberObject(MdObject):
         self.cd_workdir("prepare leapin")
 
         leapin_contents = ''
-        leapin_contents += 'logFile {logfile_filepath}\n'.format(
-            logfile_filepath=self.leap_logfile_filepath)
+        leapin_contents += 'logFile {logfile_filepath}\n'.format(logfile_filepath=self.leap_logfile_filepath)
         leapin_contents += self.__get_leap_source_lines()
         leapin_contents += self.__get_leap_amberparams_lines()
-        leapin_contents += 'protein = loadPdb {pdb_file}\n'.format(
-            pdb_file=self.leap_input_pdb_filepath)
+        leapin_contents += 'protein = loadPdb {pdb_file}\n'.format(pdb_file=self.leap_input_pdb_filepath)
         leapin_contents += 'proteinBox = copy protein\n'
         leapin_contents += self.__get_leap_ssbond_lines()
         leapin_contents += self.__get_solvation(solute='proteinBox')
         leapin_contents += 'saveAmberParm proteinBox {prmtop} {inpcrd}\n'.format(prmtop=self.prmtop_filepath,
                                                                                  inpcrd=self.inpcrd_filepath)
-        leapin_contents += 'savePdb proteinBox {pdb_file}\n'.format(
-            pdb_file=self.initial_pdb_filepath)
+        leapin_contents += 'savePdb proteinBox {pdb_file}\n'.format(pdb_file=self.initial_pdb_filepath)
         leapin_contents += 'quit\n'
 
         logger.debug('save leap inputfile: {}'.format(self.leapin_filepath))
@@ -438,7 +491,21 @@ class AmberObject(MdObject):
     def __get_leap_ssbond_lines(self):
         """return bond lines
         """
+        ssb = bridge.SSBond(self.model)
+        ssbonds = ssb.get_bonds()
+        # print(ssbonds)
+
         answer = ''
+        for (path1, path2) in ssbonds:
+            res_id1 = bridge.Path.get_res_id(path1)
+            res_id2 = bridge.Path.get_res_id(path2)
+            assert(res_id1 is not None)
+            assert(res_id2 is not None)
+            seq_res_id1 = bridge.Utils.get_sequential_residue_id(
+                self.model, bridge.Path.get_chain_id(path1), bridge.Path.get_res_id(path1))
+            seq_res_id2 = bridge.Utils.get_sequential_residue_id(
+                self.model, bridge.Path.get_chain_id(path2), bridge.Path.get_res_id(path2))
+            answer += "bond protein.{res_id1}.SG protein.{res_id2}.SG\n".format(res_id1=seq_res_id1, res_id2=seq_res_id2)
 
         return answer
 
@@ -619,7 +686,7 @@ class AmberObject(MdObject):
             belly_contents=belly_contents)
         mdin_contents += lmod_contents
         mdin_contents = mdin_contents.lstrip('\n')
-        mdin_contents = bridge.Utils.unindent_block(mdin_contents)
+        mdin_contents = bridge.StrUtils.unindent_block(mdin_contents)
 
         with open(self.mdin_filepath, 'w') as f:
             f.write(mdin_contents)
@@ -749,7 +816,7 @@ class AmberObject(MdObject):
         amb_pdb = bridge.Pdb(self.initial_pdb_filepath)
         amb_models = amb_pdb.get_atomgroup()
         amb_model = get_model(amb_models)
-        assert(check_format_model(amb_model))
+        assert(bridge.Format.is_protein(amb_model))
 
         # check wether 'leap' adds any atoms or not.
         if self.model.get_number_of_all_atoms() == amb_model.get_number_of_all_atoms():

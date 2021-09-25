@@ -48,7 +48,8 @@ setup(name='qclobot',
           'scripts/qc-info-frame.py',
           'scripts/qc-frame-molecule.py',
           'scripts/qc-frame-checkconv.py',
-          'scripts/qc-frame-orb.py'
+          'scripts/qc-frame-orb.py',
+          'scripts/resp-charge.py'
       ],
 
       install_requires=[

@@ -11,11 +11,10 @@ import proteindf_bridge as bridge
 from . import __version__
 from .qccontrolobject import QcControlObject
 from .qcprotonate import QcProtonate
+from .qcremovewat import QcRemoveWAT
 from .qcneutralize import QcNeutralize
 from .amberobject import AmberObject
-from .utils import (file2atomgroup,
-                    check_format_models,
-                    check_format_model)
+from .utils import file2atomgroup
 
 import logging
 logger = logging.getLogger(__name__)
@@ -37,8 +36,9 @@ class QcModeler(QcControlObject):
         name = task.pop("name")
 
         if "protonate" in task.keys():
-            self.global_tasks[name] = self._run_protonate(
-                name, task['protonate'])
+            self.global_tasks[name] = self._run_protonate(name, task['protonate'])
+        elif "remove_wat" in task.keys():
+            self.global_tasks[name] = self._run_remove_wat(name, task['remove_wat'])
         elif "opt" in task.keys():
             self.global_tasks[name] = self._run_opt(name, task['opt'])
         elif "md" in task.keys():
@@ -64,10 +64,31 @@ class QcModeler(QcControlObject):
         prot_obj.model = input_model
 
         prot_obj.run()
-        assert(check_format_model(prot_obj.output_model))
+        assert(bridge.Format.is_protein(prot_obj.output_model))
 
         dest = args.get("dest", None)
         if dest:
+            print("dest: ", dest)
+            prot_obj.write_output_model(dest)
+
+        return prot_obj
+
+    def _run_remove_wat(self, name, args):
+        logger.info("run prptonate")
+        assert(isinstance(name, str))
+        assert(isinstance(args, dict))
+
+        prot_obj = QcRemoveWAT(name=name)
+
+        input_model = self._get_input_model(args)
+        prot_obj.model = input_model
+
+        prot_obj.run()
+        assert(bridge.Format.is_protein(prot_obj.output_model))
+
+        dest = args.get("dest", None)
+        if dest:
+            print("dest: ", dest)
             prot_obj.write_output_model(dest)
 
         return prot_obj
@@ -83,7 +104,7 @@ class QcModeler(QcControlObject):
         neutralize_obj.model = input_model
 
         neutralize_obj.run()
-        assert(check_format_model(neutralize_obj.output_model))
+        assert(bridge.Format.is_protein(neutralize_obj.output_model))
 
         dest = args.get("dest", None)
         if dest:
@@ -169,7 +190,7 @@ class QcModeler(QcControlObject):
                 logger.critical('not found "src"')
                 raise
             atomgroup = file2atomgroup(src)
-            if check_format_models(atomgroup):
+            if bridge.Format.is_models(atomgroup):
                 logger.info("this model is MODELS. pickup first model.")
                 models = atomgroup
                 if models.get_number_of_groups() > 0:
@@ -181,7 +202,7 @@ class QcModeler(QcControlObject):
         else:
             logger.critical(
                 "NOT found input model. use \"reference\" or \"src\" command.")
-        assert(check_format_model(answer))
+        assert(bridge.Format.is_protein(answer))
 
         return answer
 

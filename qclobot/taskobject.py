@@ -7,8 +7,6 @@ import pprint
 
 import proteindf_bridge as bridge
 
-from .utils import check_format_model
-
 import logging
 logger = logging.getLogger(__name__)
 
@@ -115,7 +113,7 @@ class TaskObject(object):
         return answer
 
     def _set_model(self, model):
-        if check_format_model(model):
+        if bridge.Format.is_protein(model):
             self._data['model'] = model.get_raw_data()
         else:
             logger.critical("not support the format; use model format")
@@ -132,7 +130,7 @@ class TaskObject(object):
         return answer
 
     def _set_output_model(self, model):
-        assert(check_format_model(model))
+        assert(bridge.Format.is_protein(model))
         self._data['output_model'] = model.get_raw_data()
     output_model = property(_get_output_model, _set_output_model)
 
@@ -197,20 +195,19 @@ class TaskObject(object):
         '''
         作業ディレクトリをオブジェクトのwork_dirに移動する
         '''
-        logger.info('=' * 20)
-        logger.info('>>>> {job_name}@{frame_name}'.format(job_name=job_name,
-                                                          frame_name=self.name))
+        # logger.info('=' * 20)
+        # logger.info('>>>> {job_name}@{frame_name}'.format(job_name=job_name,
+        #             frame_name=self.name))
         logger.info('work dir: {work_dir}'.format(work_dir=self.work_dir))
-
-        logger.info('=' * 20)
+        # logger.info('=' * 20)
         os.chdir(self.work_dir)
 
     def restore_cwd(self):
         '''
         base ディレクトリに戻す
         '''
+        logger.debug('restore basedir: {})\n'.format(self._basedir))
         os.chdir(self._basedir)
-        logger.info('<<<< (basedir: {})\n'.format(self._basedir))
 
     def write_output_model(self, output_path):
         self.atomgroup2file(self.output_model, output_path)
@@ -229,8 +226,7 @@ class TaskObject(object):
             logger.info("save {path} as bridge file.".format(path=abspath))
             bridge.save_msgpack(atomgroup.get_raw_data(), abspath)
 
-    def atomgroup2pdb(self, atomgroup, pdbfile,
-                      model_name="model_1"):
+    def atomgroup2pdb(self, atomgroup, pdbfile, model_name="model_1"):
         '''atomgroupをpdb形式で出力する
 
         atomgroupがmodels(複数のmodelで構成されている)の場合はそのまま出力する。
@@ -238,21 +234,22 @@ class TaskObject(object):
         '''
         assert(isinstance(pdbfile, str))
 
-        self.cd_workdir()
+        # self.cd_workdir()
         pdb = bridge.Pdb(mode='amber')
 
         protein = atomgroup
-        if check_format_model(atomgroup):
-            # transform MODEL object to the protein(models)
+        if bridge.Format.is_protein(atomgroup):
+            # transform MODEL object to the models
             # which has only one model.
-            protein = bridge.AtomGroup()
-            protein.set_group(model_name, atomgroup)
+            models = bridge.AtomGroup()
+            models.set_group(model_name, atomgroup)
+            protein = models
 
         pdb.set_by_atomgroup(protein)
         with open(pdbfile, 'w') as f:
             f.write(str(pdb))
 
-        self.restore_cwd()
+        # self.restore_cwd()
 
 
 if __name__ == '__main__':

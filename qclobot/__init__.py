@@ -27,3 +27,5 @@ from .qcmodeler import QcModeler
 
 from .qcframe import QcFrame
 from .qcfragment import QcFragment
+
+from .amberobject import AmberObject
