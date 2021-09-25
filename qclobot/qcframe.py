@@ -23,6 +23,7 @@ import shutil
 from collections import OrderedDict
 import math
 import os
+import copy
 
 import proteindf_tools as pdf
 import proteindf_bridge as bridge
@@ -61,10 +62,10 @@ class QcFrame(object):
         self._cache = {}
 
         if ((len(args) > 0) and isinstance(args[0], QcFrame)):
-            self._copy_constructer(args[0])
+            self._copy_constructor(args[0])
 
-    # copy constructer
-    def _copy_constructer(self, rhs):
+    # copy constructor
+    def _copy_constructor(self, rhs):
         self._name = rhs._name
         self._fragments = copy.deepcopy(rhs._fragments)
         self._charge = rhs._charge
