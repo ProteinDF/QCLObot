@@ -100,7 +100,7 @@ class QcControl(QcControlObject):
         with_items = frame_data.get('with_items', None)
         if with_items:
             iter_items = list(self._vars.get(
-                bridge.Utils.to_unicode(with_items), []))
+                bridge.StrUtils.to_unicode(with_items), []))
 
             new_frame_data = dict(frame_data)
             new_frame_data.pop('with_items')
@@ -359,7 +359,7 @@ class QcControl(QcControlObject):
         '''
         return a value corresponding to the keyword from the input_data or defaults
         '''
-        keyword = bridge.Utils.to_unicode(keyword)
+        keyword = bridge.StrUtils.to_unicode(keyword)
 
         answer = None
         if keyword in input_data:
@@ -504,9 +504,9 @@ class QcControl(QcControlObject):
             raise QcControlError('NOT FOUND fragment key in reference fragment',
                                  pprint.pformat(frg_data))
 
-        ref_frame_name = bridge.Utils.to_unicode(
+        ref_frame_name = bridge.StrUtils.to_unicode(
             frg_data['reference']['frame'])
-        ref_fragment_name = bridge.Utils.to_unicode(
+        ref_fragment_name = bridge.StrUtils.to_unicode(
             frg_data['reference']['fragment'])
 
         if ref_frame_name not in self._frames:
@@ -700,8 +700,8 @@ class QcControl(QcControlObject):
         return frg
 
     def _select_atomgroup(self, brd_file_path, brd_select):
-        brd_file_path = bridge.Utils.to_unicode(brd_file_path)
-        brd_select = bridge.Utils.to_unicode(brd_select)
+        brd_file_path = bridge.StrUtils.to_unicode(brd_file_path)
+        brd_select = bridge.StrUtils.to_unicode(brd_select)
         # logger.debug('_get_atomgroup(): brd_path={}, select={}'.format(brd_file_path, brd_select))
 
         self._cache.setdefault('brdfile', {})
@@ -759,7 +759,7 @@ class QcControl(QcControlObject):
         assert(isinstance(atom, bridge.Atom))
         ans = ''
         if isinstance(input_obj, bridge.basestring):
-            ans = bridge.Utils.to_unicode(input_obj)
+            ans = bridge.StrUtils.to_unicode(input_obj)
         elif isinstance(input_obj, dict):
             if atom.name in input_obj:
                 ans = input_obj[atom.name]

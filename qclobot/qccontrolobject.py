@@ -146,7 +146,7 @@ class QcControlObject(object):
                 insert_tasks = []
                 with open(include_path) as f:
                     contents = f.read()
-                    contents = bridge.Utils.to_unicode(contents)
+                    contents = bridge.StrUtils.to_unicode(contents)
 
                     for d in bridge.parse_yaml(contents):
                         insert_tasks.extend(d)

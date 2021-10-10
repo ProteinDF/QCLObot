@@ -79,16 +79,17 @@ class QcFrame(object):
         pass
 
     def _get_default_cmds(self):
-        answer = {}
-        answer['mat-extend'] = 'mat-extend'
-        answer['mat-mul'] = 'mat-mul'
-        answer['mat-select'] = 'mat-select'
-        answer['mat-symmetrize'] = 'mat-symmetrize'
-        answer['mat-transpose'] = 'mat-transpose'
-        answer['mat-diagonal'] = 'mat-diagonal'
-        answer['archive'] = 'archive-h5'
+        cmds = {}
+        cmds['lo'] = 'lo'
+        cmds['mat-extend'] = 'mat-extend'
+        cmds['mat-mul'] = 'mat-mul'
+        cmds['mat-select'] = 'mat-select'
+        cmds['mat-symmetrize'] = 'mat-symmetrize'
+        cmds['mat-transpose'] = 'mat-transpose'
+        cmds['mat-diagonal'] = 'mat-diagonal'
+        cmds['archive'] = 'archive-h5'
 
-        return answer
+        return cmds
 
     # save & load ------------------------------------------------------
     def _load(self):
@@ -185,8 +186,8 @@ class QcFrame(object):
     # ==================================================================
     # PROPERTIES
     # ==================================================================
-    # command alias ----------------------------------------------------
 
+    # command alias ----------------------------------------------------
     def set_command_alias(self, cmd_alias_dict):
         for k, v in cmd_alias_dict.items():
             logger.debug("command update: {} -> {}".format(k, v))
@@ -390,11 +391,12 @@ class QcFrame(object):
 
     is_finished_pickup_LO = property(_get_state_finished_pickup_LO,
                                      _set_state_finished_pickup_LO)
+
     # ==================================================================
     # GUESS
     # ==================================================================
-    # guess density ----------------------------------------------------
 
+    # guess density ----------------------------------------------------
     def guess_density(self, run_type='rks', force=False):
         if ((self.is_finished_guess_density == True) and
                 (force == False)):
@@ -420,8 +422,7 @@ class QcFrame(object):
                     'guess_density(): parent == None. frg_name={}'.format(frg_name))
 
             frg.set_command_alias(self._cmds)
-            frg_guess_density_matrix_path = frg.prepare_guess_density_matrix(
-                run_type)
+            frg_guess_density_matrix_path = frg.prepare_guess_density_matrix(run_type)
 
             logger.debug('guess_density() [{}@{}] ext: {} from {}'.format(
                 frg_name,
@@ -634,7 +635,7 @@ class QcFrame(object):
 
         self.restore_cwd()
 
-    # force ------------------------------------------------------------
+    # gradieng ----------------------------------------------------------------
     def calc_force(self, dry_run=False):
         '''
         calculate force (energy gradient)
@@ -785,13 +786,11 @@ class QcFrame(object):
 
         return pop_vtr
 
-    # ------------------------------------------------------------------
-
     # ==================================================================
     # PICKUP
     # ==================================================================
-    # pickup density matrix --------------------------------------------
 
+    # pickup density matrix --------------------------------------------
     def pickup_density_matrix(self, runtype='rks'):
         '''
         密度行列を各フラグメントに割り当てる
@@ -869,7 +868,7 @@ class QcFrame(object):
         self.cd_work_dir('calc lo')
 
         logger.info('start lo calculation.')
-        pdf.run_pdf('lo')
+        pdf.run_pdf(self._cmds['lo'])
 
         self.is_finished_LO = True
         self.save()
@@ -1105,7 +1104,7 @@ class QcFrame(object):
         '''
         フラグメントを持っていればTrueを返す
         '''
-        fragment_name = bridge.Utils.to_unicode(fragment_name)
+        fragment_name = bridge.StrUtils.to_unicode(fragment_name)
 
         return fragment_name in self._fragments.keys()
 
@@ -1114,7 +1113,7 @@ class QcFrame(object):
         '''
         出力用[]演算子
         '''
-        fragment_name = bridge.Utils.to_unicode(fragment_name)
+        fragment_name = bridge.StrUtils.to_unicode(fragment_name)
         return self._fragments.get(fragment_name, None)
 
     def __setitem__(self, fragment_name, obj):
@@ -1132,7 +1131,7 @@ class QcFrame(object):
         if 'frame_molecule' in self._cache:
             self._cache.pop('frame_molecule')
 
-        fragment_name = bridge.Utils.to_unicode(fragment_name)
+        fragment_name = bridge.StrUtils.to_unicode(fragment_name)
 
         if isinstance(obj, QcFragment):
             fragment = QcFragment(obj)
