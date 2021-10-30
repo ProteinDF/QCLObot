@@ -299,18 +299,26 @@ The following keyword indicates for the frame object to do.
 
   Creation of the initial guess is executed.
   How to create guess depends on the value of "guess" keyword.
+  Use mapping format in "guess" section.
 
-  * harris
+  * method
 
-    The initial guess is created by using Harris functional method.
-    This is default.
+    Specified method for guess. Possible values are as follows.
 
-  * QCLO
+    * harris
 
-    The inigial guess is made of the QCLOs of corresponding fragments by using QCLO method.
-    If the QCLO of the child fragment has not been created,
-    it is computed automatically.
+      The initial guess is created by using Harris functional method.
+      This is default.
 
+    * QCLO
+
+      The inigial guess is made of the QCLOs of corresponding fragments by using QCLO method.
+      If the QCLO of the child fragment has not been created,
+      it is computed automatically.
+
+  * force
+
+    boolean. The default value is False. If you want to force execution even if it has already been done, specify True.
     
 * sp
 
