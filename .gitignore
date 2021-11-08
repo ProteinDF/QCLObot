@@ -38,6 +38,7 @@ dist/*
 
 # for Sphinx
 doc/_build/*
+doc/**/*.mo
 
 # working directory for unit test 
 test_*/
