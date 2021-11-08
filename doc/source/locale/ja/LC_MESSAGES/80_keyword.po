@@ -1,0 +1,448 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2014-2020, Toshiyuki HIRANO
+# This file is distributed under the same license as the QCLObot User's
+# Manual package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: QCLObot User's Manual 2020.6.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-11-08 13:00+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: ../../source/80_keyword.rst:3
+msgid "explanation of QCLObot YAML File"
+msgstr "QCLObot YAML ファイル解説"
+
+#: ../../source/80_keyword.rst:5
+msgid "QCLObot playbook is separated by following two parts:"
+msgstr "QCLObot プレイブック(入力ファイル)は、以下の2つのパートに分かれています。"
+
+#: ../../source/80_keyword.rst:7 ../../source/80_keyword.rst:16
+msgid "\"vars\" section"
+msgstr "変数(vars)セクション"
+
+#: ../../source/80_keyword.rst:9
+msgid "definition of variables"
+msgstr "変数の定義"
+
+#: ../../source/80_keyword.rst:11 ../../source/80_keyword.rst:48
+msgid "\"tasks\" section"
+msgstr "タスク(tasks)セクション"
+
+#: ../../source/80_keyword.rst:13
+msgid "definition of task for general and for frame molecule"
+msgstr "フレーム分子に対する処理内容の定義"
+
+#: ../../source/80_keyword.rst:18
+msgid ""
+"Declare the variable. The declared variables can be used with "
+"``with_items`` and so on."
+msgstr "変数を宣言します。ここで定義された変数は、 ``with_items`` 構文などで利用されます。"
+
+#: ../../source/80_keyword.rst:44
+msgid ""
+"Note that when using templates, especially when operating within a "
+"template, there is a distinction between strings and numbers."
+msgstr ""
+
+#: ../../source/80_keyword.rst:50
+msgid "The \"tasks\" section is consist of three parts:"
+msgstr "タスクセクションは次の3つのパートに分かれています。"
+
+#: ../../source/80_keyword.rst:52 ../../source/80_keyword.rst:58
+msgid "condition"
+msgstr "条件"
+
+#: ../../source/80_keyword.rst:53 ../../source/80_keyword.rst:85
+msgid "task"
+msgstr "タスク処理内容"
+
+#: ../../source/80_keyword.rst:54 ../../source/80_keyword.rst:117
+msgid "frame definition"
+msgstr "フレーム分子の定義"
+
+#: ../../source/80_keyword.rst:61
+msgid "with_items"
+msgstr ""
+
+#: ../../source/80_keyword.rst:63
+msgid "repeat the task."
+msgstr "タスク処理を繰り返します。"
+
+#: ../../source/80_keyword.rst:67
+msgid "when"
+msgstr ""
+
+#: ../../source/80_keyword.rst:69
+msgid "do the task if the condition is satisfied."
+msgstr "条件を満足した場合にタスク処理を実行します。"
+
+#: ../../source/80_keyword.rst:73
+msgid "include"
+msgstr ""
+
+#: ../../source/80_keyword.rst:75
+msgid ""
+"Insert an external file. Fill in the external file with the \"tasks\" "
+"statement."
+msgstr "外部ファイルを挿入します。"
+
+#: ../../source/80_keyword.rst:88
+msgid "mail"
+msgstr ""
+
+#: ../../source/80_keyword.rst:90
+msgid "Send mail."
+msgstr "電子メールを送信します。"
+
+#: ../../source/80_keyword.rst:108
+msgid "debug"
+msgstr ""
+
+#: ../../source/80_keyword.rst:110
+msgid "do nothing."
+msgstr "デバッグ用に出力します。"
+
+#: ../../source/80_keyword.rst:114 ../../source/80_keyword.rst:227
+msgid "frame"
+msgstr ""
+
+#: ../../source/80_keyword.rst:120
+msgid "name(mandatory)"
+msgstr "名前(必須)"
+
+#: ../../source/80_keyword.rst:122
+msgid ""
+"All frame require the name. Based of this name value, the working "
+"directory is created on the current directory."
+msgstr "全てのフレーム分子は名前が必要です。この名前に応じて作業ディレクトリがカレントディレクトリの下に作成されます。"
+
+#: ../../source/80_keyword.rst:127
+msgid "fragments"
+msgstr ""
+
+#: ../../source/80_keyword.rst:129
+msgid ""
+"A frame molecule consists of fragment(s). The fragment is defined by "
+"following keywords. All fragment requires the \"name\" attribute, which "
+"is used as name of the fragment."
+msgstr ""
+"フレーム分子は1つ以上のフラグメントから構成されます。フラグメントは以下のキーワードによって定義されます。全てのフラグメントはフラグメントの名前として利用する"
+" \"name\" 属性が必要です。"
+
+#: ../../source/80_keyword.rst:134
+msgid "atomlist"
+msgstr ""
+
+#: ../../source/80_keyword.rst:136
+msgid "``atomlist`` directive makes fragment from atom list"
+msgstr "``atomlist``  は原子のリストからフラグメントを作成します。"
+
+#: ../../source/80_keyword.rst:149
+msgid ""
+"The ``atomlist`` is an array object. Each atom is defined by string "
+"separated white space, or by array object as following:"
+msgstr ""
+"``atomlist`` "
+"は配列オブジェクトである必要があります。また、それぞれの原子はスペースで区切られるか、以下のような配列オブジェクトである必要があります。"
+
+#: ../../source/80_keyword.rst:165
+msgid "add_CH3"
+msgstr ""
+
+#: ../../source/80_keyword.rst:167
+msgid "If the keyword is defined as ``yes``, a methyl group is add as fragment."
+msgstr "このキーワードが ``yes`` で定義された場合、メチル基がフラグメントに付加されます。"
+
+#: ../../source/80_keyword.rst:170
+msgid "displacement"
+msgstr ""
+
+#: ../../source/80_keyword.rst:172
+msgid ""
+"This atom is substitute with methyl carbon. This value is specified by "
+"string as Bridge path."
+msgstr "この原子がメチル基炭素と置換されます。この値はbridgeフォーマットのパスで指定します。"
+
+#: ../../source/80_keyword.rst:175
+msgid "root"
+msgstr ""
+
+#: ../../source/80_keyword.rst:177
+msgid ""
+"This atom is indicated to the next atom of the displacement atom. This "
+"value is specified by string as Bridge path."
+msgstr "置換される炭素原子の隣の原子を指定します。この値はbridgeフォーマットのパスで指定します。"
+
+#: ../../source/80_keyword.rst:191
+msgid "add_ACE"
+msgstr ""
+
+#: ../../source/80_keyword.rst:193
+msgid "Place the acetyl group in the specified place and add it as a fragment."
+msgstr "アセチル基を付加してフラグメントに追加します。"
+
+#: ../../source/80_keyword.rst:207
+msgid "add_NME"
+msgstr ""
+
+#: ../../source/80_keyword.rst:209
+msgid "Place the N-methyl group in the specified place and add it as a fragment."
+msgstr "N-メチル基を付加してフラグメントに追加します。"
+
+#: ../../source/80_keyword.rst:223
+msgid "reference"
+msgstr ""
+
+#: ../../source/80_keyword.rst:225
+msgid "The fragment is created by using the previous calculation result."
+msgstr "以前の計算結果を使ってフラグメントを作成します。"
+
+#: ../../source/80_keyword.rst:229
+msgid "This value indicates the name of the frame molecule."
+msgstr "フレーム分子の名前を指定します。"
+
+#: ../../source/80_keyword.rst:231
+msgid "fragment"
+msgstr ""
+
+#: ../../source/80_keyword.rst:233
+msgid "The name of the fragment in the frame molecule."
+msgstr "フラグメント名を指定します。"
+
+#: ../../source/80_keyword.rst:259
+msgid "brd_select"
+msgstr ""
+
+#: ../../source/80_keyword.rst:261
+msgid ""
+"The group which is indicated by the value of ``brd_select`` keyword is "
+"add as fragment. This value is specified by string as Bridge path."
+msgstr ""
+"指定されたbridgeフォーマットのパスにある原子(団)をフラグメントに追加します。"
+
+#: ../../source/80_keyword.rst:266
+msgid "frame action"
+msgstr "フレーム分子に対する処理"
+
+#: ../../source/80_keyword.rst:268
+msgid "The following keyword indicates for the frame object to do."
+msgstr ""
+
+#: ../../source/80_keyword.rst:270
+msgid "pre_scf"
+msgstr ""
+
+#: ../../source/80_keyword.rst:272
+msgid ""
+"If \"pre_scf\" is defined as \"yes\", then the processing calculation "
+"before SCF loop is carried out in the frame molecule."
+msgstr ""
+
+#: ../../source/80_keyword.rst:276
+msgid "guess"
+msgstr ""
+
+#: ../../source/80_keyword.rst:278
+msgid ""
+"Creation of the initial guess is executed. How to create guess depends on"
+" the value of \"guess\" keyword."
+msgstr ""
+
+#: ../../source/80_keyword.rst:281
+msgid "harris"
+msgstr ""
+
+#: ../../source/80_keyword.rst:283
+msgid ""
+"The initial guess is created by using Harris functional method. This is "
+"default."
+msgstr ""
+
+#: ../../source/80_keyword.rst:286
+msgid "QCLO"
+msgstr ""
+
+#: ../../source/80_keyword.rst:288
+msgid ""
+"The inigial guess is made of the QCLOs of corresponding fragments by "
+"using QCLO method. If the QCLO of the child fragment has not been "
+"created, it is computed automatically."
+msgstr ""
+
+#: ../../source/80_keyword.rst:293
+msgid "sp"
+msgstr ""
+
+#: ../../source/80_keyword.rst:295
+msgid ""
+"If the \"sp\" is defined as \"yes\", the single-point calculation of the "
+"frame molecule is carried out. If \"pre_scf\" and \"guess\" keywords are "
+"not indicated, these operations are automatically performed."
+msgstr ""
+
+#: ../../source/80_keyword.rst:301
+msgid "force"
+msgstr ""
+
+#: ../../source/80_keyword.rst:303
+msgid ""
+"If the \"force\" is defined as \"yes\", the energy force is gained in the"
+" frame molecule."
+msgstr ""
+
+#: ../../source/80_keyword.rst:316
+msgid "summary"
+msgstr ""
+
+#: ../../source/80_keyword.rst:318
+msgid ""
+"Displays a summary of the calculation. There are three different methods "
+"depending on the data format."
+msgstr ""
+
+#: ../../source/80_keyword.rst:321
+msgid "boolean"
+msgstr ""
+
+#: ../../source/80_keyword.rst:323
+msgid "Outputs a standard summary (True)."
+msgstr ""
+
+#: ../../source/80_keyword.rst:334
+msgid "string"
+msgstr ""
+
+#: ../../source/80_keyword.rst:336
+msgid ""
+"Output according to the given string. Specific strings are replaced by "
+"the corresponding content."
+msgstr ""
+
+#: ../../source/80_keyword.rst:341
+msgid "keyword"
+msgstr ""
+
+#: ../../source/80_keyword.rst:341
+msgid "content"
+msgstr ""
+
+#: ../../source/80_keyword.rst:343
+msgid "{NUM_OF_ATOMS}"
+msgstr ""
+
+#: ../../source/80_keyword.rst:343
+msgid "number of atoms"
+msgstr ""
+
+#: ../../source/80_keyword.rst:344
+msgid "{NUM_OF_AO}"
+msgstr ""
+
+#: ../../source/80_keyword.rst:344
+msgid "number of AOs"
+msgstr ""
+
+#: ../../source/80_keyword.rst:345
+msgid "{NUM_OF_MO}"
+msgstr ""
+
+#: ../../source/80_keyword.rst:345
+msgid "number of MOs"
+msgstr ""
+
+#: ../../source/80_keyword.rst:346
+msgid "{METHOD}"
+msgstr ""
+
+#: ../../source/80_keyword.rst:346
+msgid "method"
+msgstr ""
+
+#: ../../source/80_keyword.rst:347
+msgid "{IS_CONVERGED}"
+msgstr ""
+
+#: ../../source/80_keyword.rst:347
+msgid "Whether the SCF is converged or not"
+msgstr ""
+
+#: ../../source/80_keyword.rst:348
+msgid "{ITERATION}"
+msgstr ""
+
+#: ../../source/80_keyword.rst:348
+msgid "iteration"
+msgstr ""
+
+#: ../../source/80_keyword.rst:349
+msgid "{TOTAL_ENERGY}"
+msgstr ""
+
+#: ../../source/80_keyword.rst:349
+msgid "total energy"
+msgstr ""
+
+#: ../../source/80_keyword.rst:350
+msgid "{GRADIENT_RMS}"
+msgstr ""
+
+#: ../../source/80_keyword.rst:350
+msgid "gradient RMS"
+msgstr ""
+
+#: ../../source/80_keyword.rst:364
+msgid "dict"
+msgstr ""
+
+#: ../../source/80_keyword.rst:366
+msgid ""
+"If you want to export to a file, you can use this format. The output file"
+" is written in appendix mode."
+msgstr ""
+
+#: ../../source/80_keyword.rst:368
+msgid "format"
+msgstr ""
+
+#: ../../source/80_keyword.rst:370
+msgid "Output according to the format string."
+msgstr ""
+
+#: ../../source/80_keyword.rst:372
+msgid "filepath"
+msgstr ""
+
+#: ../../source/80_keyword.rst:374
+msgid "Specify the file path to be output."
+msgstr ""
+
+#: ../../source/80_keyword.rst:388
+msgid "default frame"
+msgstr ""
+
+#: ../../source/80_keyword.rst:390
+msgid "The \"default frame\" is a special frame."
+msgstr ""
+
+#: ../../source/80_keyword.rst:392
+msgid ""
+"If the name section is 'default', this frame parameters are used as "
+"default values."
+msgstr ""
+
+#: ../../source/80_keyword.rst:394
+msgid ""
+"In the following example, the frame is calculated as DZVP2 as the "
+"basisset and the exchange correlation functional is used by B3LYP."
+msgstr ""
+
