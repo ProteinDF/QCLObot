@@ -4,19 +4,19 @@ explanation of QCLObot YAML File
 
 QCLObot playbook is separated by following two parts:
 
-- vars section
+- "vars" section
 
   definition of variables
   
-- tasks section
+- "tasks" section
 
   definition of task for general and for frame molecule
 
-vars section
-============
+"vars" section
+=======================================================================
 
 Declare the variable. 
-The declared variables can be used with "with_items" and so on.
+The declared variables can be used with ``with_items`` and so on.
 
 
 .. code-block:: yaml
@@ -44,10 +44,10 @@ The declared variables can be used with "with_items" and so on.
   Note that when using templates, especially when operating within a template, there is a distinction between strings and numbers.
 
 
-tasks section
-=============
+"tasks" section
+=======================================================================
 
-The tasks section is consist of three parts:
+The "tasks" section is consist of three parts:
 
 - condition
 - task
@@ -55,22 +55,22 @@ The tasks section is consist of three parts:
 
 
 condition
----------
+-----------------------------------------------------------------------
 
 with_items
-^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 repeat the task.
 
   
 when
-^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 do the task if the condition is satisfied.
   
 
 include
-^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Insert an external file. Fill in the external file with the "tasks" statement.
 
@@ -82,10 +82,10 @@ Insert an external file. Fill in the external file with the "tasks" statement.
 
 
 task
-----
+-----------------------------------------------------------------------
 
 mail
-^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Send mail.
 
@@ -105,19 +105,19 @@ Send mail.
 
 
 debug
-^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 do nothing.
 
 
 frame
------
+-----------------------------------------------------------------------
 
 frame definition
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 name(mandatory)
-"""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 All frame require the name.
 Based of this name value, the working directory is created on the current directory. 
@@ -146,7 +146,7 @@ Accept values of the dictionary type. Replaces the default external commands. Th
 
 
 fragments
-"""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 A frame molecule consists of fragment(s).
 The fragment is defined by following keywords.
@@ -155,7 +155,7 @@ All fragment requires the "name" attribute, which is used as name of the fragmen
 
 * atomlist
 
-'atomlist' directive makes fragment from atom list
+``atomlist`` directive makes fragment from atom list
 
 .. code-block:: yaml
                 
@@ -168,7 +168,7 @@ All fragment requires the "name" attribute, which is used as name of the fragmen
           - "N  1.000000   0.000000   0.000000"
 
         
-The atomlist is an array object.
+The ``atomlist`` is an array object.
 Each atom is defined by string separated white space, 
 or by array object as following:
 
@@ -186,7 +186,7 @@ or by array object as following:
        
 * add_CH3
 
-  If the keyword is defined as "yes",
+  If the keyword is defined as ``yes``,
   a methyl group is add as fragment.
 
   * displacement
@@ -280,7 +280,7 @@ The fragment is created by using the previous calculation result.
 
 * brd_select
 
-The group which is indicated by the value of "brd_select" keyword is add as fragment.
+The group which is indicated by the value of ``brd_select`` keyword is add as fragment.
 This value is specified by string as Bridge path.
 
 

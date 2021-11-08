@@ -4,8 +4,8 @@ Setting up calculation model
 Prepare Oxytocin model
 ----------------------
 
-You can get Oxytocin model (1NPO_model.pdb) from here.
-Or you save the following text as 1NPO_model.pdb.
+You can get Oxytocin model from here.
+Or you save the following text as ``1NPO_model.pdb``.
 
 .. literalinclude:: 1NPO_model.pdb
    :language: none
@@ -16,8 +16,8 @@ Or you save the following text as 1NPO_model.pdb.
 Check the model structure
 ----------------------------
 
-You should check the model structure by using viewing software such as PyMol and Chimera.
-The current model has a dislufide bond between CYC1 and CYC6.
+You should check the model structure by using viewing software such as "PyMol" and "Chimera".
+The current model has a disulfide bond between "CYC1" and "CYC6".
 
 
               
@@ -33,16 +33,16 @@ Convert PDB file to Bridge format file
 
   You can check the bridge file contents using the following utility.
 
-.. code-block:: bash
+  .. code-block:: bash
 
-  $ ${PDF_HOME}/bin/brd2txt.py 1NPO_model.brd
+    $ ${PDF_HOME}/bin/brd2txt.py 1NPO_model.brd
    
 
   
 Create input file for QCLObot
 -----------------------------
 
-You save the following text as 1NPO_model.QCLO.yaml.
+You save the following text as ``1NPO_model.QCLO.yaml`` .
 
 .. literalinclude:: 1NPO_model.QCLO.yaml
    :language: yaml
