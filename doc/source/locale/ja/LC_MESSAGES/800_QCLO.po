@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: QCLObot User's Manual 2020.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-08 12:18+0900\n"
+"POT-Creation-Date: 2021-11-08 17:02+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.0\n"
+"Generated-By: Babel 2.9.1\n"
 
 #: ../../source/800_QCLO.rst:5
 msgid "Automated calculation program QCLObot"
@@ -66,6 +66,10 @@ msgid ""
 "タンパク質をアミノ酸残基のような小さな分子片に分割して、 "
 "それらの計算で求められた解を基に徐々に大きなペプチド鎖を計算していくといった手法を用います。 本手法の概要を :num:`Fig. "
 "#qclosteps` に示します。"
+msgstr ""
+
+#: ../../source/800_QCLO.rst:46
+msgid "QCLO_steps.png"
 msgstr ""
 
 #: ../../source/800_QCLO.rst:46
@@ -128,6 +132,10 @@ msgid ""
 "またペプチド結合の部分を厳密に表現するために3 残基以上のフレーム分子から出発します。 "
 "このフレーム分子においてペプチド鎖の場合のフラグメントは主鎖と側鎖の2 パターンに分類します。 "
 "こう分類することで本システムでは自動的にフラグメントに分けることができます。"
+msgstr ""
+
+#: ../../source/800_QCLO.rst:105
+msgid "QCLO_fragment.png"
 msgstr ""
 
 #: ../../source/800_QCLO.rst:105
@@ -302,6 +310,10 @@ msgstr ""
 msgid ""
 "この解は、前のステップの QCLO で張られた空間における、第3ステップの QCLO です。 QCLO 法の処理フローを :num:`Fig. "
 "#qcloflow`  に示します。"
+msgstr ""
+
+#: ../../source/800_QCLO.rst:229
+msgid "QCLO_flow.png"
 msgstr ""
 
 #: ../../source/800_QCLO.rst:229
