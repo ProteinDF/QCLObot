@@ -79,7 +79,7 @@ class QcFragment(object):
         self._margin = rhs._margin
 
         self._parent = rhs._parent
-        self._ref_fragment = rhs._ref_fragment
+        self.ref_fragment = rhs._ref_fragment
 
     def _construct_by_atomgroup(self, rhs):
         """ """
@@ -91,7 +91,7 @@ class QcFragment(object):
             self.set_group(k, v)
         self._name = rhs.name
 
-        self._ref_fragment = None
+        self.ref_fragment = None
         self._parent = None
 
     def _initialize(self, *args, **kwargs):
@@ -101,7 +101,7 @@ class QcFragment(object):
         self._name = kwargs.get("name", "")
         self._margin = False
         # option variables
-        self._ref_fragment = None  # isinstance(QcFragment)
+        self.ref_fragment = None  # isinstance(QcFragment)
         self._parent = None  # isinstance(QcFrame, QcFragment)
         # command alias
         self._cmds = self._get_default_cmds()
@@ -117,7 +117,7 @@ class QcFragment(object):
         return self.__get_state__()
 
     def set_by_raw_data(self, raw_data):
-        assert(isinstance(raw_data, dict))
+        assert isinstance(raw_data, dict)
         self.__set_state__(raw_data)
 
     def __get_state__(self):
@@ -139,7 +139,7 @@ class QcFragment(object):
         return state
 
     def __set_state__(self, state):
-        assert(isinstance(state, dict))
+        assert isinstance(state, dict)
         self._atoms = OrderedDict()
         if "atoms" in state:
             for (atm_name, atm_raw) in state.get("atoms"):
@@ -198,6 +198,8 @@ class QcFragment(object):
         return self._ref_fragment
 
     def _set_ref_fragment(self, frg):
+        if frg is not None:
+            assert isinstance(frg, QcFragment)
             logger.info(
                 "{header} set {parent}/{fragment} as the reference fragment".format(
                     header=self.header,
@@ -744,10 +746,14 @@ class QcFragment(object):
         # 自分のQCLO情報
         if len(self._atoms) > 0:
             logger.info("{header} get self QCLO matrix".format(header=self.header))
+            assert self.ref_fragment is not None
             ref_frame = self.ref_fragment.parent
             ref_orbinfo = ref_frame.get_orbital_info()
             ref_num_of_AOs = ref_frame.get_number_of_AOs()
 
+            my_qclo_matrix_path = self.ref_fragment.get_QCLO_matrix_path(
+                run_type, force
+            )
             logger.info(
                 "{header} reference QCLO matrix path: {path}".format(
                     header=self.header, path=my_qclo_matrix_path
