@@ -45,7 +45,7 @@ class QcControl(QcControlObject):
 
         self._frames = {}
         self._frames["default"] = {}
-        self._frames["default"]["guess"] = {"method": "harris"}
+        self._frames["default"]["guess"] = {"method": "harris", "force": False}
         self._frames["default"]["basis_set"] = "DZVP2"
         self._frames["default"]["brd_file"] = ""
 
@@ -182,17 +182,8 @@ class QcControl(QcControlObject):
         assert isinstance(frame_data, dict)
 
         # --------------------------------------------------------------
-        # prepareation of input
+        # frame name operation
         # --------------------------------------------------------------
-        # if isinstance(frame_data["guess"], str):
-        #     logger.warn('scalar data is deprecated in "guess" section. Use mapping.')
-        #     guess_str = frame_data["guess"]
-        #     frame_data["guess"] = {"method": guess_str}
-
-        # --------------------------------------------------------------
-        # setup
-        # --------------------------------------------------------------
-        # name
         if "name" not in frame_data:
             logger.critical("name is not defined.")
         frame_name = frame_data.get("name")
@@ -201,11 +192,29 @@ class QcControl(QcControlObject):
         logger.info("#" * 72)
         frame = QcFrame(frame_name)
 
+        # --------------------------------------------------------------
         # setup default value
+        # --------------------------------------------------------------
         frame_data = dict(self._frames["default"], **frame_data)
         # self._set_default(self._frames['default'], frame_data)
 
+        # --------------------------------------------------------------
+        # prepareation of input
+        # --------------------------------------------------------------
+        # Lower compatibility: guess
+        if isinstance(frame_data.get("guess", None), str):
+            logger.warn(
+                "string-type is deprecated in 'guess' section. Use map(dict)-type."
+            )
+            guess_str = frame_data["guess"]
+            frame_data["guess"] = {"method": guess_str, "force": False}
+
+        # --------------------------------------------------------------
         # frame configuration
+        # --------------------------------------------------------------
+        if isinstance(frame_data["guess"], dict) != True:
+            raise QcControlError(frame_data["guess"], "guess")
+        assert isinstance(frame_data["guess"]["method"], str)
         frame.pdfparam.guess = frame_data["guess"]["method"]
 
         charge = frame_data.get("charge", None)
@@ -262,10 +271,8 @@ class QcControl(QcControlObject):
         frame.pdfparam.gridfree_CD_epsilon = frame_data.get("gridfree/CD_epsilon", None)
 
         frame.pdfparam.extra_keywords = frame_data.get("pdf_extra_keywords", {})
-
-        # print(">>>> qccontrol:")
-        # print(repr(frame.pdfparam.extra_keywords))
-        # print("<<<<")
+        # logger.info("pdf extra keywords:")
+        # logger.info(repr(frame_data["pdf_extra_keywords"]))
 
         # properties -----------
         # cmd alias
