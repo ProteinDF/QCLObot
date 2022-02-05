@@ -165,10 +165,13 @@ class QcFrame(object):
 
     # DB ---------------------------------------------------------------
     def set_db_filename(self, filename):
+        assert filename is not None
         self._db_filename = str(filename)
+        logger.debug("set_db_filename: {}".format(self._db_filename))
 
     def _get_db_path(self):
         db_path = os.path.abspath(os.path.join(self.work_dir, self._db_filename))
+        logger.debug("db_filename: {}".format(self._db_filename))
         return db_path
 
     db_path = property(_get_db_path)
@@ -188,7 +191,6 @@ class QcFrame(object):
     # ==================================================================
     # PROPERTIES
     # ==================================================================
-
     # command alias ----------------------------------------------------
     def set_command_alias(self, cmd_alias_dict):
         for k, v in cmd_alias_dict.items():
@@ -235,6 +237,24 @@ class QcFrame(object):
         return self._cache["frame_molecule"]
 
     frame_molecule = property(_get_frame_molecule)
+
+    # fragment_atom_ids ------------------------------------------------
+    def _get_fragments_atom_ids(self):
+        fragments_atom_ids = []
+        for fragment_name, fragment in self.fragments():
+            fragment_atomgroup = fragment.get_AtomGroup()
+            fragment_atomgroup *= pdf.ANG2AU  # angstrom -> a.u.
+            fragment_atom_list = fragment_atomgroup.get_atom_list()
+            atom_id_list = []
+            for atom in fragment_atom_list:
+                atom_id = int(self.pdfparam.find_atom_index(atom))
+                if atom_id == -1:
+                    logger.critical("not found atom index: {}".format(str(atom)))
+                atom_id_list.append(atom_id)
+            fragments_atom_ids.append(atom_id_list)
+        return fragments_atom_ids
+
+    fragments_atom_ids = property(_get_fragments_atom_ids)
 
     # work dir ---------------------------------------------------------
     def _prepare_work_dir(self):
@@ -377,7 +397,6 @@ class QcFrame(object):
     is_finished_force = property(_get_state_finished_force, _set_state_finished_force)
 
     # pick density matrix  ---------------------------------------------
-
     def _get_state_finished_pickup_density_matrix(self):
         self._state.setdefault("is_finished_pickup_density_matrix", False)
         return self._state["is_finished_pickup_density_matrix"]
@@ -415,7 +434,6 @@ class QcFrame(object):
     # ==================================================================
     # GUESS
     # ==================================================================
-
     # guess density ----------------------------------------------------
     def guess_density(self, run_type="rks", force=False):
         if (self.is_finished_guess_density == True) and (force == False):
@@ -593,7 +611,6 @@ class QcFrame(object):
     # ==================================================================
     # CALC
     # ==================================================================
-
     def _setup_pdf(self):
         logger.info("{header} setup ProteinDF condition".format(header=self.header))
 
@@ -936,6 +953,12 @@ class QcFrame(object):
 
         self.cd_work_dir("calc lo")
 
+        # make atom groups for LO
+        fragments_atom_ids_path = "fragments_atom_id.mpac"
+        fragments_atom_ids = self.fragments_atom_ids
+        logger.info("save fragment atom ids as {}".format(fragments_atom_ids_path))
+        bridge.save_msgpack(fragments_atom_ids, fragments_atom_ids_path)
+
         logger.info("start lo calculation.")
         pdf.run_pdf(self._cmds["lo"])
 
@@ -958,7 +981,7 @@ class QcFrame(object):
         self._switch_fragments()
 
         # debug
-        logger.debug("pickup_QCLO_matrix frame: ".format(self._name))
+        logger.debug("pickup_QCLO_matrix frame: {}".format(self._name))
         pdfarc = self.get_pdfarchive()
         num_of_AOs = pdfarc.num_of_AOs
         num_of_MOs = pdfarc.num_of_MOs
@@ -1257,7 +1280,7 @@ class QcFrame(object):
         else:
             raise
 
-    # rearangement -----------------------------------------------------
+    # rearrangement -----------------------------------------------------------
     def _switch_fragments(self):
         """
         fragmentsを入力用から出力用に切り替える
