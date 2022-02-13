@@ -123,6 +123,28 @@ All frame require the name.
 Based of this name value, the working directory is created on the current directory. 
 
 
+cmd_alias
+"""""""""
+
+Accept values of the dictionary type. Replaces the default external commands. The following commands are currently supported:
+
+.. It can be found in _get_default_cmds() of qcframe.py.
+
+- archive
+- mat-extend
+- mat-mul
+- mat-select
+- mat-symetrize
+- mat-transpose
+- mat-diagonal
+
+
+.. db_filename
+.. """""""""""
+
+.. Specify the name of the DB file to be used.
+
+
 fragments
 """""""""
 
@@ -277,18 +299,26 @@ The following keyword indicates for the frame object to do.
 
   Creation of the initial guess is executed.
   How to create guess depends on the value of "guess" keyword.
+  Use mapping format in "guess" section.
 
-  * harris
+  * method
 
-    The initial guess is created by using Harris functional method.
-    This is default.
+    Specified method for guess. Possible values are as follows.
 
-  * QCLO
+    * harris
 
-    The inigial guess is made of the QCLOs of corresponding fragments by using QCLO method.
-    If the QCLO of the child fragment has not been created,
-    it is computed automatically.
+      The initial guess is created by using Harris functional method.
+      This is default.
 
+    * QCLO
+
+      The inigial guess is made of the QCLOs of corresponding fragments by using QCLO method.
+      If the QCLO of the child fragment has not been created,
+      it is computed automatically.
+
+  * force
+
+    boolean. The default value is False. If you want to force execution even if it has already been done, specify True.
     
 * sp
 
