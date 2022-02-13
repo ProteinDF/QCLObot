@@ -8,17 +8,12 @@ import logging.config
 
 import pprint
 
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
-
 import proteindf_bridge as bridge
 import proteindf_tools as pdf
 import qclobot as qclo
 
 
-def assign_charges(atomgroup, charges, charge_index = 0):
+def assign_charges(atomgroup, charges, charge_index=0):
     assert(isinstance(atomgroup, bridge.AtomGroup))
     assert(isinstance(charges, bridge.Vector))
 
@@ -32,7 +27,8 @@ def assign_charges(atomgroup, charges, charge_index = 0):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='check convergence in the QCLO frame')
+    parser = argparse.ArgumentParser(
+        description='check convergence in the QCLO frame')
     parser.add_argument('frame',
                         nargs=1,
                         help='frame directory')
@@ -47,7 +43,7 @@ def main():
 
     frame_name = args.frame[0]
     output_path = args.output_path[0]
-    #if len(output_path) == 0:
+    # if len(output_path) == 0:
     #    output_path = "{frame_name}.brd".format(frame_name=frame_name)
     verbose = args.verbose
 
@@ -59,13 +55,13 @@ def main():
         frame = qclo.QcFrame(frame_name)
         frame_molecule = bridge.AtomGroup(frame.frame_molecule)
 
-        pop_vtr1 = frame.pop(iteration = 0)
-        pop_vtr2 = frame.pop(iteration = -1)
-        #print(pop_vtr1)
-        #print(pop_vtr2)
+        pop_vtr1 = frame.pop(iteration=0)
+        pop_vtr2 = frame.pop(iteration=-1)
+        # print(pop_vtr1)
+        # print(pop_vtr2)
 
         pop_vtr2 -= pop_vtr1
-        #print(pop_vtr2)
+        # print(pop_vtr2)
 
         frame_molecule.assign_charges(pop_vtr2)
 

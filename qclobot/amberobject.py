@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import logging
-logger = logging.getLogger(__name__)
 import time
+import os
+
+from .utils import get_model, find_max_chain_id, remove_WAT
+from .process import Process
+from .mdobject import MdObject
 
 import proteindf_bridge as bridge
-from .mdobject import MdObject
-from .process import Process
-from .utils import get_model, check_format_model, find_max_chain_id, remove_WAT
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 class AmberObject(MdObject):
     """Operate Amber task
@@ -38,7 +41,7 @@ class AmberObject(MdObject):
     def _initialize(self):
         ''' initialize object
         '''
-        super(AmberObject, self)._initialize() # called from the parents class
+        super(AmberObject, self)._initialize()  # called from the parents class
 
         self._AMBERHOME = os.environ.get('AMBERHOME', '')
         if len(self._AMBERHOME) == 0:
@@ -53,46 +56,51 @@ class AmberObject(MdObject):
     # properties
     # ==================================================================
     # solvation
-    #def _get_is_solvation(self):
+    # def _get_is_solvation(self):
     #    return self._data.get('is_solvation', False)
-    #def _set_is_solvation(self, yn):
+    # def _set_is_solvation(self, yn):
     #    self._data['is_solvation'] = bool(yn)
     #is_solvation = property(_get_is_solvation, _set_is_solvation)
 
     def _get_solvation_method(self):
         return self._data.get("solvation_method", None)
+
     def _set_solvation_method(self, method):
         self._data["solvation_method"] = str(method).lower()
     solvation_method = property(_get_solvation_method, _set_solvation_method)
 
     def _get_solvation_model(self):
         return self._data.get('solvation_model', "TIP3PBOX")
+
     def _set_solvation_model(self, model):
         self._data['solvation_model'] = str(model)
     solvation_model = property(_get_solvation_model, _set_solvation_model)
 
-
     # belly type dynamics
+
     def _get_use_belly(self):
         return self._data.get("use_belly", False)
+
     def _set_use_belly(self, yn):
         self._data["use_belly"] = bool(yn)
     use_belly = property(_get_use_belly, _set_use_belly)
 
     def _get_bellymask_WAT(self):
         return self._data.get("bellymask_WAT", False)
+
     def _set_bellymask_WAT(self, yn):
         self._data["bellymask_WAT"] = bool(yn)
     bellymask_WAT = property(_get_bellymask_WAT, _set_bellymask_WAT)
 
     def _get_bellymask_ions(self):
         return self._data.get("bellymask_ions", False)
+
     def _set_bellymask_ions(self, yn):
         self._data["bellymask_ions"] = bool(yn)
     bellymask_ions = property(_get_bellymask_ions, _set_bellymask_ions)
 
-
     # other amber parameters
+
     def set_param(self, param, value):
         self._data.setdefault("cntrl", {})
         param = str(param)
@@ -127,8 +135,8 @@ class AmberObject(MdObject):
         return path
     leap_input_pdb_filepath = property(_get_leap_input_pdb_filepath)
 
-
     # for this task
+
     def _get_input_pdb_filepath(self):
         path = self._data.get('input_pdb_filepath', 'input.pdb')
         return path
@@ -190,6 +198,50 @@ class AmberObject(MdObject):
     final_pdb_filepath = property(_get_final_pdb_filepath)
 
     # ==================================================================
+    # others
+    # ==================================================================
+    def charge(self):
+        model = bridge.AtomGroup(self.model)
+        self._save_input_pdb(model)
+
+        # SS-bond
+        ssb = bridge.SSBond(model)
+        ssbonds = ssb.get_bonds()
+        for (path1, path2) in ssbonds:
+            path1_items = bridge.Path.split_path(path1)
+            path2_items = bridge.Path.split_path(path2)
+            model[path1_items[0]][path1_items[1]].name = "CYX"
+            model[path2_items[0]][path2_items[1]].name = "CYX"
+
+        self._save_leap_input_pdb(model)
+        self._prepare_leapin()
+        self._do_leap()
+
+        prmtop_path = os.path.join(self.work_dir, 'protein.prmtop')
+        inpcrd_path = os.path.join(self.work_dir, 'protein.inpcrd')
+        prmtop = bridge.AmberPrmtop(prmtop_path, inpcrd_path)
+        charges = prmtop.charges
+        # print(charges)
+
+        pdb_obj = bridge.Pdb()
+        pdb_obj.load(os.path.join(self.work_dir, self.initial_pdb_filepath))
+        initial = pdb_obj.get_atomgroup()
+        # model2 = initial.get_group('model_1')
+
+        num_of_charges = len(charges)
+        charge_index = 0
+        for chain_name, chain in model.groups():
+            for res_name, residue in chain.groups():
+                for atom_name, atom in residue.atoms():
+                    atom.charge = charges[charge_index]
+                    charge_index += 1
+        print("{}/{}".format(charge_index, num_of_charges))
+
+        self.output_model = model
+
+        # self._restrt2pdb()
+
+    # ==================================================================
     # optimization
     # ==================================================================
     def opt(self):
@@ -205,6 +257,16 @@ class AmberObject(MdObject):
 
         # self.solvation_model = "cap"
 
+        # SS-bond
+        ssb = bridge.SSBond(model)
+        ssbonds = ssb.get_bonds()
+        for (path1, path2) in ssbonds:
+            path1_items = bridge.Path.split_path(path1)
+            path2_items = bridge.Path.split_path(path2)
+            model[path1_items[0]][path1_items[1]].name = "CYX"
+            model[path2_items[0]][path2_items[1]].name = "CYX"
+
+        # leap
         self._save_leap_input_pdb(model)
         self._prepare_leapin()
         self._do_leap()
@@ -238,14 +300,14 @@ class AmberObject(MdObject):
         self._do_sander()
         self._restrt2pdb()
 
-
     def _remove_water(self, model):
         return remove_WAT(model)
 
-
     def _save_input_pdb(self, model):
         """
-        入力ファイルを保存する
+        save the input file.
+
+        filename: self.input_pdb_filepath
         """
         self.cd_workdir("debug input pdb file")
 
@@ -275,9 +337,8 @@ class AmberObject(MdObject):
 
         self.restore_cwd()
 
-
     def _reform_model_for_belly(self, model):
-        chain_prefix = chr(ord("A") -1)
+        chain_prefix = chr(ord("A") - 1)
 
         if self.bellymask_WAT:
             model_new = bridge.AtomGroup()
@@ -328,12 +389,12 @@ class AmberObject(MdObject):
 
         return output_model
 
-
     # ==================================================================
     # dynamics
     # ==================================================================
+
     def md(self,
-           steps = 1, dt = 0.002):
+           steps=1, dt=0.002):
         """ compute molecular dynamics
 
         steps: Number of MD-steps to be performed.
@@ -362,7 +423,7 @@ class AmberObject(MdObject):
         self.set_param("ntwx", 500)
         self.set_param("ntwe", 500)
 
-        self.set_param("nstlim", steps) # 500000
+        self.set_param("nstlim", steps)  # 500000
         self.set_param("dt", dt)
 
         self.set_param("ntt", 1)
@@ -382,10 +443,10 @@ class AmberObject(MdObject):
         self._do_sander()
         self._restrt2pdb()
 
-
     # ==================================================================
     # leap setting
     # ==================================================================
+
     def _prepare_leapin(self):
         """make input file for xleap command
         """
@@ -430,7 +491,21 @@ class AmberObject(MdObject):
     def __get_leap_ssbond_lines(self):
         """return bond lines
         """
+        ssb = bridge.SSBond(self.model)
+        ssbonds = ssb.get_bonds()
+        # print(ssbonds)
+
         answer = ''
+        for (path1, path2) in ssbonds:
+            res_id1 = bridge.Path.get_res_id(path1)
+            res_id2 = bridge.Path.get_res_id(path2)
+            assert(res_id1 is not None)
+            assert(res_id2 is not None)
+            seq_res_id1 = bridge.Utils.get_sequential_residue_id(
+                self.model, bridge.Path.get_chain_id(path1), bridge.Path.get_res_id(path1))
+            seq_res_id2 = bridge.Utils.get_sequential_residue_id(
+                self.model, bridge.Path.get_chain_id(path2), bridge.Path.get_res_id(path2))
+            answer += "bond protein.{res_id1}.SG protein.{res_id2}.SG\n".format(res_id1=seq_res_id1, res_id2=seq_res_id2)
 
         return answer
 
@@ -447,14 +522,22 @@ class AmberObject(MdObject):
                                                                     z=center.z)
                 (box_min, box_max) = self.model.box()
                 distance = 0.0
-                distance = max(distance, center.distance_from(bridge.Position(box_min.x, box_min.y, box_min.z)))
-                distance = max(distance, center.distance_from(bridge.Position(box_max.x, box_min.y, box_min.z)))
-                distance = max(distance, center.distance_from(bridge.Position(box_max.x, box_max.y, box_min.z)))
-                distance = max(distance, center.distance_from(bridge.Position(box_max.x, box_min.y, box_max.z)))
-                distance = max(distance, center.distance_from(bridge.Position(box_max.x, box_max.y, box_max.z)))
-                distance = max(distance, center.distance_from(bridge.Position(box_min.x, box_max.y, box_min.z)))
-                distance = max(distance, center.distance_from(bridge.Position(box_min.x, box_max.y, box_max.z)))
-                distance = max(distance, center.distance_from(bridge.Position(box_min.x, box_min.y, box_max.z)))
+                distance = max(distance, center.distance_from(
+                    bridge.Position(box_min.x, box_min.y, box_min.z)))
+                distance = max(distance, center.distance_from(
+                    bridge.Position(box_max.x, box_min.y, box_min.z)))
+                distance = max(distance, center.distance_from(
+                    bridge.Position(box_max.x, box_max.y, box_min.z)))
+                distance = max(distance, center.distance_from(
+                    bridge.Position(box_max.x, box_min.y, box_max.z)))
+                distance = max(distance, center.distance_from(
+                    bridge.Position(box_max.x, box_max.y, box_max.z)))
+                distance = max(distance, center.distance_from(
+                    bridge.Position(box_min.x, box_max.y, box_min.z)))
+                distance = max(distance, center.distance_from(
+                    bridge.Position(box_min.x, box_max.y, box_max.z)))
+                distance = max(distance, center.distance_from(
+                    bridge.Position(box_min.x, box_min.y, box_max.z)))
                 cap_radius = max(distance + 10.0, 30.0)
                 solvent = self.solvation_model
                 answer += "solvateCap {solute} {solvent} {position} {radius} {closeness}\n".format(
@@ -464,7 +547,8 @@ class AmberObject(MdObject):
                     radius=cap_radius,
                     closeness="")
             else:
-                logger.warning('solvation model is not understood.: {}'.format(self.solvation_model))
+                logger.warning('solvation model is not understood.: {}'.format(
+                    self.solvation_model))
 
         return answer
 
@@ -543,7 +627,6 @@ class AmberObject(MdObject):
             # nstlim: Number of MD-steps to be performed. Default 1.
             minimization_contents = "imin=0, "
 
-
         # ntx: Option to read the coordinates from the “inpcrd” file.
         #  = 1 X is read formatted with no initial velocity information. Default.
         #  = 2 X is read unformatted with no initial velocity information.
@@ -561,7 +644,7 @@ class AmberObject(MdObject):
             pdb = bridge.Pdb()
             pdb.load(self.initial_pdb_filepath)
             initial_model = get_model(pdb.get_atomgroup())
-            #print("initial model: #atoms=", initial_model.get_number_of_all_atoms())
+            # print("initial model: #atoms=", initial_model.get_number_of_all_atoms())
             #print("model: ", self.model.get_number_of_all_atoms())
             #print("BM ions", self.bellymask_ions)
             #assert(initial_model.get_number_of_all_atoms() == self.model.get_number_of_all_atoms())
@@ -581,7 +664,6 @@ class AmberObject(MdObject):
                 belly_maskstr += ":Na+,Cl-"
             belly_contents = "ibelly=1, bellymask='{belly_maskstr}'"
             belly_contents = belly_contents.format(belly_maskstr=belly_maskstr)
-
 
         mdin_contents = """
         #
@@ -604,7 +686,7 @@ class AmberObject(MdObject):
             belly_contents=belly_contents)
         mdin_contents += lmod_contents
         mdin_contents = mdin_contents.lstrip('\n')
-        mdin_contents = bridge.Utils.unindent_block(mdin_contents)
+        mdin_contents = bridge.StrUtils.unindent_block(mdin_contents)
 
         with open(self.mdin_filepath, 'w') as f:
             f.write(mdin_contents)
@@ -618,10 +700,10 @@ class AmberObject(MdObject):
 #        &end
 #        """
 
-
     # ==================================================================
     # do sander
     # ==================================================================
+
     def _do_sander(self):
         self.cd_workdir("do sander")
 
@@ -645,7 +727,6 @@ class AmberObject(MdObject):
         self.restore_cwd()
         return return_code
 
-
     # ==================================================================
     # get pdb
     # ==================================================================
@@ -667,7 +748,7 @@ class AmberObject(MdObject):
         return_code = p.commit(self.final_pdb_filepath,
                                stdout_through=False,
                                stderr_through=False)
-        logger.info("save amber pdb file: {}".format(self.final_pdb_filepath));
+        logger.info("save amber pdb file: {}".format(self.final_pdb_filepath))
 
         amb_pdb = bridge.Pdb(self.final_pdb_filepath)
         amb_models = amb_pdb.get_atomgroup()
@@ -679,7 +760,8 @@ class AmberObject(MdObject):
         orig_models.set_group(1, orig_model)
         orig_pdb = bridge.Pdb()
         orig_pdb.set_by_atomgroup(orig_models)
-        logger.info("save reordered pdb file: {}".format(self.output_pdb_filepath))
+        logger.info("save reordered pdb file: {}".format(
+            self.output_pdb_filepath))
         with open(self.output_pdb_filepath, "w") as f:
             f.write(str(orig_pdb))
 
@@ -689,18 +771,18 @@ class AmberObject(MdObject):
         self.restore_cwd()
         return return_code
 
-
     def _rename_amb2orig(self, amb_model):
         """ 対応表(match_table)
         """
         max_chain_id = find_max_chain_id(self.model)
-        next_chain_id = chr(ord(max_chain_id) +1)
+        next_chain_id = chr(ord(max_chain_id) + 1)
 
         # rename model, chain, res_id
         answer = bridge.AtomGroup()
         for amb_chain_id, amb_chain in amb_model.groups():
             for amb_res_id, amb_res in amb_chain.groups():
-                orig_chain_id, orig_res_id = self._get_chainres_match_table(amb_chain_id, amb_res_id)
+                orig_chain_id, orig_res_id = self._get_chainres_match_table(
+                    amb_chain_id, amb_res_id)
                 logger.debug("amb: {amb_chain_id}/{amb_res_id} -> new: {orig_chain_id}/{orig_res_id}".format(
                     amb_chain_id=amb_chain_id, amb_res_id=amb_res_id, orig_chain_id=orig_chain_id, orig_res_id=orig_res_id))
 
@@ -734,7 +816,7 @@ class AmberObject(MdObject):
         amb_pdb = bridge.Pdb(self.initial_pdb_filepath)
         amb_models = amb_pdb.get_atomgroup()
         amb_model = get_model(amb_models)
-        assert(check_format_model(amb_model))
+        assert(bridge.Format.is_protein(amb_model))
 
         # check wether 'leap' adds any atoms or not.
         if self.model.get_number_of_all_atoms() == amb_model.get_number_of_all_atoms():
@@ -777,15 +859,17 @@ class AmberObject(MdObject):
                     if orig_path == None:
                         pass
                     else:
-                        (orig_chain_id, orig_resid, orig_atom_id) = bridge.AtomGroup.divide_path(orig_path)
-                        (amb_model_id, amb_chain_id, amb_resid, amb_atom_id) = bridge.AtomGroup.divide_path(amb_path)
-                        self._set_chainres_match_table(amb_chain_id, amb_resid, orig_chain_id, orig_resid)
+                        (orig_chain_id, orig_resid,
+                         orig_atom_id) = bridge.AtomGroup.divide_path(orig_path)
+                        (amb_model_id, amb_chain_id, amb_resid,
+                         amb_atom_id) = bridge.AtomGroup.divide_path(amb_path)
+                        self._set_chainres_match_table(
+                            amb_chain_id, amb_resid, orig_chain_id, orig_resid)
 
         self._show_amber_chain_res_match_table()
 
         self.restore_cwd()
         return 0
-
 
     def _set_chainres_match_table(self,
                                   amb_chain, amb_res,
@@ -797,7 +881,6 @@ class AmberObject(MdObject):
         resid_only_key = "*:{}".format(amb_res)
         self._data["amber_chain_res_table"].setdefault(resid_only_key, value)
 
-
     def _get_chainres_match_table(self, amb_chain, amb_res):
         self._data.setdefault("amber_chain_res_table", {})
         key = "{}:{}".format(amb_chain, amb_res)
@@ -807,26 +890,27 @@ class AmberObject(MdObject):
         value = self._data["amber_chain_res_table"].get(key, None)
         if value == None:
             resid_only_key = "*:{}".format(amb_res)
-            value = self._data["amber_chain_res_table"].get(resid_only_key, None)
+            value = self._data["amber_chain_res_table"].get(
+                resid_only_key, None)
         if value:
             chain, res = value.split(":")
         answer = (chain, res)
         return answer
-
 
     def _show_amber_chain_res_match_table(self):
         ''' output matching table
         '''
         logger.debug(">>>> matching table")
         if len(self._data["amber_chain_res_table"]) == 0:
-            logger.warning("emoty amber chain:res matching table")
+            logger.warning("empty amber chain:res matching table")
         for amb_chain_res, orig_chain_res in self._data["amber_chain_res_table"].items():
-            logger.debug("amb: {} <-> orig: {}".format(amb_chain_res, orig_chain_res))
-
+            logger.debug(
+                "amb: {} <-> orig: {}".format(amb_chain_res, orig_chain_res))
 
     # ==================================================================
     # for belly method
     # ==================================================================
+
     def _get_wat_resid(self, model):
         start = -1
         end = -1
@@ -835,7 +919,6 @@ class AmberObject(MdObject):
         WATs = model.select(select_WAT)
 
         return self._get_ambermask_res_list(WATs)
-
 
     def _get_ion_resid(self, model):
         start = -1
@@ -851,7 +934,6 @@ class AmberObject(MdObject):
 
         return self._get_ambermask_res_list(model_X)
 
-
     def _get_ambermask_res_list(self, select_model):
         select_model.sort_atoms = "nice"
         select_model.sort_groups = "nice"
@@ -866,7 +948,7 @@ class AmberObject(MdObject):
                     end = i
                     continue
 
-                if end +1 == i:
+                if end + 1 == i:
                     # continue residue area
                     end = i
                 else:
@@ -878,15 +960,14 @@ class AmberObject(MdObject):
 
         return res_list
 
-
     def _make_maskstr(self, resid_areas):
         assert(isinstance(resid_areas, list))
         maskstr = ""
         for start, end in resid_areas:
             if len(maskstr) == 0:
-               maskstr = ":"
+                maskstr = ":"
             else:
-               maskstr += ","
+                maskstr += ","
 
             if start != end:
                 maskstr += "{start}-{end}".format(

@@ -2,26 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import os.path
-import logging
-import logging.config
-
 import argparse
-
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
-
 
 import proteindf_bridge as bridge
 import proteindf_tools as pdf
 import qclobot as qclo
 
+import logging
+import logging.config
 logger = logging.getLogger(__name__)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='QCLObot: QM solver based on QCLO method for large-system.')
+    parser = argparse.ArgumentParser(
+        description='QCLObot: QM solver based on QCLO method for large-system.')
     parser.add_argument('-l', '--logfile',
                         nargs=1,
                         action='store',
@@ -58,7 +52,7 @@ def main():
     modeler.run(senario_file_path)
 
 
-def setup_logging(logfile_path = '', is_debug = False):
+def setup_logging(logfile_path='', is_debug=False):
     if len(logfile_path) == 0:
         logfile_path = 'qclobot_modeler.log'
 
@@ -67,10 +61,10 @@ def setup_logging(logfile_path = '', is_debug = False):
     date_format = '%Y-%m-%d %H:%M:%S'
     if is_debug:
         logging_level = logging.DEBUG
-        format_str ='%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
+        format_str = '%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
 
     logging.basicConfig(
-        filename = logfile_path,
+        filename=logfile_path,
         level=logging_level,
         format=format_str,
         datefmt=date_format

@@ -6,15 +6,16 @@ import os.path
 import shutil
 import copy
 import math
-import yaml
-import logging
-import msgpack
 
-import proteindf_bridge
+import proteindf_bridge as bridge
+
 from .qccontrol import QcControl
 
+import logging
 logger = logging.getLogger(__name__)
+
 ANG_PER_AU = 0.5291772
+
 
 class QcOptRecord(object):
     def __init__(self):
@@ -33,7 +34,7 @@ class QcOptRecord(object):
         self._expand_molecule_data(molecule, coord_table, force_table)
         assert(len(coord_table) == num_of_atoms)
         assert(len(force_table) == num_of_atoms)
-        self._steps.append({'molecule': pdfbridge.AtomGroup(molecule),
+        self._steps.append({'molecule': bridge.AtomGroup(molecule),
                             'coord': coord_table,
                             'force': force_table})
 
@@ -44,10 +45,9 @@ class QcOptRecord(object):
             coord_table.append(atom.xyz)
             force_table.append(atom.force)
 
-
     @property
     def step(self):
-        step = len(self._steps) -1
+        step = len(self._steps) - 1
         return step
 
     def _get_stat(self, step):
@@ -67,7 +67,7 @@ class QcOptRecord(object):
         rms_force = math.sqrt(rms_force / (3.0 * len(force_table)))
 
         if step > 0:
-            coord_table0 = self._steps[step -1]['coord']
+            coord_table0 = self._steps[step - 1]['coord']
             coord_table1 = self._steps[step]['coord']
             assert(len(coord_table0) == len(coord_table1))
             for xyz0, xyz1 in zip(coord_table0, coord_table1):
@@ -79,7 +79,6 @@ class QcOptRecord(object):
             rms_disp = math.sqrt(rms_disp / (3.0 * len(coord_table0)))
 
         return (max_force, rms_force, max_disp, rms_disp)
-
 
     def is_converged(self):
         max_force, rms_force, max_disp, rms_disp = self._get_stat(self.step)
@@ -104,14 +103,13 @@ class QcOptRecord(object):
         judge = judge_max_force and judge_rms_force and judge_max_disp and judge_rms_disp
         return judge
 
-
     def get_new_coord(self):
         ans = self.get_SD()
         return ans
 
     def get_SD(self):
-        alpha = 1.0 / (self.step +1)
-        molecule = pdfbridge.AtomGroup(self._steps[self.step]['molecule'])
+        alpha = 1.0 / (self.step + 1)
+        molecule = bridge.AtomGroup(self._steps[self.step]['molecule'])
 
         def update_coord_SD(atomgroup, alpha):
             for k, subgrp in atomgroup.groups():
@@ -125,7 +123,7 @@ class QcOptRecord(object):
 class QcOpt(object):
     def __init__(self,
                  brd_path,
-                 template_path =None):
+                 template_path=None):
 
         self._initialize(brd_path, template_path)
         self._opt_record = QcOptRecord()
@@ -161,22 +159,19 @@ class QcOpt(object):
             self._template_path = os.path.abspath(template_path)
 
     def _load_brd_file(self, path):
-        atom_group = None
-        with open(path, 'rb') as f:
-            raw_dat = msgpack.unpackb(f.read())
-            atom_group = pdfbridge.AtomGroup(raw_dat)
+        atom_group = bridge.load_atomgroup(path)
         return atom_group
 
     # --------------------------------------------------------------------------
-    def _get_workdir(self, step = None):
+    def _get_workdir(self, step=None):
         if step == None:
             step = self.step
         wd = os.path.join(self.top_dir,
-                          '{name}_{step}'.format(name = self.name,
-                                                 step = step))
+                          '{name}_{step}'.format(name=self.name,
+                                                 step=step))
         return wd
 
-    def _get_brd_path(self, itr = None):
+    def _get_brd_path(self, itr=None):
         if itr == None:
             itr = self.step
 
@@ -214,7 +209,6 @@ class QcOpt(object):
         logger.info('restore dir: {}'.format(self.top_dir))
         os.chdir(self.top_dir)
 
-
     def calc_single_point(self):
         logger.info('create QCLO senario')
         yaml_path = self._make_input()
@@ -227,12 +221,10 @@ class QcOpt(object):
         pdfparam = frame.pdfparam
         self._record_step(pdfparam)
 
-
     def _make_input(self):
         input_data = {}
         if self._template_path:
-            with open(self._template_path, 'r') as file:
-                input_data = yaml.load(file)
+            input_data = bridge.load_yaml(self._template_path)
 
         # check 'default' task in template
         input_data.setdefault('tasks', [])
@@ -248,18 +240,16 @@ class QcOpt(object):
             task_default_index = 0
 
         # save brd_file in task default
-        input_data['tasks'][task_default_index]['brd_file'] = self._get_brd_path(self.step)
-        with open(self._get_brd_path(self.step), 'wb') as f:
-            f.write(msgpack.packb(self._molecule.get_raw_data()))
+        input_data['tasks'][task_default_index]['brd_file'] = self._get_brd_path(
+            self.step)
+        bridge.save_msgpack(self._molecule.get_raw_data(),
+                            self._get_brd_path(self.step))
 
         # save YAML file
         yaml_file_path = os.path.join(self._get_workdir(), 'senario.yaml')
-        yaml_file = open(yaml_file_path, 'w')
-        yaml_file.write(yaml.dump(input_data))
-        yaml_file.close
+        bridge.save_yaml(yaml_file_path, input_data)
 
         return yaml_file_path
-
 
     def _record_step(self, pdfparam):
         num_of_atoms = pdfparam.num_of_atoms
@@ -275,15 +265,14 @@ class QcOpt(object):
 
         self._opt_record.add_step(self._molecule)
 
-
     def _insert_forces(self, atomgroup, force_list, force_list_index):
         for key, group in atomgroup.groups():
-            force_list_index = self.insert_forces(group, force_list, force_list_index)
+            force_list_index = self.insert_forces(
+                group, force_list, force_list_index)
         for key, atom in atomgroup.atoms():
             atom.force = force_list[force_list_index]
             force_list_index += 1
         return force_list_index
-
 
     def is_converged(self):
         return self._opt_record.is_converged()

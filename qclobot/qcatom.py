@@ -19,11 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
+import proteindf_tools as pdf
+import proteindf_bridge as bridge
 import logging
 logger = logging.getLogger(__name__)
-
-import proteindf_bridge as bridge
-import proteindf_tools as pdf
 
 
 class QcAtom(bridge.Atom):
@@ -78,7 +77,7 @@ class QcAtom(bridge.Atom):
         return self._basisset
 
     def _set_basisset(self, name):
-        self._basisset = bridge.Utils.to_unicode(name)
+        self._basisset = bridge.StrUtils.to_unicode(name)
 
     basisset = property(_get_basisset, _set_basisset)
 
@@ -87,7 +86,7 @@ class QcAtom(bridge.Atom):
         return self._basisset_j
 
     def _set_basisset_j(self, name):
-        self._basisset_j = bridge.Utils.to_unicode(name)
+        self._basisset_j = bridge.StrUtils.to_unicode(name)
 
     basisset_j = property(_get_basisset_j, _set_basisset_j)
 
@@ -96,7 +95,7 @@ class QcAtom(bridge.Atom):
         return self._basisset_xc
 
     def _set_basisset_xc(self, name):
-        self._basisset_xc = bridge.Utils.to_unicode(name)
+        self._basisset_xc = bridge.StrUtils.to_unicode(name)
 
     basisset_xc = property(_get_basisset_xc, _set_basisset_xc)
 
@@ -105,7 +104,7 @@ class QcAtom(bridge.Atom):
         return self._basisset_gridfree
 
     def _set_basisset_gridfree(self, name):
-        self._basisset_gridfree = bridge.Utils.to_unicode(name)
+        self._basisset_gridfree = bridge.StrUtils.to_unicode(name)
 
     basisset_gridfree = property(_get_basisset_gridfree, _set_basisset_gridfree)
 

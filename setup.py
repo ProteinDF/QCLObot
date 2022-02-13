@@ -19,7 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ProteinDF.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os
+import sys
+import os
 import io
 import re
 
@@ -47,15 +48,15 @@ setup(name='qclobot',
           'scripts/qc-info-frame.py',
           'scripts/qc-frame-molecule.py',
           'scripts/qc-frame-checkconv.py',
-          'scripts/qc-frame-orb.py'
+          'scripts/qc-frame-orb.py',
+          'scripts/resp-charge.py'
       ],
 
-      install_requires = [
+      install_requires=[
           'configparser',
-          'msgpack',
-          'pyyaml',
           'jinja2',
-          #'proteindf_bridge',
-          #'proteindf_tools'
+          'rainbow_logging_handler',
+          # 'proteindf_bridge',
+          # 'proteindf_tools'
       ],
-)
+      )

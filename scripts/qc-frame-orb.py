@@ -6,10 +6,14 @@ import argparse
 import logging
 import logging.config
 
+import proteindf_bridge as bridge
+import proteindf_tools as pdf
 import qclobot as qclo
 
+
 def main():
-    parser = argparse.ArgumentParser(description='show frame orbital information')
+    parser = argparse.ArgumentParser(
+        description='show frame orbital information')
     parser.add_argument('frame',
                         nargs=1,
                         help='frame directory')
@@ -31,7 +35,7 @@ def main():
         print(type(orbital_info), len(orbital_info))
 
         for i, orb in enumerate(orbital_info):
-            print("{index:>5}: {orb_str}".format(index = i+1,
+            print("{index:>5}: {orb_str}".format(index=i+1,
                                                  orb_str=str(orb)))
 
 

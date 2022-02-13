@@ -2,20 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import logging
-import logging.config
-
-try:
-    import msgpack
-except:
-    import msgpack_pure as msgpack
 
 import proteindf_bridge as bridge
 import proteindf_tools as pdf
 import qclobot as qclo
 
+import logging
+import logging.config
+
+
 def main():
-    parser = argparse.ArgumentParser(description='QCLObot_opt: QM solver based on QCLO method for large-system.')
+    parser = argparse.ArgumentParser(
+        description='QCLObot_opt: QM solver based on QCLO method for large-system.')
     parser.add_argument('bridge_path',
                         nargs=1,
                         help='molecule file (ProteinDF bridge format)')
@@ -63,14 +61,14 @@ def main():
 
     print('brd_path: {}'.format(brd_path))
     print('template: {}'.format(template_path))
-    qcopt = qclo.QcOpt(brd_path = brd_path,
-                       template_path = template_path)
+    qcopt = qclo.QcOpt(brd_path=brd_path,
+                       template_path=template_path)
     qcopt.run()
 
     app_logger.info('done.')
 
 
-def setup_logging(logfile_path = '', is_debug = False):
+def setup_logging(logfile_path='', is_debug=False):
     if len(logfile_path) == 0:
         logfile_path = 'qclobot.log'
 
@@ -79,10 +77,10 @@ def setup_logging(logfile_path = '', is_debug = False):
     date_format = '%Y-%m-%d %H:%M:%S'
     if is_debug:
         logging_level = logging.DEBUG
-        format_str ='%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
+        format_str = '%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
 
     logging.basicConfig(
-        filename = logfile_path,
+        filename=logfile_path,
         level=logging_level,
         format=format_str,
         datefmt=date_format
@@ -97,10 +95,7 @@ def setup_logging(logfile_path = '', is_debug = False):
 
 
 def get_atom_group(brd_file_path):
-    brdfile = open(brd_file_path, 'rb')
-    brddata = msgpack.unpackb(brdfile.read())
-    brdfile.close()
-    atom_group = bridge.AtomGroup(brddata)
+    atom_group = bridge.load_atomgroup(brd_file_path)
 
     return atom_group
 
