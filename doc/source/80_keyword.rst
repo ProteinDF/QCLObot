@@ -285,13 +285,13 @@ This value is specified by string as Bridge path.
 
 
 frame action
-^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following keyword indicates for the frame object to do. 
 
 * pre_scf
 
-  If "pre_scf" is defined as "yes",
+  If ``pre_scf`` is defined as ``yes`` ,
   then the processing calculation before SCF loop is carried out in the frame molecule.
 
 
@@ -322,15 +322,15 @@ The following keyword indicates for the frame object to do.
     
 * sp
 
-  If the "sp" is defined as "yes",
+  If the ``sp`` is defined as ``yes`` ,
   the single-point calculation of the frame molecule is carried out.
-  If "pre_scf" and "guess" keywords are not indicated,
+  If ``pre_scf`` and ``guess`` keywords are not indicated,
   these operations are automatically performed.
 
 
 * force
 
-  If the "force" is defined as "yes",
+  If the ``force`` is defined as ``yes`` ,
   the energy force is gained in the frame molecule.
 
 
@@ -415,13 +415,13 @@ The following keyword indicates for the frame object to do.
 
 
 default frame
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The "default frame" is a special frame.
+The ``default`` frame is a special frame.
 
-If the name section is 'default', this frame parameters are used as default values.
+If the name section is "default", this frame parameters are used as default values.
 
-In the following example, the frame is calculated as DZVP2 as the basisset and the exchange correlation functional is used by B3LYP.
+In the following example, the frame is calculated as ``DZVP2`` as the basisset and the exchange correlation functional is used by ``B3LYP``.
 
 
 .. code-block:: yaml
