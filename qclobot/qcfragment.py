@@ -655,7 +655,7 @@ class QcFragment(object):
         ファイルが存在しない場合は親フレーム分子に作成を依頼する。
         """
         path = self._get_QCLO_matrix_path(run_type)
-        if os.path.isfile(path) != True:
+        if (os.path.isfile(path) != True) or (force == True):
             self.parent.pickup_QCLO_matrix(run_type, force)
         assert os.path.isfile(path)
         return path

@@ -943,8 +943,8 @@ class QcFrame(object):
         self.restore_cwd()
 
     # ------------------------------------------------------------------
-    def calc_lo(self, run_type, dry_run=False):
-        if self.is_finished_LO:
+    def calc_lo(self, run_type, force=False, dry_run=False):
+        if (self.is_finished_LO == True) and (force == False):
             logger.info("LO has done.")
             return
 
@@ -972,7 +972,7 @@ class QcFrame(object):
             logger.info("pickup LO has been finished.")
             return
 
-        self.calc_lo(run_type)
+        self.calc_lo(run_type, force)
 
         self.cd_work_dir("pickup lo")
 
