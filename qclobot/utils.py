@@ -7,6 +7,7 @@ import inspect
 import proteindf_bridge as bridge
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -16,12 +17,16 @@ def locate(depth=0):
     cf.) https://qiita.com/ymko/items/b46d32b98f013f06d805
     """
     frame = inspect.currentframe().f_back
-    return os.path.basename(frame.f_code.co_filename), frame.f_code.co_name, frame.f_lineno
+    return (
+        os.path.basename(frame.f_code.co_filename),
+        frame.f_code.co_name,
+        frame.f_lineno,
+    )
 
 
 def file2atomgroup(input_path):
-    assert(isinstance(input_path, str))
-    aromgroup = None
+    assert isinstance(input_path, str)
+    atomgroup = None
 
     abspath = os.path.abspath(input_path)
     (basename, ext) = os.path.splitext(abspath)
@@ -39,7 +44,7 @@ def file2atomgroup(input_path):
 
 
 def get_model(models):
-    assert(bridge.Format.is_protein(models))
+    assert bridge.Format.is_models(models)
 
     model = None
     if models.get_number_of_groups() > 0:
@@ -53,8 +58,7 @@ def get_model(models):
 
 
 def find_max_chain_id(model):
-    """return max chain ID
-    """
+    """return max chain ID"""
     answer = ord("A")
     if bridge.Format.is_protein(model):
         for chain_id, chain in model.groups():
@@ -64,9 +68,8 @@ def find_max_chain_id(model):
 
 # TODO: use bridge.Utils.remove_WAT()
 def remove_WAT(atomgroup):
-    """ remove water(WAT or HOH) residues
-    """
-    assert(isinstance(atomgroup, bridge.AtomGroup))
+    """remove water(WAT or HOH) residues"""
+    assert isinstance(atomgroup, bridge.AtomGroup)
 
     answer = bridge.AtomGroup(atomgroup)
     wat_keys = ["HOH", "WAT"]
@@ -87,6 +90,7 @@ def remove_WAT(atomgroup):
     return answer
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import doctest
+
     doctest.testmod()
