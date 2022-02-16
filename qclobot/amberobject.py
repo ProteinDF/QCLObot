@@ -126,9 +126,7 @@ class AmberObject(MdObject):
     leapin_filepath = property(_get_leapin_filepath)
 
     def _get_leap_logfile_filepath(self):
-        return os.path.join(
-            self.work_dir, self._data.get("logfile_filepath", "leap.log")
-        )
+        return os.path.join(self.work_dir, self._data.get("logfile_filepath", "leap.log"))
 
     leap_logfile_filepath = property(_get_leap_logfile_filepath)
 
@@ -475,23 +473,17 @@ class AmberObject(MdObject):
         self.cd_workdir("prepare leapin")
 
         leapin_contents = ""
-        leapin_contents += "logFile {logfile_filepath}\n".format(
-            logfile_filepath=self.leap_logfile_filepath
-        )
+        leapin_contents += "logFile {logfile_filepath}\n".format(logfile_filepath=self.leap_logfile_filepath)
         leapin_contents += self.__get_leap_source_lines()
         leapin_contents += self.__get_leap_amberparams_lines()
-        leapin_contents += "protein = loadPdb {pdb_file}\n".format(
-            pdb_file=self.leap_input_pdb_filepath
-        )
+        leapin_contents += "protein = loadPdb {pdb_file}\n".format(pdb_file=self.leap_input_pdb_filepath)
         leapin_contents += "proteinBox = copy protein\n"
         leapin_contents += self.__get_leap_ssbond_lines()
         leapin_contents += self.__get_solvation(solute="proteinBox")
         leapin_contents += "saveAmberParm proteinBox {prmtop} {inpcrd}\n".format(
             prmtop=self.prmtop_filepath, inpcrd=self.inpcrd_filepath
         )
-        leapin_contents += "savePdb proteinBox {pdb_file}\n".format(
-            pdb_file=self.initial_pdb_filepath
-        )
+        leapin_contents += "savePdb proteinBox {pdb_file}\n".format(pdb_file=self.initial_pdb_filepath)
         leapin_contents += "quit\n"
 
         logger.debug("save leap inputfile: {}".format(self.leapin_filepath))
@@ -550,58 +542,40 @@ class AmberObject(MdObject):
         if self.solvation_method != None:
             if self.solvation_method == "cap":
                 center = self.model.center()
-                cap_center = "{{ {x:.3f} {y:.3f} {z:.3f} }}".format(
-                    x=center.x, y=center.y, z=center.z
-                )
+                cap_center = "{{ {x:.3f} {y:.3f} {z:.3f} }}".format(x=center.x, y=center.y, z=center.z)
                 (box_min, box_max) = self.model.box()
                 distance = 0.0
                 distance = max(
                     distance,
-                    center.distance_from(
-                        bridge.Position(box_min.x, box_min.y, box_min.z)
-                    ),
+                    center.distance_from(bridge.Position(box_min.x, box_min.y, box_min.z)),
                 )
                 distance = max(
                     distance,
-                    center.distance_from(
-                        bridge.Position(box_max.x, box_min.y, box_min.z)
-                    ),
+                    center.distance_from(bridge.Position(box_max.x, box_min.y, box_min.z)),
                 )
                 distance = max(
                     distance,
-                    center.distance_from(
-                        bridge.Position(box_max.x, box_max.y, box_min.z)
-                    ),
+                    center.distance_from(bridge.Position(box_max.x, box_max.y, box_min.z)),
                 )
                 distance = max(
                     distance,
-                    center.distance_from(
-                        bridge.Position(box_max.x, box_min.y, box_max.z)
-                    ),
+                    center.distance_from(bridge.Position(box_max.x, box_min.y, box_max.z)),
                 )
                 distance = max(
                     distance,
-                    center.distance_from(
-                        bridge.Position(box_max.x, box_max.y, box_max.z)
-                    ),
+                    center.distance_from(bridge.Position(box_max.x, box_max.y, box_max.z)),
                 )
                 distance = max(
                     distance,
-                    center.distance_from(
-                        bridge.Position(box_min.x, box_max.y, box_min.z)
-                    ),
+                    center.distance_from(bridge.Position(box_min.x, box_max.y, box_min.z)),
                 )
                 distance = max(
                     distance,
-                    center.distance_from(
-                        bridge.Position(box_min.x, box_max.y, box_max.z)
-                    ),
+                    center.distance_from(bridge.Position(box_min.x, box_max.y, box_max.z)),
                 )
                 distance = max(
                     distance,
-                    center.distance_from(
-                        bridge.Position(box_min.x, box_min.y, box_max.z)
-                    ),
+                    center.distance_from(bridge.Position(box_min.x, box_min.y, box_max.z)),
                 )
                 cap_radius = max(distance + 10.0, 30.0)
                 solvent = self.solvation_model
@@ -613,11 +587,7 @@ class AmberObject(MdObject):
                     closeness="",
                 )
             else:
-                logger.warning(
-                    "solvation model is not understood.: {}".format(
-                        self.solvation_model
-                    )
-                )
+                logger.warning("solvation model is not understood.: {}".format(self.solvation_model))
 
         return answer
 
@@ -629,9 +599,7 @@ class AmberObject(MdObject):
 
         p = Process()
         leap_cmd = os.path.join(self._AMBERHOME, "bin", "tleap")
-        cmd = "{leap_cmd} -s -f {leapin}".format(
-            leap_cmd=leap_cmd, leapin=self.leapin_filepath
-        )
+        cmd = "{leap_cmd} -s -f {leapin}".format(leap_cmd=leap_cmd, leapin=self.leapin_filepath)
         p.cmd(cmd)
         return_code = p.commit(stdout_through=False, stderr_through=False)
 
@@ -808,9 +776,7 @@ class AmberObject(MdObject):
 
         logger.debug("run command: {}".format(cmd))
         p.cmd(cmd)
-        return_code = p.commit(
-            self.final_pdb_filepath, stdout_through=False, stderr_through=False
-        )
+        return_code = p.commit(self.final_pdb_filepath, stdout_through=False, stderr_through=False)
         logger.info("save amber pdb file: {}".format(self.final_pdb_filepath))
 
         amb_pdb = bridge.Pdb(self.final_pdb_filepath)
@@ -842,9 +808,7 @@ class AmberObject(MdObject):
         answer = bridge.AtomGroup()
         for amb_chain_id, amb_chain in amb_model.groups():
             for amb_res_id, amb_res in amb_chain.groups():
-                orig_chain_id, orig_res_id = self._get_chainres_match_table(
-                    amb_chain_id, amb_res_id
-                )
+                orig_chain_id, orig_res_id = self._get_chainres_match_table(amb_chain_id, amb_res_id)
                 logger.debug(
                     "amb: {amb_chain_id}/{amb_res_id} -> new: {orig_chain_id}/{orig_res_id}".format(
                         amb_chain_id=amb_chain_id,
@@ -913,9 +877,9 @@ class AmberObject(MdObject):
             assert isinstance(atom, bridge.Atom)
 
             NEAR_DISTANCE = 0.1
-            symbol_selector = bridge.Select_Atom(atom.symbol)
-            range_selector = bridge.Select_Range(atom.xyz, NEAR_DISTANCE)
-            selection = model.select(symbol_selector).select(range_selector)
+            atom_selector = bridge.Select_Atom(atom, NEAR_DISTANCE)
+
+            selection = model.select(atom_selector)
             path_list = selection.get_path_list()
 
             answer = None
@@ -923,6 +887,13 @@ class AmberObject(MdObject):
                 answer = path_list.pop(0)
 
             return answer
+
+        # # debug
+        # print(">>>> _make_matching_table")
+        # print(self.model)
+        # print("-" * 80)
+        # print(amb_model)
+        # print("<<<<")
 
         # make original table
         self._data.setdefault("amber_chain_res_table", {})
@@ -933,7 +904,7 @@ class AmberObject(MdObject):
                     orig_path = find_atom_path(self.model, atom)
 
                     if orig_path == None:
-                        pass
+                        logger.warning("not found matching amber atom: {}".format(amb_path))
                     else:
                         (
                             orig_chain_id,
@@ -946,9 +917,7 @@ class AmberObject(MdObject):
                             amb_resid,
                             amb_atom_id,
                         ) = bridge.AtomGroup.divide_path(amb_path)
-                        self._set_chainres_match_table(
-                            amb_chain_id, amb_resid, orig_chain_id, orig_resid
-                        )
+                        self._set_chainres_match_table(amb_chain_id, amb_resid, orig_chain_id, orig_resid)
 
         self._show_amber_chain_res_match_table()
 
@@ -983,9 +952,7 @@ class AmberObject(MdObject):
         logger.debug(">>>> matching table")
         if len(self._data["amber_chain_res_table"]) == 0:
             logger.warning("empty amber chain:res matching table")
-        for amb_chain_res, orig_chain_res in self._data[
-            "amber_chain_res_table"
-        ].items():
+        for amb_chain_res, orig_chain_res in self._data["amber_chain_res_table"].items():
             logger.debug("amb: {} <-> orig: {}".format(amb_chain_res, orig_chain_res))
 
     # ==================================================================
