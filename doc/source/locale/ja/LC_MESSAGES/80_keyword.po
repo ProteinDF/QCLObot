@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: QCLObot User's Manual 2020.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-08 13:00+0900\n"
+"POT-Creation-Date: 2021-11-08 15:35+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -236,7 +236,7 @@ msgstr "フレーム分子に対する処理"
 
 #: ../../source/80_keyword.rst:268
 msgid "The following keyword indicates for the frame object to do."
-msgstr ""
+msgstr "以下のキーワードによって、対象のフレーム分子の処理を指示できます。"
 
 #: ../../source/80_keyword.rst:270
 msgid "pre_scf"
@@ -244,9 +244,9 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:272
 msgid ""
-"If \"pre_scf\" is defined as \"yes\", then the processing calculation "
+"If ``pre_scf`` is defined as ``yes`` , then the processing calculation "
 "before SCF loop is carried out in the frame molecule."
-msgstr ""
+msgstr "``pre_scf`` に ``yes`` が与えられると、SCF繰り返し計算前の処理が行われます。"
 
 #: ../../source/80_keyword.rst:276
 msgid "guess"
@@ -257,6 +257,7 @@ msgid ""
 "Creation of the initial guess is executed. How to create guess depends on"
 " the value of \"guess\" keyword."
 msgstr ""
+"初期値の計算が行われます。計算方法は \"guess\" キーワードの値に従います。"
 
 #: ../../source/80_keyword.rst:281
 msgid "harris"
@@ -267,6 +268,7 @@ msgid ""
 "The initial guess is created by using Harris functional method. This is "
 "default."
 msgstr ""
+"初期値をHarrisの汎関数によって求めます。この計算方法はデフォルトです。"
 
 #: ../../source/80_keyword.rst:286
 msgid "QCLO"
@@ -278,6 +280,8 @@ msgid ""
 "using QCLO method. If the QCLO of the child fragment has not been "
 "created, it is computed automatically."
 msgstr ""
+"初期値を対応するフラグメントからQCLO法によって求めます。"
+"子フラグメントのQCLOが作成されていなければ、自動的に計算します。"
 
 #: ../../source/80_keyword.rst:293
 msgid "sp"
@@ -285,10 +289,12 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:295
 msgid ""
-"If the \"sp\" is defined as \"yes\", the single-point calculation of the "
-"frame molecule is carried out. If \"pre_scf\" and \"guess\" keywords are "
-"not indicated, these operations are automatically performed."
+"If the ``sp`` is defined as ``yes`` , the single-point calculation of the"
+" frame molecule is carried out. If ``pre_scf`` and ``guess`` keywords are"
+" not indicated, these operations are automatically performed."
 msgstr ""
+"``sp`` に ``yes`` が与えられると、フレーム分子の一点計算を行います"
+"``pre_scf`` と ``guess`` キーワードが指定されていない場合、これらの処理は自動的に行われます。"
 
 #: ../../source/80_keyword.rst:301
 msgid "force"
@@ -296,9 +302,9 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:303
 msgid ""
-"If the \"force\" is defined as \"yes\", the energy force is gained in the"
-" frame molecule."
-msgstr ""
+"If the ``force`` is defined as ``yes`` , the energy force is gained in "
+"the frame molecule."
+msgstr "このキーワードが ``yes`` で定義された場合、メチル基がフラグメントに付加されます。"
 
 #: ../../source/80_keyword.rst:316
 msgid "summary"
@@ -309,32 +315,34 @@ msgid ""
 "Displays a summary of the calculation. There are three different methods "
 "depending on the data format."
 msgstr ""
+"計算の概要を表示します。与えられた値によって3つの出力形式があります。"
 
 #: ../../source/80_keyword.rst:321
 msgid "boolean"
-msgstr ""
+msgstr "ブール値"
 
 #: ../../source/80_keyword.rst:323
 msgid "Outputs a standard summary (True)."
-msgstr ""
+msgstr "Trueが与えられると、標準的な内容を出力します。"
 
 #: ../../source/80_keyword.rst:334
 msgid "string"
-msgstr ""
+msgstr "フォーマット文字列"
 
 #: ../../source/80_keyword.rst:336
 msgid ""
 "Output according to the given string. Specific strings are replaced by "
 "the corresponding content."
 msgstr ""
+"与えられたフォーマット文字列に従って出力します。特殊文字列は対応する内容に置換されます。"
 
 #: ../../source/80_keyword.rst:341
 msgid "keyword"
-msgstr ""
+msgstr "キーワード"
 
 #: ../../source/80_keyword.rst:341
 msgid "content"
-msgstr ""
+msgstr "説明"
 
 #: ../../source/80_keyword.rst:343
 msgid "{NUM_OF_ATOMS}"
@@ -342,7 +350,7 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:343
 msgid "number of atoms"
-msgstr ""
+msgstr "原子数"
 
 #: ../../source/80_keyword.rst:344
 msgid "{NUM_OF_AO}"
@@ -350,7 +358,7 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:344
 msgid "number of AOs"
-msgstr ""
+msgstr "原子軌道の総数"
 
 #: ../../source/80_keyword.rst:345
 msgid "{NUM_OF_MO}"
@@ -358,7 +366,7 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:345
 msgid "number of MOs"
-msgstr ""
+msgstr "分子軌道の総数"
 
 #: ../../source/80_keyword.rst:346
 msgid "{METHOD}"
@@ -366,7 +374,7 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:346
 msgid "method"
-msgstr ""
+msgstr "計算方法"
 
 #: ../../source/80_keyword.rst:347
 msgid "{IS_CONVERGED}"
@@ -374,7 +382,7 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:347
 msgid "Whether the SCF is converged or not"
-msgstr ""
+msgstr "SCF計算が収束したかどうか"
 
 #: ../../source/80_keyword.rst:348
 msgid "{ITERATION}"
@@ -382,7 +390,7 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:348
 msgid "iteration"
-msgstr ""
+msgstr "SCF繰り返し回数"
 
 #: ../../source/80_keyword.rst:349
 msgid "{TOTAL_ENERGY}"
@@ -390,7 +398,7 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:349
 msgid "total energy"
-msgstr ""
+msgstr "全エネルギー"
 
 #: ../../source/80_keyword.rst:350
 msgid "{GRADIENT_RMS}"
@@ -398,17 +406,18 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:350
 msgid "gradient RMS"
-msgstr ""
+msgstr "エネルギー微分のRMS"
 
 #: ../../source/80_keyword.rst:364
 msgid "dict"
-msgstr ""
+msgstr "辞書"
 
 #: ../../source/80_keyword.rst:366
 msgid ""
 "If you want to export to a file, you can use this format. The output file"
 " is written in appendix mode."
 msgstr ""
+"もしファイルに出力したい場合は、この方式を利用します。出力ファイルは追記モードで開かれます。"
 
 #: ../../source/80_keyword.rst:368
 msgid "format"
@@ -416,7 +425,7 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:370
 msgid "Output according to the format string."
-msgstr ""
+msgstr "フォーマット文字列を指定します。"
 
 #: ../../source/80_keyword.rst:372
 msgid "filepath"
@@ -424,25 +433,25 @@ msgstr ""
 
 #: ../../source/80_keyword.rst:374
 msgid "Specify the file path to be output."
-msgstr ""
+msgstr "ファイルの出力先を指定します。"
 
 #: ../../source/80_keyword.rst:388
 msgid "default frame"
-msgstr ""
+msgstr "default フレーム"
 
 #: ../../source/80_keyword.rst:390
-msgid "The \"default frame\" is a special frame."
-msgstr ""
+msgid "The ``default`` frame is a special frame."
+msgstr "``default`` という名前は特別です。"
 
 #: ../../source/80_keyword.rst:392
 msgid ""
-"If the name section is 'default', this frame parameters are used as "
+"If the name section is \"default\", this frame parameters are used as "
 "default values."
-msgstr ""
+msgstr "\"default\" という名前で定義されたフレーム分子は、以後のデフォルトのパラメータとして利用されます。"
 
 #: ../../source/80_keyword.rst:394
 msgid ""
-"In the following example, the frame is calculated as DZVP2 as the "
-"basisset and the exchange correlation functional is used by B3LYP."
-msgstr ""
+"In the following example, the frame is calculated as ``DZVP2`` as the "
+"basisset and the exchange correlation functional is used by ``B3LYP``."
+msgstr "基底関数セットとして ``DZVP2`` 、交換相関汎関数として ``B3LYP`` を用いた例を以下に示します。"
 
