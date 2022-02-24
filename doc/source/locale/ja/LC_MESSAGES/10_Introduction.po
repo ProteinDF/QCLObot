@@ -1,0 +1,50 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2015, Toshiyuki HIRANO
+# This file is distributed under the same license as the QCLObot tutorial
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: QCLObot tutorial 2015.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-11-08 12:21+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: ../../source/10_Introduction.rst:3
+msgid "Introduction"
+msgstr "はじめに"
+
+#: ../../source/10_Introduction.rst:7
+msgid "License"
+msgstr "ライセンス"
+
+#: ../../source/10_Introduction.rst:9
+msgid ""
+"``QCLObot`` is licensed under the GNU GPL v3. The source code can be "
+"found on the Github."
+msgstr "``QCLObot`` はGNU GPU v3のもと配布されています。ソースコードはGitHubにあります。"
+
+#: ../../source/10_Introduction.rst:13
+msgid "Bugs"
+msgstr "バグ等"
+
+#: ../../source/10_Introduction.rst:15
+msgid ""
+"If you find any bugs, please let me know. And if you have a suggestion "
+"for improvement, please let me know."
+msgstr "もしバグや改善点などがありましたらご連絡ください。"
+
+#~ msgid ""
+#~ "QCLObot is licensed under the GNU "
+#~ "GPL v3. The source code can be "
+#~ "found on the Github."
+#~ msgstr ""
+

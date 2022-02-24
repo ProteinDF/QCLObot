@@ -1,0 +1,52 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2014-2020, Toshiyuki HIRANO
+# This file is distributed under the same license as the QCLObot User's
+# Manual package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: QCLObot User's Manual 2020.6.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-11-08 12:18+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: ../../source/20_install.rst:2
+msgid "Install QCLObot"
+msgstr "QCLObotのインストール"
+
+#: ../../source/20_install.rst:6
+msgid "Operating Environments"
+msgstr "動作環境"
+
+#: ../../source/20_install.rst:8
+msgid "Python 3.5 later"
+msgstr ""
+
+#: ../../source/20_install.rst:9
+msgid "ProteinDF (https://github.com/ProteinDF/ProteinDF)"
+msgstr ""
+
+#: ../../source/20_install.rst:10
+msgid "Python module - ProteinDF_bridge - ProteinDF_pytools"
+msgstr ""
+
+#: ../../source/20_install.rst:16
+msgid "Install"
+msgstr "インストール"
+
+#: ../../source/20_install.rst:18
+msgid "Clone a copy of the main QCLObot git repo by running:"
+msgstr "QCLObotのリポジトリからソースコードをクローンします。"
+
+#: ../../source/20_install.rst:26
+msgid "And, enter the source directory and run build script:"
+msgstr "ソースディレクトリに移り、ビルドスクリプトを実行してください。"
+

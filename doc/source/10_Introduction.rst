@@ -6,7 +6,7 @@ Introduction
 License
 --------
 
-QCLObot is licensed under the GNU GPL v3. The source code can be found on the Github.
+``QCLObot`` is licensed under the GNU GPL v3. The source code can be found on the Github.
 
 
 Bugs
