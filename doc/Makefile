@@ -55,7 +55,8 @@ clean:
 html_%:
 	@$(SPHINXBUILD) -b html -D language="$*" $(ALLSPHINXOPTS) "$(BUILDDIR)/html/$*"
 
-html: html_en html_ja 
+html: html_en html_ja
+	@cp redirect.html "$(BUILDDIR)/html/index.html" 
 
 html_en:
 	$(SPHINXBUILD) -b html -Dlanguage=en $(ALLSPHINXOPTS) $(BUILDDIR)/html/en 
