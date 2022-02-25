@@ -876,9 +876,7 @@ class AmberObject(MdObject):
             assert isinstance(model, bridge.AtomGroup)
             assert isinstance(atom, bridge.Atom)
 
-            NEAR_DISTANCE = 0.1
-            atom_selector = bridge.Select_Atom(atom, NEAR_DISTANCE)
-
+            atom_selector = bridge.Select_Atom(atom)
             selection = model.select(atom_selector)
             path_list = selection.get_path_list()
 
