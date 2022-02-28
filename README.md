@@ -6,10 +6,16 @@ An automatically generating guess file based on QCLO method for quantum chemistr
 What you need to use ProteinDF_pytools
 -------------------------------------
 
-* Python 2.x or later
+* Python 3.8 or later
 * Python modules
   * ProteinDF_bridge
   * ProteinDF_pytools
+
+
+Manual (sorry, in progress)
+-----------------------------------------------------------------------
+
+https://proteindf.github.io/QCLObot/
 
 
 How to install QCLObot
