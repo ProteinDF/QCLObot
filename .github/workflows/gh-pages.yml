@@ -2,7 +2,7 @@ name: github pages
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
@@ -10,7 +10,6 @@ jobs:
       steps:
         - uses: actions/checkout@v2
           with:
-            ref: "main"
             submodules: true
             fetch-depth: 1
 
