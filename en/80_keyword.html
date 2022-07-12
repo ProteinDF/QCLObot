@@ -29,6 +29,7 @@
   <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
   <script src="_static/jquery.js"></script>
   <script src="_static/underscore.js"></script>
+  <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
   
   <script type="text/javascript" src="_static/js/theme.js"></script>
@@ -168,7 +169,7 @@
               <div itemprop="articleBody">
                 
   <section id="explanation-of-qclobot-yaml-file">
-<h1>explanation of QCLObot YAML File<a class="headerlink" href="#explanation-of-qclobot-yaml-file" title="Permalink to this headline"></a></h1>
+<h1>explanation of QCLObot YAML File<a class="headerlink" href="#explanation-of-qclobot-yaml-file" title="Permalink to this heading"></a></h1>
 <p>QCLObot playbook is separated by following two parts:</p>
 <ul>
 <li><p>“vars” section</p>
@@ -179,7 +180,7 @@
 </li>
 </ul>
 <section id="vars-section">
-<h2>“vars” section<a class="headerlink" href="#vars-section" title="Permalink to this headline"></a></h2>
+<h2>“vars” section<a class="headerlink" href="#vars-section" title="Permalink to this heading"></a></h2>
 <p>Declare the variable.
 The declared variables can be used with <code class="docutils literal notranslate"><span class="pre">with_items</span></code> and so on.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">vars</span><span class="p">:</span><span class="w"></span>
@@ -206,7 +207,7 @@ The declared variables can be used with <code class="docutils literal notranslat
 </div>
 </section>
 <section id="tasks-section">
-<h2>“tasks” section<a class="headerlink" href="#tasks-section" title="Permalink to this headline"></a></h2>
+<h2>“tasks” section<a class="headerlink" href="#tasks-section" title="Permalink to this heading"></a></h2>
 <p>The “tasks” section is consist of three parts:</p>
 <ul class="simple">
 <li><p>condition</p></li>
@@ -214,17 +215,17 @@ The declared variables can be used with <code class="docutils literal notranslat
 <li><p>frame definition</p></li>
 </ul>
 <section id="condition">
-<h3>condition<a class="headerlink" href="#condition" title="Permalink to this headline"></a></h3>
+<h3>condition<a class="headerlink" href="#condition" title="Permalink to this heading"></a></h3>
 <section id="with-items">
-<h4>with_items<a class="headerlink" href="#with-items" title="Permalink to this headline"></a></h4>
+<h4>with_items<a class="headerlink" href="#with-items" title="Permalink to this heading"></a></h4>
 <p>repeat the task.</p>
 </section>
 <section id="when">
-<h4>when<a class="headerlink" href="#when" title="Permalink to this headline"></a></h4>
+<h4>when<a class="headerlink" href="#when" title="Permalink to this heading"></a></h4>
 <p>do the task if the condition is satisfied.</p>
 </section>
 <section id="include">
-<h4>include<a class="headerlink" href="#include" title="Permalink to this headline"></a></h4>
+<h4>include<a class="headerlink" href="#include" title="Permalink to this heading"></a></h4>
 <p>Insert an external file. Fill in the external file with the “tasks” statement.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">include_step1</span><span class="w"></span>
@@ -234,9 +235,9 @@ The declared variables can be used with <code class="docutils literal notranslat
 </section>
 </section>
 <section id="task">
-<h3>task<a class="headerlink" href="#task" title="Permalink to this headline"></a></h3>
+<h3>task<a class="headerlink" href="#task" title="Permalink to this heading"></a></h3>
 <section id="mail">
-<h4>mail<a class="headerlink" href="#mail" title="Permalink to this headline"></a></h4>
+<h4>mail<a class="headerlink" href="#mail" title="Permalink to this heading"></a></h4>
 <p>Send mail.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">send_mail</span><span class="w"></span>
 <span class="w">  </span><span class="nt">mail</span><span class="p">:</span><span class="w"></span>
@@ -253,21 +254,21 @@ The declared variables can be used with <code class="docutils literal notranslat
 </div>
 </section>
 <section id="debug">
-<h4>debug<a class="headerlink" href="#debug" title="Permalink to this headline"></a></h4>
+<h4>debug<a class="headerlink" href="#debug" title="Permalink to this heading"></a></h4>
 <p>do nothing.</p>
 </section>
 </section>
 <section id="frame">
-<h3>frame<a class="headerlink" href="#frame" title="Permalink to this headline"></a></h3>
+<h3>frame<a class="headerlink" href="#frame" title="Permalink to this heading"></a></h3>
 <section id="frame-definition">
-<h4>frame definition<a class="headerlink" href="#frame-definition" title="Permalink to this headline"></a></h4>
+<h4>frame definition<a class="headerlink" href="#frame-definition" title="Permalink to this heading"></a></h4>
 <section id="name-mandatory">
-<h5>name(mandatory)<a class="headerlink" href="#name-mandatory" title="Permalink to this headline"></a></h5>
+<h5>name(mandatory)<a class="headerlink" href="#name-mandatory" title="Permalink to this heading"></a></h5>
 <p>All frame require the name.
 Based of this name value, the working directory is created on the current directory.</p>
 </section>
 <section id="cmd-alias">
-<h5>cmd_alias<a class="headerlink" href="#cmd-alias" title="Permalink to this headline"></a></h5>
+<h5>cmd_alias<a class="headerlink" href="#cmd-alias" title="Permalink to this heading"></a></h5>
 <p>Accept values of the dictionary type. Replaces the default external commands. The following commands are currently supported:</p>
 <ul class="simple">
 <li><p>archive</p></li>
@@ -280,7 +281,7 @@ Based of this name value, the working directory is created on the current direct
 </ul>
 </section>
 <section id="fragments">
-<h5>fragments<a class="headerlink" href="#fragments" title="Permalink to this headline"></a></h5>
+<h5>fragments<a class="headerlink" href="#fragments" title="Permalink to this heading"></a></h5>
 <p>A frame molecule consists of fragment(s).
 The fragment is defined by following keywords.
 All fragment requires the “name” attribute, which is used as name of the fragment.</p>
@@ -404,7 +405,7 @@ This value is specified by string as Bridge path.</p>
 </section>
 </section>
 <section id="frame-action">
-<h4>frame action<a class="headerlink" href="#frame-action" title="Permalink to this headline"></a></h4>
+<h4>frame action<a class="headerlink" href="#frame-action" title="Permalink to this heading"></a></h4>
 <p>The following keyword indicates for the frame object to do.</p>
 <ul>
 <li><p>pre_scf</p>
@@ -539,7 +540,7 @@ Specific strings are replaced by the corresponding content.</p>
 </ul>
 </section>
 <section id="default-frame">
-<h4>default frame<a class="headerlink" href="#default-frame" title="Permalink to this headline"></a></h4>
+<h4>default frame<a class="headerlink" href="#default-frame" title="Permalink to this heading"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">default</span></code> frame is a special frame.</p>
 <p>If the name section is “default”, this frame parameters are used as default values.</p>
 <p>In the following example, the frame is calculated as <code class="docutils literal notranslate"><span class="pre">DZVP2</span></code> as the basisset and the exchange correlation functional is used by <code class="docutils literal notranslate"><span class="pre">B3LYP</span></code>.</p>

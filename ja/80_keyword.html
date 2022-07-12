@@ -29,6 +29,7 @@
   <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
   <script src="_static/jquery.js"></script>
   <script src="_static/underscore.js"></script>
+  <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
   <script src="_static/translations.js"></script>
   
@@ -169,7 +170,7 @@
               <div itemprop="articleBody">
                 
   <section id="explanation-of-qclobot-yaml-file">
-<h1>QCLObot YAML ファイル解説<a class="headerlink" href="#explanation-of-qclobot-yaml-file" title="このヘッドラインへのパーマリンク"></a></h1>
+<h1>QCLObot YAML ファイル解説<a class="headerlink" href="#explanation-of-qclobot-yaml-file" title="Permalink to this heading"></a></h1>
 <p>QCLObot プレイブック(入力ファイル)は、以下の2つのパートに分かれています。</p>
 <ul>
 <li><p>変数(vars)セクション</p>
@@ -180,7 +181,7 @@
 </li>
 </ul>
 <section id="vars-section">
-<h2>変数(vars)セクション<a class="headerlink" href="#vars-section" title="このヘッドラインへのパーマリンク"></a></h2>
+<h2>変数(vars)セクション<a class="headerlink" href="#vars-section" title="Permalink to this heading"></a></h2>
 <p>変数を宣言します。ここで定義された変数は、 <code class="docutils literal notranslate"><span class="pre">with_items</span></code> 構文などで利用されます。</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">vars</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">residues</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">27</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">28</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">48</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">97</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">101</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">108</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">248</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">547</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">558</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">559</span><span class="p p-Indicator">]</span><span class="w"></span>
@@ -206,7 +207,7 @@
 </div>
 </section>
 <section id="tasks-section">
-<h2>タスク(tasks)セクション<a class="headerlink" href="#tasks-section" title="このヘッドラインへのパーマリンク"></a></h2>
+<h2>タスク(tasks)セクション<a class="headerlink" href="#tasks-section" title="Permalink to this heading"></a></h2>
 <p>タスクセクションは次の3つのパートに分かれています。</p>
 <ul class="simple">
 <li><p>条件</p></li>
@@ -214,17 +215,17 @@
 <li><p>フレーム分子の定義</p></li>
 </ul>
 <section id="condition">
-<h3>条件<a class="headerlink" href="#condition" title="このヘッドラインへのパーマリンク"></a></h3>
+<h3>条件<a class="headerlink" href="#condition" title="Permalink to this heading"></a></h3>
 <section id="with-items">
-<h4>with_items<a class="headerlink" href="#with-items" title="このヘッドラインへのパーマリンク"></a></h4>
+<h4>with_items<a class="headerlink" href="#with-items" title="Permalink to this heading"></a></h4>
 <p>タスク処理を繰り返します。</p>
 </section>
 <section id="when">
-<h4>when<a class="headerlink" href="#when" title="このヘッドラインへのパーマリンク"></a></h4>
+<h4>when<a class="headerlink" href="#when" title="Permalink to this heading"></a></h4>
 <p>条件を満足した場合にタスク処理を実行します。</p>
 </section>
 <section id="include">
-<h4>include<a class="headerlink" href="#include" title="このヘッドラインへのパーマリンク"></a></h4>
+<h4>include<a class="headerlink" href="#include" title="Permalink to this heading"></a></h4>
 <p>外部ファイルを挿入します。</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">include_step1</span><span class="w"></span>
@@ -234,9 +235,9 @@
 </section>
 </section>
 <section id="task">
-<h3>タスク処理内容<a class="headerlink" href="#task" title="このヘッドラインへのパーマリンク"></a></h3>
+<h3>タスク処理内容<a class="headerlink" href="#task" title="Permalink to this heading"></a></h3>
 <section id="mail">
-<h4>mail<a class="headerlink" href="#mail" title="このヘッドラインへのパーマリンク"></a></h4>
+<h4>mail<a class="headerlink" href="#mail" title="Permalink to this heading"></a></h4>
 <p>電子メールを送信します。</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">send_mail</span><span class="w"></span>
 <span class="w">  </span><span class="nt">mail</span><span class="p">:</span><span class="w"></span>
@@ -253,20 +254,20 @@
 </div>
 </section>
 <section id="debug">
-<h4>debug<a class="headerlink" href="#debug" title="このヘッドラインへのパーマリンク"></a></h4>
+<h4>debug<a class="headerlink" href="#debug" title="Permalink to this heading"></a></h4>
 <p>デバッグ用に出力します。</p>
 </section>
 </section>
 <section id="frame">
-<h3>frame<a class="headerlink" href="#frame" title="このヘッドラインへのパーマリンク"></a></h3>
+<h3>frame<a class="headerlink" href="#frame" title="Permalink to this heading"></a></h3>
 <section id="frame-definition">
-<h4>フレーム分子の定義<a class="headerlink" href="#frame-definition" title="このヘッドラインへのパーマリンク"></a></h4>
+<h4>フレーム分子の定義<a class="headerlink" href="#frame-definition" title="Permalink to this heading"></a></h4>
 <section id="name-mandatory">
-<h5>名前(必須)<a class="headerlink" href="#name-mandatory" title="このヘッドラインへのパーマリンク"></a></h5>
+<h5>名前(必須)<a class="headerlink" href="#name-mandatory" title="Permalink to this heading"></a></h5>
 <p>全てのフレーム分子は名前が必要です。この名前に応じて作業ディレクトリがカレントディレクトリの下に作成されます。</p>
 </section>
 <section id="cmd-alias">
-<h5>cmd_alias<a class="headerlink" href="#cmd-alias" title="このヘッドラインへのパーマリンク"></a></h5>
+<h5>cmd_alias<a class="headerlink" href="#cmd-alias" title="Permalink to this heading"></a></h5>
 <p>Accept values of the dictionary type. Replaces the default external commands. The following commands are currently supported:</p>
 <ul class="simple">
 <li><p>archive</p></li>
@@ -279,7 +280,7 @@
 </ul>
 </section>
 <section id="fragments">
-<h5>fragments<a class="headerlink" href="#fragments" title="このヘッドラインへのパーマリンク"></a></h5>
+<h5>fragments<a class="headerlink" href="#fragments" title="Permalink to this heading"></a></h5>
 <p>フレーム分子は1つ以上のフラグメントから構成されます。フラグメントは以下のキーワードによって定義されます。全てのフラグメントはフラグメントの名前として利用する &quot;name&quot; 属性が必要です。</p>
 <ul class="simple">
 <li><p>atomlist</p></li>
@@ -395,7 +396,7 @@
 </section>
 </section>
 <section id="frame-action">
-<h4>フレーム分子に対する処理<a class="headerlink" href="#frame-action" title="このヘッドラインへのパーマリンク"></a></h4>
+<h4>フレーム分子に対する処理<a class="headerlink" href="#frame-action" title="Permalink to this heading"></a></h4>
 <p>以下のキーワードによって、対象のフレーム分子の処理を指示できます。</p>
 <ul>
 <li><p>pre_scf</p>
@@ -520,7 +521,7 @@ Use mapping format in &quot;guess&quot; section.</p>
 </ul>
 </section>
 <section id="default-frame">
-<h4>default フレーム<a class="headerlink" href="#default-frame" title="このヘッドラインへのパーマリンク"></a></h4>
+<h4>default フレーム<a class="headerlink" href="#default-frame" title="Permalink to this heading"></a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">default</span></code> という名前は特別です。</p>
 <p>&quot;default&quot; という名前で定義されたフレーム分子は、以後のデフォルトのパラメータとして利用されます。</p>
 <p>基底関数セットとして <code class="docutils literal notranslate"><span class="pre">DZVP2</span></code> 、交換相関汎関数として <code class="docutils literal notranslate"><span class="pre">B3LYP</span></code> を用いた例を以下に示します。</p>

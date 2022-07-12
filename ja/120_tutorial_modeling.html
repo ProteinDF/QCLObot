@@ -29,6 +29,7 @@
   <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
   <script src="_static/jquery.js"></script>
   <script src="_static/underscore.js"></script>
+  <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
   <script src="_static/translations.js"></script>
   
@@ -152,14 +153,14 @@
               <div itemprop="articleBody">
                 
   <section id="setting-up-modeling-proteins">
-<h1>Setting up modeling proteins<a class="headerlink" href="#setting-up-modeling-proteins" title="このヘッドラインへのパーマリンク"></a></h1>
+<h1>Setting up modeling proteins<a class="headerlink" href="#setting-up-modeling-proteins" title="Permalink to this heading"></a></h1>
 <section id="prepare-applications">
-<h2>Prepare Applications<a class="headerlink" href="#prepare-applications" title="このヘッドラインへのパーマリンク"></a></h2>
+<h2>Prepare Applications<a class="headerlink" href="#prepare-applications" title="Permalink to this heading"></a></h2>
 <p>Before running QCLObot-modeler, AmberTools is required.
 Please set the environment variable, <cite>AMBERHOME</cite>.</p>
 </section>
 <section id="prepare-oxytocin-model">
-<h2>Prepare Oxytocin model<a class="headerlink" href="#prepare-oxytocin-model" title="このヘッドラインへのパーマリンク"></a></h2>
+<h2>Prepare Oxytocin model<a class="headerlink" href="#prepare-oxytocin-model" title="Permalink to this heading"></a></h2>
 <p>You can get Oxytocin model (2MGO.pdb) from PDB or <a class="reference download internal" download="" href="_downloads/475c8d2b7fcb3097d73d78804653dd77/2MGO.pdb"><code class="xref download docutils literal notranslate"><span class="pre">here</span></code></a>.</p>
 <p>Or you save the following text as 2MGO.pdb.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>HEADER    HORMONE                                 01-NOV-13   2MGO              
@@ -3041,7 +3042,7 @@ END
 </div>
 </section>
 <section id="create-input-file-for-qclobot-modeler">
-<h2>Create input file for QCLObot-modeler<a class="headerlink" href="#create-input-file-for-qclobot-modeler" title="このヘッドラインへのパーマリンク"></a></h2>
+<h2>Create input file for QCLObot-modeler<a class="headerlink" href="#create-input-file-for-qclobot-modeler" title="Permalink to this heading"></a></h2>
 <p>You save the following text as <a class="reference download internal" download="" href="_downloads/f2dbe15ee307f2549cedc06931168314/2MGO_modeling.yaml"><code class="xref download docutils literal notranslate"><span class="pre">2MGO_modeling.yaml</span></code></a>.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO</span><span class="w"></span>
@@ -3075,7 +3076,7 @@ END
 </div>
 </section>
 <section id="run-qclobot-modeler">
-<h2>Run QCLObot-modeler<a class="headerlink" href="#run-qclobot-modeler" title="このヘッドラインへのパーマリンク"></a></h2>
+<h2>Run QCLObot-modeler<a class="headerlink" href="#run-qclobot-modeler" title="Permalink to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/QCLObot-modeler.py 2MGO_modeling.yaml
 </pre></div>
 </div>

@@ -29,6 +29,7 @@
   <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
   <script src="_static/jquery.js"></script>
   <script src="_static/underscore.js"></script>
+  <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
   
   <script type="text/javascript" src="_static/js/theme.js"></script>
@@ -152,9 +153,9 @@
               <div itemprop="articleBody">
                 
   <section id="setting-up-calculation-model">
-<h1>Setting up calculation model<a class="headerlink" href="#setting-up-calculation-model" title="Permalink to this headline"></a></h1>
+<h1>Setting up calculation model<a class="headerlink" href="#setting-up-calculation-model" title="Permalink to this heading"></a></h1>
 <section id="prepare-oxytocin-model">
-<h2>Prepare Oxytocin model<a class="headerlink" href="#prepare-oxytocin-model" title="Permalink to this headline"></a></h2>
+<h2>Prepare Oxytocin model<a class="headerlink" href="#prepare-oxytocin-model" title="Permalink to this heading"></a></h2>
 <p>You can get Oxytocin model from here.
 Or you save the following text as <code class="docutils literal notranslate"><span class="pre">1NPO_model.pdb</span></code>.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>REMARK
@@ -299,12 +300,12 @@ END
 </div>
 </section>
 <section id="check-the-model-structure">
-<h2>Check the model structure<a class="headerlink" href="#check-the-model-structure" title="Permalink to this headline"></a></h2>
+<h2>Check the model structure<a class="headerlink" href="#check-the-model-structure" title="Permalink to this heading"></a></h2>
 <p>You should check the model structure by using viewing software such as “PyMol” and “Chimera”.
 The current model has a disulfide bond between “CYC1” and “CYC6”.</p>
 </section>
 <section id="convert-pdb-file-to-bridge-format-file">
-<h2>Convert PDB file to Bridge format file<a class="headerlink" href="#convert-pdb-file-to-bridge-format-file" title="Permalink to this headline"></a></h2>
+<h2>Convert PDB file to Bridge format file<a class="headerlink" href="#convert-pdb-file-to-bridge-format-file" title="Permalink to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/pdb2brd.py 1NPO_model.pdb 1NPO_model.brd
 </pre></div>
 </div>
@@ -317,7 +318,7 @@ The current model has a disulfide bond between “CYC1” and “CYC6”.</p>
 </div>
 </section>
 <section id="create-input-file-for-qclobot">
-<h2>Create input file for QCLObot<a class="headerlink" href="#create-input-file-for-qclobot" title="Permalink to this headline"></a></h2>
+<h2>Create input file for QCLObot<a class="headerlink" href="#create-input-file-for-qclobot" title="Permalink to this heading"></a></h2>
 <p>You save the following text as <code class="docutils literal notranslate"><span class="pre">1NPO_model.QCLO.yaml</span></code> .</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span><span class="w"></span>
 <span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
@@ -529,7 +530,7 @@ The current model has a disulfide bond between “CYC1” and “CYC6”.</p>
 </div>
 </section>
 <section id="run-qclobot">
-<h2>Run QCLObot<a class="headerlink" href="#run-qclobot" title="Permalink to this headline"></a></h2>
+<h2>Run QCLObot<a class="headerlink" href="#run-qclobot" title="Permalink to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/QCLObot.py 1NPO_mode.QCLO.yaml
 </pre></div>
 </div>

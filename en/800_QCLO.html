@@ -29,6 +29,7 @@
   <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
   <script src="_static/jquery.js"></script>
   <script src="_static/underscore.js"></script>
+  <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
   <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   
@@ -156,9 +157,9 @@
               <div itemprop="articleBody">
                 
   <section id="automated-calculation-program-qclobot">
-<h1>Automated calculation program QCLObot<a class="headerlink" href="#automated-calculation-program-qclobot" title="Permalink to this headline"></a></h1>
+<h1>Automated calculation program QCLObot<a class="headerlink" href="#automated-calculation-program-qclobot" title="Permalink to this heading"></a></h1>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
 <p>The canonical electronic state calculations of proteins is performed by using the ProteinDF program,
 a program based on the density-functional molecular orbital method,
 and the QCLObot program, an automated calculation method program.
@@ -166,7 +167,7 @@ The QCLObot creates the initial values for the execution of ProteinDF.
 Upon execution of the QCLObot program, the ProteinDF program is obtained the initial guess
 and the all-electron canonical calculation by the ProteinDF program is performed, according to the calculation playbook.</p>
 <section id="automatic-computation-program-based-on-the-qclo-method-qclobot">
-<h3>automatic computation program based on the QCLO method QCLObot<a class="headerlink" href="#automatic-computation-program-based-on-the-qclo-method-qclobot" title="Permalink to this headline"></a></h3>
+<h3>automatic computation program based on the QCLO method QCLObot<a class="headerlink" href="#automatic-computation-program-based-on-the-qclo-method-qclobot" title="Permalink to this heading"></a></h3>
 <p>QCLObot is an automated calculation program to assist in the calculation of giant system canonical molecular orbitals;
 QCLOs are localized orbitals that are localized in one region but are close to canonical molecular orbitals in that region.
 By cutting and pasting subunit QCLOs,
@@ -175,7 +176,7 @@ The QCLO method is a method to calculate canonical molecular orbitals of large s
 This method enables us to perform precise quantum chemical calculations of functionally rich proteins in an easy and safe manner.</p>
 </section>
 <section id="id1">
-<h3>タンパク質全電子計算の収束過程<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<h3>タンパク質全電子計算の収束過程<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
 <p>一般に、タンパク質やペプチド鎖のような大きな分子の電子状態は、
 はじめから一点計算を行うことが困難です。
 タンパク質をアミノ酸残基のような小さな分子片に分割して、
@@ -202,7 +203,7 @@ This method enables us to perform precise quantum chemical calculations of funct
 そこで、ステップ3 以降では、新しい局在化軌道をベースにした初期値合成方法を使用します。</p>
 </section>
 <section id="canonical-and-localized-orbitals">
-<h3>Canonical and Localized orbitals<a class="headerlink" href="#canonical-and-localized-orbitals" title="Permalink to this headline"></a></h3>
+<h3>Canonical and Localized orbitals<a class="headerlink" href="#canonical-and-localized-orbitals" title="Permalink to this heading"></a></h3>
 <p>The representation of molecular orbitals has many degrees of freedom and
 can be transformed into many things by unitary transformation.
 Two representations of molecular orbitals are often used to exploit this property:
@@ -271,7 +272,7 @@ Löwdin の直交化はもとの軌道をなるべく変えないように規格
 得られた軌道は手順3 の軌道とほとんど変わりません。これによりペプチド鎖全体で規格直交したLCAO 行列が得られます。</p>
 <p>手順1～4 の手順を組み合わせた方法を、タンパク質全電子計算の収束過程と呼びます。</p>
 <section id="automatic-calculation-program-based-on-the-qclo-method">
-<h4>automatic calculation program based on the QCLO method<a class="headerlink" href="#automatic-calculation-program-based-on-the-qclo-method" title="Permalink to this headline"></a></h4>
+<h4>automatic calculation program based on the QCLO method<a class="headerlink" href="#automatic-calculation-program-based-on-the-qclo-method" title="Permalink to this heading"></a></h4>
 <p>This is an automatic calculation function based on the QCLO method.
 Using the fragment-by-fragment QCLO calculation results of the ProteinDF program,
 It has the ability to generate initial guess (LCAO) for the ProteinDF program.</p>
