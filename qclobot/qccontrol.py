@@ -100,9 +100,7 @@ class QcControl(QcControlObject):
 
         with_items = frame_data.get("with_items", None)
         if with_items:
-            iter_items = list(
-                self._vars.get(bridge.StrUtils.to_unicode(with_items), [])
-            )
+            iter_items = list(self._vars.get(bridge.StrUtils.to_unicode(with_items), []))
 
             new_frame_data = dict(frame_data)
             new_frame_data.pop("with_items")
@@ -199,13 +197,11 @@ class QcControl(QcControlObject):
         # self._set_default(self._frames['default'], frame_data)
 
         # --------------------------------------------------------------
-        # prepareation of input
+        # preparation of input
         # --------------------------------------------------------------
         # Lower compatibility: guess
         if isinstance(frame_data.get("guess", None), str):
-            logger.warn(
-                "string-type is deprecated in 'guess' section. Use map(dict)-type."
-            )
+            logger.debug("string-type is deprecated in 'guess' section. Use map(dict)-type.")
             guess_str = frame_data["guess"]
             frame_data["guess"] = {"method": guess_str, "force": False}
 
@@ -224,17 +220,11 @@ class QcControl(QcControlObject):
         frame.pdfparam.CDAM_tau = frame_data.get("CDAM_tau", None)
         frame.pdfparam.CD_epsilon = frame_data.get("CD_epsilon", None)
 
-        frame.pdfparam.convergence_threshold_energy = frame_data.get(
-            "convergence/threshold_energy", None
-        )
-        frame.pdfparam.convergence_threshold = frame_data.get(
-            "convergence/threshold", None
-        )
+        frame.pdfparam.convergence_threshold_energy = frame_data.get("convergence/threshold_energy", None)
+        frame.pdfparam.convergence_threshold = frame_data.get("convergence/threshold", None)
         frame.pdfparam.convergence_type = frame_data.get("convergence/type", None)
 
-        frame.pdfparam.orbital_independence_threshold = frame_data.get(
-            "orbital_independence_threshold", None
-        )
+        frame.pdfparam.orbital_independence_threshold = frame_data.get("orbital_independence_threshold", None)
         frame.pdfparam.orbital_independence_threshold_canonical = frame_data.get(
             "orbital_independence_threshold/canonical", None
         )
@@ -261,12 +251,8 @@ class QcControl(QcControlObject):
         frame.pdfparam.k_engine = frame_data.get("K_engine", None)
         frame.pdfparam.xc_engine = frame_data.get("XC_engine", None)
 
-        frame.pdfparam.gridfree_dedicated_basis = frame_data.get(
-            "gridfree/dedicated_basis", None
-        )
-        frame.pdfparam.gridfree_orthogonalize_method = frame_data.get(
-            "gridfree/orthogonalize_method", None
-        )
+        frame.pdfparam.gridfree_dedicated_basis = frame_data.get("gridfree/dedicated_basis", None)
+        frame.pdfparam.gridfree_orthogonalize_method = frame_data.get("gridfree/orthogonalize_method", None)
         frame.pdfparam.gridfree_CDAM_tau = frame_data.get("gridfree/CDAM_tau", None)
         frame.pdfparam.gridfree_CD_epsilon = frame_data.get("gridfree/CD_epsilon", None)
 
@@ -284,9 +270,7 @@ class QcControl(QcControlObject):
 
         # fragments ------------
         logger.info("> make fragments for [{frame_name}]".format(frame_name=frame_name))
-        fragments_list = self._get_fragments(
-            frame_data.get("fragments", []), frame_data
-        )
+        fragments_list = self._get_fragments(frame_data.get("fragments", []), frame_data)
         for f in fragments_list:
             assert isinstance(f, QcFragment)
             frame[f.name] = f
@@ -302,9 +286,7 @@ class QcControl(QcControlObject):
             # ))
             # for subgrp_name, subgrp in frame[f.name].groups():
             #    logger.info('  > subfragment: {}, parent={}'.format(subgrp_name, subgrp.parent.name))
-        logger.debug(
-            "> make fragments for [{frame_name}]: end".format(frame_name=frame_name)
-        )
+        logger.debug("> make fragments for [{frame_name}]: end".format(frame_name=frame_name))
 
         # --------------------------------------------------------------
         # action
@@ -423,12 +405,8 @@ class QcControl(QcControlObject):
             elif "reference" in frg_data:
                 subfrg = self._get_reference_fragment(frg_data)
             else:
-                logger.critical(
-                    "unknown fragment command/object: {}".format(str(frg_data.keys()))
-                )
-                raise QcControlError(
-                    "fragment", "unknown fragment: {}".format(str(frg_data))
-                )
+                logger.critical("unknown fragment command/object: {}".format(str(frg_data.keys())))
+                raise QcControlError("fragment", "unknown fragment: {}".format(str(frg_data)))
 
             if subfrg == None:
                 frg_data_str = pprint.pformat(frg_data)
@@ -514,18 +492,12 @@ class QcControl(QcControlObject):
         assert isinstance(frg_data, dict)
 
         if not "frame" in frg_data["reference"]:
-            raise QcControlError(
-                "NOT FOUND frame key in reference fragment", pprint.pformat(frg_data)
-            )
+            raise QcControlError("NOT FOUND frame key in reference fragment", pprint.pformat(frg_data))
         if not "fragment" in frg_data["reference"]:
-            raise QcControlError(
-                "NOT FOUND fragment key in reference fragment", pprint.pformat(frg_data)
-            )
+            raise QcControlError("NOT FOUND fragment key in reference fragment", pprint.pformat(frg_data))
 
         ref_frame_name = bridge.StrUtils.to_unicode(frg_data["reference"]["frame"])
-        ref_fragment_name = bridge.StrUtils.to_unicode(
-            frg_data["reference"]["fragment"]
-        )
+        ref_fragment_name = bridge.StrUtils.to_unicode(frg_data["reference"]["fragment"])
 
         if ref_frame_name not in self._frames:
             raise QcControlError("UNKNOWN FRAME", ref_frame_name)
@@ -533,13 +505,9 @@ class QcControl(QcControlObject):
 
         if not ref_frame.has_fragment(ref_fragment_name):
             logger.critical(str(self._frames[ref_frame_name]))
-            raise QcControlError(
-                "UNKNOWN FRAGMENT", "{} in {}".format(ref_fragment_name, ref_frame_name)
-            )
+            raise QcControlError("UNKNOWN FRAGMENT", "{} in {}".format(ref_fragment_name, ref_frame_name))
 
-        logger.info(
-            "> reference fragment: [{}/{}]".format(ref_frame_name, ref_fragment_name)
-        )
+        logger.info("> reference fragment: [{}/{}]".format(ref_frame_name, ref_fragment_name))
         ref_fragment = ref_frame[ref_fragment_name]
 
         fragment = QcFragment(ref_fragment)
@@ -584,20 +552,14 @@ class QcControl(QcControlObject):
         atomgroup_C1 = self._select_atomgroup(brd_file_path, brd_select_C1)
         atomgroup_C1 = atomgroup_C1.get_atom_list()
         if len(atomgroup_C1) == 0:
-            logger.critical(
-                "cannnot find displacement atom: key={}".format(brd_select_C1)
-            )
-            raise QcControlError(
-                'No atoms found for "displacement" in add_CH3', brd_select_C1
-            )
+            logger.critical("cannnot find displacement atom: key={}".format(brd_select_C1))
+            raise QcControlError('No atoms found for "displacement" in add_CH3', brd_select_C1)
         atom_C1 = atomgroup_C1[0]
 
         atomgroup_C2 = self._select_atomgroup(brd_file_path, brd_select_C2)
         atomgroup_C2 = atomgroup_C2.get_atom_list()
         if len(atomgroup_C2) == 0:
-            logger.critical(
-                "cannnot find displacement atom: key={}".format(brd_select_C2)
-            )
+            logger.critical("cannnot find displacement atom: key={}".format(brd_select_C2))
             raise QcControlError('No atoms found for "root" in add_CH3')
         atom_C2 = atomgroup_C2[0]
         ag_CH3 = self._modeling.add_methyl(atom_C1, atom_C2)
@@ -609,9 +571,7 @@ class QcControl(QcControlObject):
             raise QcControlError("NOT FOUND name key in add_CH3", str(frg_data))
         CH3.name = frg_data.get("name")
 
-        self._set_basis_set(
-            CH3, frg_data.get("basis_set"), frg_data.get("basis_set_gridfree", None)
-        )
+        self._set_basis_set(CH3, frg_data.get("basis_set"), frg_data.get("basis_set_gridfree", None))
 
         return CH3
 
@@ -676,9 +636,7 @@ class QcControl(QcControlObject):
                         # case '/model/...'
                         brd_select = line
                         brd_file_path = frg_data.get("brd_file")
-                        selected_atomgroup = self._select_atomgroup(
-                            brd_file_path, brd_select
-                        )
+                        selected_atomgroup = self._select_atomgroup(brd_file_path, brd_select)
                         # logger.debug('select path: {}'.format(brd_select))
                         # logger.debug('selected: {}'.format(str(selected_atomgroup)))
                         if selected_atomgroup.get_number_of_all_atoms() > 0:
@@ -710,9 +668,7 @@ class QcControl(QcControlObject):
                     else:
                         logger.error("mismatch atom data size: {}".format(str(line)))
                 else:
-                    logger.error(
-                        "atomlist item shuld be array or string: {}".format(str(line))
-                    )
+                    logger.error("atomlist item shuld be array or string: {}".format(str(line)))
         else:
             logger.error("atomlist shuld be list: {}".format(str(atomlist)))
 
@@ -744,43 +700,27 @@ class QcControl(QcControlObject):
 
         return answer
 
-    def _set_basis_set(
-        self, fragment, basis_set, basis_set_aux=None, basis_set_gridfree=None
-    ):
+    def _set_basis_set(self, fragment, basis_set, basis_set_aux=None, basis_set_gridfree=None):
         """
         set basis set to the fragment object.
         """
         if isinstance(fragment, QcFragment):
             for subfrg_name, subfrg in fragment.groups():
-                self._set_basis_set(
-                    subfrg, basis_set, basis_set_aux, basis_set_gridfree
-                )
+                self._set_basis_set(subfrg, basis_set, basis_set_aux, basis_set_gridfree)
             for atm_name, atm in fragment.atoms():
-                atm.basisset = "O-{}.{}".format(
-                    self._find_basis_set_name(atm, basis_set), atm.symbol
-                )
+                atm.basisset = "O-{}.{}".format(self._find_basis_set_name(atm, basis_set), atm.symbol)
                 if basis_set_aux:
-                    atm.basisset_j = "A-{}.{}".format(
-                        self._find_basis_set_name(atm, basis_set_aux), atm.symbol
-                    )
-                    atm.basisset_xc = "A-{}.{}".format(
-                        self._find_basis_set_name(atm, basis_set_aux), atm.symbol
-                    )
+                    atm.basisset_j = "A-{}.{}".format(self._find_basis_set_name(atm, basis_set_aux), atm.symbol)
+                    atm.basisset_xc = "A-{}.{}".format(self._find_basis_set_name(atm, basis_set_aux), atm.symbol)
                 else:
-                    atm.basisset_j = "A-{}.{}".format(
-                        self._find_basis_set_name(atm, basis_set), atm.symbol
-                    )
-                    atm.basisset_xc = "A-{}.{}".format(
-                        self._find_basis_set_name(atm, basis_set), atm.symbol
-                    )
+                    atm.basisset_j = "A-{}.{}".format(self._find_basis_set_name(atm, basis_set), atm.symbol)
+                    atm.basisset_xc = "A-{}.{}".format(self._find_basis_set_name(atm, basis_set), atm.symbol)
                 if basis_set_gridfree:
                     atm.basisset_gridfree = "O-{}.{}".format(
                         self._find_basis_set_name(atm, basis_set_gridfree), atm.symbol
                     )
                 else:
-                    atm.basisset_gridfree = "O-{}.{}".format(
-                        self._find_basis_set_name(atm, basis_set), atm.symbol
-                    )
+                    atm.basisset_gridfree = "O-{}.{}".format(self._find_basis_set_name(atm, basis_set), atm.symbol)
         else:
             raise QcControlError("Program Error: ", str(fragment))
 
