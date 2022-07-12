@@ -418,10 +418,10 @@ class QcControl(QcControlObject):
             assert isinstance(subfrg, QcFragment)
             subfrg_atomgroup = subfrg.get_AtomGroup()
             logger.info(
-                "subfrg append: {name} ({formula}: elec={elec})".format(
+                "subfrg append: {name} ({formula}: charge={charge})".format(
                     name=name,
                     formula=subfrg_atomgroup.get_formula(),
-                    elec=subfrg_atomgroup.charge,
+                    charge=subfrg_atomgroup.charge,
                 )
             )
             answer.append(subfrg)
@@ -548,6 +548,7 @@ class QcControl(QcControlObject):
         brd_file_path = frg_data.get("brd_file")
         brd_select_C1 = frg_data.get("displacement")
         brd_select_C2 = frg_data.get("root")
+        logger.info("add CH3: displacement: {}, root: {}".format(brd_select_C1, brd_select_C2))
 
         atomgroup_C1 = self._select_atomgroup(brd_file_path, brd_select_C1)
         atomgroup_C1 = atomgroup_C1.get_atom_list()
