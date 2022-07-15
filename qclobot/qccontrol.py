@@ -24,7 +24,7 @@ import pprint
 
 import proteindf_bridge as bridge
 
-from . import __version__
+from .__version__ import __version__
 from .qcframe import QcFrame
 from .qcfragment import QcFragment
 from .qccontrolobject import QcControlObject
