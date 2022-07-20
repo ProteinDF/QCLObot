@@ -52,7 +52,11 @@ def main():
     amber.charge()
 
     # output file
-    raw_data = amber.output_model.get_raw_data()
+    protein = bridge.AtomGroup()
+    protein.set_group("model_1", amber.output_model)
+
+    # raw_data = amber.output_model.get_raw_data()
+    raw_data = protein.get_raw_data()
     if (verbose == True):
         print("writing: %s\n" % (output_path))
     bridge.save_msgpack(raw_data, output_path)
