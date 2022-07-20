@@ -36,6 +36,8 @@ class AmberObject(MdObject):
 
     """
 
+    AmberToolsVer = 22
+
     def __init__(self, *args, **kwargs):
         super(AmberObject, self).__init__(*args, **kwargs)
 
@@ -519,19 +521,28 @@ class AmberObject(MdObject):
             res_id2 = bridge.Path.get_res_id(path2)
             assert res_id1 is not None
             assert res_id2 is not None
-            seq_res_id1 = bridge.Utils.get_sequential_residue_id(
-                self.model,
-                bridge.Path.get_chain_id(path1),
-                bridge.Path.get_res_id(path1),
-            )
-            seq_res_id2 = bridge.Utils.get_sequential_residue_id(
-                self.model,
-                bridge.Path.get_chain_id(path2),
-                bridge.Path.get_res_id(path2),
-            )
-            answer += "bond protein.{res_id1}.SG protein.{res_id2}.SG\n".format(
-                res_id1=seq_res_id1, res_id2=seq_res_id2
-            )
+
+            if self.AmberToolsVer < 22:
+                seq_res_id1 = bridge.Utils.get_sequential_residue_id(
+                    self.model,
+                    bridge.Path.get_chain_id(path1),
+                    bridge.Path.get_res_id(path1),
+                )
+                seq_res_id2 = bridge.Utils.get_sequential_residue_id(
+                    self.model,
+                    bridge.Path.get_chain_id(path2),
+                    bridge.Path.get_res_id(path2),
+                )
+
+                logger.info(
+                    "change res id for SS bond: ({}, {}) -> ({}, {})".format(
+                        res_id1, seq_res_id1, res_id2, seq_res_id2
+                    )
+                )
+                res_id1 = seq_res_id1
+                res_id2 = seq_res_id2
+
+            answer += "bond protein.{res_id1}.SG protein.{res_id2}.SG\n".format(res_id1=res_id1, res_id2=res_id2)
 
         return answer
 

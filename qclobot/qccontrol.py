@@ -467,10 +467,34 @@ class QcControl(QcControlObject):
     def _get_default_fragment(self, frg_data):
         assert isinstance(frg_data, dict)
 
-        atomgroup = None
-        brd_select = frg_data.get("brd_select")
         brd_file_path = frg_data.get("brd_file")
-        atomgroup = self._select_atomgroup(brd_file_path, brd_select)
+
+        brd_select = frg_data.get("brd_select")
+
+        select_path = ""
+        except_path = ""
+        if isinstance(brd_select, str):
+            select_path = brd_select
+        elif isinstance(brd_select, dict):
+            # key: path
+            if "path" in brd_select:
+                select_path = brd_select.get("path", "")
+            else:
+                raise QcControlError(frg_data, "not found path key in brd_select.")
+
+            # key: except
+            except_path = brd_select.get("except", "")
+
+        else:
+            raise QcControlError(frg_data, "unknown brd_select type.")
+
+        # select atomgroup
+        atomgroup = self._select_atomgroup(brd_file_path, select_path)
+        if len(except_path) > 0:
+            except_atomgroup = self._select_atomgroup(brd_file_path, except_path)
+
+            except_atomgroup = atomgroup & except_atomgroup
+            atomgroup = atomgroup ^ except_atomgroup
 
         frg = QcFragment(atomgroup)
         frg.margin = False
