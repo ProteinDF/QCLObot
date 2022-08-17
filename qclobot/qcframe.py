@@ -143,9 +143,7 @@ class QcFrame(object):
         """
         pdfparamオブジェクトを返す
         """
-        pdfparam_path = os.path.abspath(
-            os.path.join(self.work_dir, self._pdfparam_filename)
-        )
+        pdfparam_path = os.path.abspath(os.path.join(self.work_dir, self._pdfparam_filename))
 
         if "pdfparam" not in self._cache:
             if os.path.exists(pdfparam_path):
@@ -268,18 +266,10 @@ class QcFrame(object):
             raise
         self._work_dir = os.path.abspath(os.path.join(os.curdir, self.name))
         if not os.path.exists(self.work_dir):
-            logger.info(
-                "{header} make work dir: {path}".format(
-                    header=self.header, path=self.work_dir
-                )
-            )
+            logger.info("{header} make work dir: {path}".format(header=self.header, path=self.work_dir))
             os.mkdir(self.work_dir)
         else:
-            logger.debug(
-                "{header} already exist: {path}".format(
-                    header=self.header, path=self.work_dir
-                )
-            )
+            logger.debug("{header} already exist: {path}".format(header=self.header, path=self.work_dir))
 
     def cd_work_dir(self, job_name=""):
         """
@@ -287,15 +277,9 @@ class QcFrame(object):
         """
         logger.info("=" * 20)
         logger.info(
-            "{header} > {job_name}@{frame_name}".format(
-                header=self.header, job_name=job_name, frame_name=self.name
-            )
+            "{header} > {job_name}@{frame_name}".format(header=self.header, job_name=job_name, frame_name=self.name)
         )
-        logger.debug(
-            "{header} work dir: {work_dir}".format(
-                header=self.header, work_dir=self.work_dir
-            )
-        )
+        logger.debug("{header} work dir: {work_dir}".format(header=self.header, work_dir=self.work_dir))
 
         logger.info("=" * 20)
         self._prev_dir = os.path.abspath(os.curdir)
@@ -306,17 +290,11 @@ class QcFrame(object):
         self.cd_work_dir() 以前のディレクトリに戻す
         """
         os.chdir(self._prev_dir)
-        logger.debug(
-            "{header} < (prev_dir: {path})".format(
-                header=self.header, path=self._prev_dir
-            )
-        )
+        logger.debug("{header} < (prev_dir: {path})".format(header=self.header, path=self._prev_dir))
 
     def _check_path(self, path):
         if not os.path.exists(path):
-            logger.warn(
-                "{header} NOT FOUND: {path}".format(header=self.header, path=path)
-            )
+            logger.warn("{header} NOT FOUND: {path}".format(header=self.header, path=path))
 
     # charge -----------------------------------------------------------
     def _get_charge(self):
@@ -348,9 +326,7 @@ class QcFrame(object):
     def _set_state_finished_guess_density(self, yn):
         self._state["is_finished_guess_density"] = bool(yn)
 
-    is_finished_guess_density = property(
-        _get_state_finished_guess_density, _set_state_finished_guess_density
-    )
+    is_finished_guess_density = property(_get_state_finished_guess_density, _set_state_finished_guess_density)
 
     # guess_QCLO -------------------------------------------------------
     def _get_state_finished_guess_QCLO(self):
@@ -360,9 +336,7 @@ class QcFrame(object):
     def _set_state_finished_guess_QCLO(self, yn):
         self._state["is_finished_guess_QCLO"] = bool(yn)
 
-    is_finished_guess_QCLO = property(
-        _get_state_finished_guess_QCLO, _set_state_finished_guess_QCLO
-    )
+    is_finished_guess_QCLO = property(_get_state_finished_guess_QCLO, _set_state_finished_guess_QCLO)
 
     # pre-SCF ----------------------------------------------------------
     def _get_state_finished_prescf(self):
@@ -372,9 +346,7 @@ class QcFrame(object):
     def _set_state_finished_prescf(self, yn):
         self._state["is_finished_prescf"] = bool(yn)
 
-    is_finished_prescf = property(
-        _get_state_finished_prescf, _set_state_finished_prescf
-    )
+    is_finished_prescf = property(_get_state_finished_prescf, _set_state_finished_prescf)
 
     # SCF --------------------------------------------------------------
     def _get_state_finished_scf(self):
@@ -427,9 +399,7 @@ class QcFrame(object):
     def _set_state_finished_pickup_LO(self, yn):
         self._state["is_finished_pickup_LO"] = bool(yn)
 
-    is_finished_pickup_LO = property(
-        _get_state_finished_pickup_LO, _set_state_finished_pickup_LO
-    )
+    is_finished_pickup_LO = property(_get_state_finished_pickup_LO, _set_state_finished_pickup_LO)
 
     # ==================================================================
     # GUESS
@@ -452,15 +422,9 @@ class QcFrame(object):
         pdfsim.setup()
 
         for frg_name, frg in self.fragments():
-            logger.info(
-                "fragment name={}: {} atoms".format(
-                    frg_name, frg.get_number_of_all_atoms()
-                )
-            )
+            logger.info("fragment name={}: {} atoms".format(frg_name, frg.get_number_of_all_atoms()))
             if frg.parent == None:
-                logger.warn(
-                    "guess_density(): parent == None. frg_name={}".format(frg_name)
-                )
+                logger.warn("guess_density(): parent == None. frg_name={}".format(frg_name))
 
             frg.set_command_alias(self._cmds)
             frg_guess_density_matrix_path = frg.prepare_guess_density_matrix(run_type)
@@ -484,18 +448,10 @@ class QcFrame(object):
                     ]
                 )
             else:
-                logger.warn(
-                    "not found: frg.guess.dens.mat={}".format(
-                        frg_guess_density_matrix_path
-                    )
-                )
+                logger.warn("not found: frg.guess.dens.mat={}".format(frg_guess_density_matrix_path))
 
         self.pdfparam.guess = "density_matrix"
-        logger.info(
-            "initial guess (density matrix) created at {}".format(
-                guess_density_matrix_path
-            )
-        )
+        logger.info("initial guess (density matrix) created at {}".format(guess_density_matrix_path))
 
         # check
         self._check_path(guess_density_matrix_path)
@@ -519,14 +475,10 @@ class QcFrame(object):
 
         num_of_AOs = 0
         for frg_name, frg in self.fragments():
-            logger.info(
-                "guess QCLO: frg_name={}, parent={}".format(frg_name, frg.parent.name)
-            )
+            logger.info("guess QCLO: frg_name={}, parent={}".format(frg_name, frg.parent.name))
 
             frg.set_command_alias(self._cmds)
-            frg_QCLO_matrix_path = frg.prepare_guess_QCLO_matrix(
-                run_type, self, force=force
-            )
+            frg_QCLO_matrix_path = frg.prepare_guess_QCLO_matrix(run_type, self, force=force)
             if os.path.exists(frg_QCLO_matrix_path):
                 pdf.run_pdf(
                     [
@@ -538,9 +490,7 @@ class QcFrame(object):
                     ]
                 )
             else:
-                logger.warn(
-                    "The QCLO of the subgroup, {}, was not created.".format(frg_name)
-                )
+                logger.warn("The QCLO of the subgroup, {}, was not created.".format(frg_name))
 
         # orthogonalize
         guess_path = "guess.lcao.{}.mat".format(run_type)
@@ -590,9 +540,7 @@ class QcFrame(object):
             electrons_per_orb = 2.0
         else:
             logger.critical(
-                "{header} NOT supported. run_type={run_type}".format(
-                    header=self.header, run_type=run_type
-                )
+                "{header} NOT supported. run_type={run_type}".format(header=self.header, run_type=run_type)
             )
 
         # num_of_MOs = self.pdfparam.num_of_MOs
@@ -621,11 +569,7 @@ class QcFrame(object):
         # num_of_electrons
         # calc from the molecule data
         num_of_electrons = self.frame_molecule.sum_of_atomic_number()
-        logger.info(
-            "{header} the number of electrons = {elec}".format(
-                header=self.header, elec=num_of_electrons
-            )
-        )
+        logger.info("{header} the number of electrons = {elec}".format(header=self.header, elec=num_of_electrons))
         if self.charge != 0:
             logger.info("specify the charge => {}".format(self.charge))
             num_of_electrons -= self.charge  # 電子(-)数と電荷(+)の正負が逆なことに注意
@@ -636,17 +580,13 @@ class QcFrame(object):
                 )
             )
         if self.pdfparam.num_of_electrons % 2 != 0:
-            logger.warning(
-                "{header} the number of electrons is not even.".format(
-                    header=self.header
-                )
-            )
+            logger.warning("{header} the number of electrons is not even.".format(header=self.header))
 
     # ------------------------------------------------------------------
     def calc_preSCF(self, dry_run=False):
         """ """
         if self.is_finished_prescf:
-            logger.info("preSCF has been calced.")
+            logger.info("preSCF has already done.")
             return
 
         self.cd_work_dir("calc preSCF")
@@ -677,7 +617,7 @@ class QcFrame(object):
         calculate single point energy
         """
         if self.is_finished_scf:
-            logger.info("SP has been calced.")
+            logger.info("SP has already done.")
             self._grouping_fragments()
             self._switch_fragments()
             return
@@ -719,7 +659,7 @@ class QcFrame(object):
         absolute: force -> gradient
         """
         if self.is_finished_force:
-            logger.info("force has been calced.")
+            logger.info("force has already done.")
             return
 
         if self.is_finished_scf != True:
@@ -868,9 +808,7 @@ class QcFrame(object):
         密度行列を各フラグメントに割り当てる
         """
         if self.is_finished_pickup_density_matrix:
-            logger.info(
-                "{header} pickup density matrix has done.".format(header=self.header)
-            )
+            logger.info("{header} pickup density matrix has done.".format(header=self.header))
             return
 
         self.cd_work_dir("pickup density matrix")
@@ -880,11 +818,7 @@ class QcFrame(object):
         self._switch_fragments()
 
         dens_mat_path = self.pdfparam.get_density_matrix_path(runtype=runtype)
-        logger.info(
-            "{header} reference density matrix: {path}".format(
-                header=self.header, path=dens_mat_path
-            )
-        )
+        logger.info("{header} reference density matrix: {path}".format(header=self.header, path=dens_mat_path))
 
         global_dim = 0
         for frg_name, frg in self.fragments():
@@ -918,9 +852,7 @@ class QcFrame(object):
                 )
 
                 # select された行列を対称行列に変換
-                pdf.run_pdf(
-                    [self._cmds["mat-symmetrize"], frg_dens_mat_path, frg_dens_mat_path]
-                )
+                pdf.run_pdf([self._cmds["mat-symmetrize"], frg_dens_mat_path, frg_dens_mat_path])
                 logger.debug(
                     "{header} density matrix for {fragment} was saved as {path}".format(
                         header=self.header, fragment=frg_name, path=frg_dens_mat_path
@@ -1018,18 +950,12 @@ class QcFrame(object):
         AO_frg_tbl = self._get_AO_fragment_table(num_of_AOs)
 
         # pickup
-        logger.info(
-            "{header} assign fragment: start: HOMO={homo}".format(
-                header=self.header, homo=HOMO_level
-            )
-        )
+        logger.info("{header} assign fragment: start: HOMO={homo}".format(header=self.header, homo=HOMO_level))
         MO_fragment_assigned = {}
         for mo in range(HOMO_level + 1):
             frg_name = self._define_lo_fragment(mo, num_of_AOs, AO_frg_tbl, CSC)
             logger.info(
-                "{header} #{mo} MO -> fragment: '{frg_name}'".format(
-                    header=self.header, mo=mo, frg_name=frg_name
-                )
+                "{header} #{mo} MO -> fragment: '{frg_name}'".format(header=self.header, mo=mo, frg_name=frg_name)
             )
             MO_fragment_assigned.setdefault(frg_name, [])
             MO_fragment_assigned[frg_name].append(mo)
@@ -1039,9 +965,7 @@ class QcFrame(object):
         logger.info("==== assign report ====")
         for k, MOs in MO_fragment_assigned.items():
             logger.info(
-                "{header} fragment '{frag_name}' has {mo} MO(s)".format(
-                    header=self.header, frag_name=k, mo=len(MOs)
-                )
+                "{header} fragment '{frag_name}' has {mo} MO(s)".format(header=self.header, frag_name=k, mo=len(MOs))
             )
 
         # フラグメントのC_LOを作成する
@@ -1052,15 +976,11 @@ class QcFrame(object):
         for frg_name, frg in self.fragments():
             frg_cols = len(MO_fragment_assigned.get(frg_name, []))
             logger.info(
-                "{header} fragment '{frg_name}': col={col}".format(
-                    header=self.header, frg_name=frg_name, col=frg_cols
-                )
+                "{header} fragment '{frg_name}': col={col}".format(header=self.header, frg_name=frg_name, col=frg_cols)
             )
             if frg_cols == 0:
                 logger.warning(
-                    "{header} fragment '{frg_name}' has no colomns.".format(
-                        header=self.header, frg_name=frg_name
-                    )
+                    "{header} fragment '{frg_name}' has no colomns.".format(header=self.header, frg_name=frg_name)
                 )
                 # continue
 
@@ -1072,11 +992,7 @@ class QcFrame(object):
                         Clo_frg.set(row, col, v)
 
             Clo_path = "Clo_{}.mat".format(frg_name)
-            logger.debug(
-                "{header} fragment C_LO save: {path}".format(
-                    header=self.header, path=Clo_path
-                )
-            )
+            logger.debug("{header} fragment C_LO save: {path}".format(header=self.header, path=Clo_path))
             Clo_frg.save(Clo_path)
             frg.set_LO_matrix(Clo_path, run_type)
         logger.info("{header} create C_LO: end".format(header=self.header))
@@ -1128,11 +1044,7 @@ class QcFrame(object):
 
         high_score = ranked_judge[0][1]
         if high_score < 0.5:
-            logger.warning(
-                "{header} 1st score is too small: {score}".format(
-                    header=self.header, score=high_score
-                )
-            )
+            logger.warning("{header} 1st score is too small: {score}".format(header=self.header, score=high_score))
 
         return ranked_judge[0][0]
 
@@ -1145,9 +1057,7 @@ class QcFrame(object):
             C_QCLO_path = "C_QCLO.{}.mat".format(frg_name)  # output for each fragment
             frg_AO = frg.get_number_of_AOs()
             logger.info(
-                "{header} fragment '{name}' has {ao} AO(s)".format(
-                    header=self.header, name=frg_name, ao=frg_AO
-                )
+                "{header} fragment '{name}' has {ao} AO(s)".format(header=self.header, name=frg_name, ao=frg_AO)
             )
             if frg.get_number_of_AOs() != 0:
                 Clo_path = frg.get_LO_matrix_path(run_type)
@@ -1158,9 +1068,7 @@ class QcFrame(object):
                 pdf.run_pdf([self._cmds["mat-mul"], "-v", F_path, Clo_path, F_Clo_path])
 
                 Clo_dagger_path = "Clo_dagger.{}.mat".format(frg_name)
-                pdf.run_pdf(
-                    [self._cmds["mat-transpose"], "-v", Clo_path, Clo_dagger_path]
-                )
+                pdf.run_pdf([self._cmds["mat-transpose"], "-v", Clo_path, Clo_dagger_path])
 
                 F_prime_path = "Fprime.{}.mat".format(frg_name)
                 pdf.run_pdf(
@@ -1192,13 +1100,9 @@ class QcFrame(object):
                 )
 
                 # AO基底に変換
-                pdf.run_pdf(
-                    [self._cmds["mat-mul"], "-v", Clo_path, Cprime_path, C_QCLO_path]
-                )
+                pdf.run_pdf([self._cmds["mat-mul"], "-v", Clo_path, Cprime_path, C_QCLO_path])
             else:
-                logger.info(
-                    "{header} create empty QCLO matrix.".format(header=self.header)
-                )
+                logger.info("{header} create empty QCLO matrix.".format(header=self.header))
                 empty_mat = pdf.Matrix()
                 empty_mat.save(C_QCLO_path)
 
@@ -1253,30 +1157,22 @@ class QcFrame(object):
             fragment.parent = self
             fragment.name = fragment_name
             logger.debug(
-                "[{my_name}] add fragment: name={fragment_name}".format(
-                    my_name=self.name, fragment_name=fragment_name
-                )
+                "[{my_name}] add fragment: name={fragment_name}".format(my_name=self.name, fragment_name=fragment_name)
             )
             self._fragments[fragment_name] = fragment
         elif isinstance(obj, QcFrame):
-            logger.info(
-                "begin to register frame molecule: for {}".format(fragment_name)
-            )
+            logger.info("begin to register frame molecule: for {}".format(fragment_name))
             fragment = QcFragment()
             fragment.parent = self
             fragment.name = fragment_name
             for k, f in obj.fragments():
                 if not f.margin:
-                    logger.warn(
-                        "add fragment: fragment={} for {}".format(k, fragment_name)
-                    )
+                    logger.warn("add fragment: fragment={} for {}".format(k, fragment_name))
                     fragment.set_group(k, f)
                 else:
                     logger.warn("pass fragment: fragment={} is margin".format(k))
             self._fragments[fragment_name] = fragment
-            logger.info(
-                "end of registration frame molecule: for {}".format(fragment_name)
-            )
+            logger.info("end of registration frame molecule: for {}".format(fragment_name))
         else:
             raise
 
@@ -1291,11 +1187,7 @@ class QcFrame(object):
         logger.info("{header} switch fragment".format(header=self.header))
         output_fragments = OrderedDict()
         for frg_name, frg in self.fragments():
-            logger.info(
-                "{header} fragment_name: {name}".format(
-                    header=self.header, name=frg_name
-                )
-            )
+            logger.info("{header} fragment_name: {name}".format(header=self.header, name=frg_name))
             new_frg = QcFragment(frg, parent=self)
             assert new_frg.parent.name == self.name
             output_fragments[frg_name] = new_frg
