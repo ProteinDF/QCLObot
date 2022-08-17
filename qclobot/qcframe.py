@@ -406,91 +406,110 @@ class QcFrame(object):
     # ==================================================================
     # guess density ----------------------------------------------------
     def guess_density(self, run_type="rks", force=False):
+        """create guess by using density matrix"""
         if (self.is_finished_guess_density == True) and (force == False):
-            logger.info("guess_density has been calced.")
+            logger.info("guess_density has been calculated.")
             return
 
         self.cd_work_dir("guess_density")
 
         guess_density_matrix_path = "guess.density.{}.mat".format(run_type)
-
-        # 既存のデータを消去する
+        # erase existing data
         if os.path.exists(guess_density_matrix_path):
             os.remove(guess_density_matrix_path)
 
-        pdfsim = pdf.PdfSim()
-        pdfsim.setup()
-
+        AOs = 0
         for frg_name, frg in self.fragments():
-            logger.info("fragment name={}: {} atoms".format(frg_name, frg.get_number_of_all_atoms()))
+            logger.info("collect density matrix: {}".format(frg_name))
             if frg.parent == None:
-                logger.warn("guess_density(): parent == None. frg_name={}".format(frg_name))
+                logger.warn(" the parent of the fragment is None")
+
+            fragment_AOs = frg.get_number_of_AOs()
+            if fragment_AOs == 0:
+                logger.info(" the fragment has no AOs. pass.")
+                continue
 
             frg.set_command_alias(self._cmds)
             frg_guess_density_matrix_path = frg.prepare_guess_density_matrix(run_type)
 
-            logger.debug(
-                "guess_density() [{}@{}] ext: {} from {}".format(
-                    frg_name,
-                    frg.parent.name,
-                    guess_density_matrix_path,
-                    frg_guess_density_matrix_path,
-                )
-            )
+            logger.debug(" parent: {}".format(frg.parent.name))
+            logger.debug(" dens mat path: {}".format(frg_guess_density_matrix_path))
             if os.path.exists(frg_guess_density_matrix_path):
-                pdf.run_pdf(
-                    [
-                        self._cmds["mat-extend"],
-                        "-d",
-                        guess_density_matrix_path,
-                        frg_guess_density_matrix_path,
-                        guess_density_matrix_path,
-                    ]
-                )
+                if AOs != 0:
+                    pdf.run_pdf(
+                        [
+                            self._cmds["mat-extend"],
+                            "-d",
+                            guess_density_matrix_path,
+                            frg_guess_density_matrix_path,
+                            guess_density_matrix_path,
+                        ]
+                    )
+                else:
+                    shutil.copy(frg_guess_density_matrix_path, guess_density_matrix_path)
             else:
-                logger.warn("not found: frg.guess.dens.mat={}".format(frg_guess_density_matrix_path))
+                logger.warn(" the file not found, but continue: {}".format(frg_guess_density_matrix_path))
+
+            AOs += fragment_AOs
 
         self.pdfparam.guess = "density_matrix"
-        logger.info("initial guess (density matrix) created at {}".format(guess_density_matrix_path))
+        logger.info("guess matrix is created: {}".format(guess_density_matrix_path))
 
         # check
+        if AOs != self.get_number_of_AOs():
+            logger.warn(" total AOs mismatch: est. {} !=  act. {}".format(self.get_number_of_AOs(), AOs))
         self._check_path(guess_density_matrix_path)
 
         self.is_finished_guess_density = True
         self.save()
-
         self.restore_cwd()
 
     def guess_QCLO(self, run_type="rks", force=False, isCalcOrthogonalize=False):
         """create guess by using QCLO method"""
         if (self.is_finished_guess_QCLO == True) and (force == False):
-            logger.info("guess_density has been calced.")
+            logger.info("guess_density has been calculated.")
             return
 
         self.cd_work_dir("guess_QCLO")
 
         guess_QCLO_matrix_path = "guess.QCLO.{}.mat".format(run_type)
+        # erase existing data
         if os.path.exists(guess_QCLO_matrix_path):
             os.remove(guess_QCLO_matrix_path)
 
-        num_of_AOs = 0
+        AOs = 0
         for frg_name, frg in self.fragments():
-            logger.info("guess QCLO: frg_name={}, parent={}".format(frg_name, frg.parent.name))
+            logger.info("collect QCLO: {}".format(frg_name))
+            if frg.parent == None:
+                logger.warn(" the parent of the fragment is None")
+
+            fragment_AOs = frg.get_number_of_AOs()
+            if fragment_AOs == 0:
+                logger.info(" the fragment has no AOs. pass.")
+                continue
 
             frg.set_command_alias(self._cmds)
             frg_QCLO_matrix_path = frg.prepare_guess_QCLO_matrix(run_type, self, force=force)
+
+            logger.debug(" parent: {}".format(frg.parent.name))
+            logger.debug(" QCLO path: {}".format(frg_QCLO_matrix_path))
             if os.path.exists(frg_QCLO_matrix_path):
-                pdf.run_pdf(
-                    [
-                        self._cmds["mat-extend"],
-                        "-c",
-                        guess_QCLO_matrix_path,
-                        frg_QCLO_matrix_path,
-                        guess_QCLO_matrix_path,
-                    ]
-                )
+                if AOs != 0:
+                    pdf.run_pdf(
+                        [
+                            self._cmds["mat-extend"],
+                            "-c",
+                            guess_QCLO_matrix_path,
+                            frg_QCLO_matrix_path,
+                            guess_QCLO_matrix_path,
+                        ]
+                    )
+                else:
+                    shutil.copy(frg_QCLO_matrix_path, guess_QCLO_matrix_path)
             else:
-                logger.warn("The QCLO of the subgroup, {}, was not created.".format(frg_name))
+                logger.warn(" the file not found, but continue: {}".format(frg_QCLO_matrix_path))
+
+            AOs += fragment_AOs
 
         # orthogonalize
         guess_path = "guess.lcao.{}.mat".format(run_type)
@@ -512,13 +531,16 @@ class QcFrame(object):
                 ]
             )
         else:
+            logger.info(" setup QCLO matrix to guess file")
             shutil.copy(guess_QCLO_matrix_path, guess_path)
 
         self.pdfparam.guess = "lcao"
-        logger.info("guess LCAO matrix created: {}".format(guess_path))
+        logger.info("guess matrix is created: {}".format(guess_path))
 
         # check
-        self._check_path(guess_QCLO_matrix_path)
+        if AOs != self.get_number_of_AOs():
+            logger.warn(" total AOs mismatch: est. {} !=  act. {}".format(self.get_number_of_AOs(), AOs))
+        self._check_path(guess_path)
 
         self.is_finished_guess_QCLO = True
         self.save()

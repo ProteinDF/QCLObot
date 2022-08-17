@@ -495,45 +495,56 @@ class QcFragment(object):
 
         # 既存のデータを消去する
         if os.path.exists(guess_density_matrix_path):
-            logger.info("{header}/remove {path}".format(header=self.header, path=guess_density_matrix_path))
+            logger.info("{header} remove {path}".format(header=self.header, path=guess_density_matrix_path))
             os.remove(guess_density_matrix_path)
+
+        # check the number of AOs
+        logger.info("{header} #AOs: {AOs}".format(header=self.header, AOs=self.get_number_of_AOs()))
+        if self.get_number_of_AOs() == 0:
+            logger.info("{header} fragment has no AOs. skip.".format(header=self.header))
+            return guess_density_matrix_path
+
         # create new matrix file
         mat = pdf.SymmetricMatrix()
         mat.save(guess_density_matrix_path)
 
         # subgroup
         logger.info("{header} get subgrp density matrix".format(header=self.header))
-        num_of_AOs_subgrp = 0
+        AOs = 0
         for subgrp_name, subgrp in self.groups():
-            logger.info("{header} subgroup name={subgrp_name}".format(header=self.header, subgrp_name=subgrp_name))
+            logger.info("{header} subfragment: {subgrp_name}".format(header=self.header, subgrp_name=subgrp_name))
 
             subgrp.set_command_alias(self._cmds)
             subgrp_guess_density_matrix_path = subgrp.prepare_guess_density_matrix(run_type)
             if not os.path.exists(subgrp_guess_density_matrix_path):
-                logger.warn("NOT found: subgrp.guess.dens.mat={}".format(subgrp_guess_density_matrix_path))
+                logger.warn("NOT found: {}. pass.".format(subgrp_guess_density_matrix_path))
                 continue
-            self._check_path(subgrp_guess_density_matrix_path)
-            assert self._check_symmetric_matrix(guess_density_matrix_path, num_of_AOs_subgrp)
 
-            # merge subgrp to main density matrix
+            # check
+            self._check_path(subgrp_guess_density_matrix_path)
+            assert self._check_symmetric_matrix(guess_density_matrix_path, AOs)
             subgrp_AOs = subgrp.get_number_of_AOs()
             assert self._check_symmetric_matrix(subgrp_guess_density_matrix_path, subgrp_AOs)
-            num_of_AOs_subgrp += subgrp_AOs
 
-            logger.debug("(sub) {} -d ".format(self._cmds["mat-extend"]))
-            logger.debug("    {}".format(guess_density_matrix_path))
-            logger.debug("    {}".format(subgrp_guess_density_matrix_path))
-            logger.debug("    {}".format(guess_density_matrix_path))
-            pdf.run_pdf(
-                [
-                    self._cmds["mat-extend"],
-                    "-d",
-                    guess_density_matrix_path,
-                    subgrp_guess_density_matrix_path,
-                    guess_density_matrix_path,
-                ]
-            )
-        assert self._check_symmetric_matrix(guess_density_matrix_path, num_of_AOs_subgrp)
+            # merge subgrp to main density matrix
+            if AOs != 0:
+                logger.debug("(sub) {} -d ".format(self._cmds["mat-extend"]))
+                logger.debug("    {}".format(guess_density_matrix_path))
+                logger.debug("    {}".format(subgrp_guess_density_matrix_path))
+                logger.debug("    {}".format(guess_density_matrix_path))
+                pdf.run_pdf(
+                    [
+                        self._cmds["mat-extend"],
+                        "-d",
+                        guess_density_matrix_path,
+                        subgrp_guess_density_matrix_path,
+                        guess_density_matrix_path,
+                    ]
+                )
+            else:
+                shutil.copy(subgrp_guess_density_matrix_path, guess_density_matrix_path)
+            AOs += subgrp_AOs
+        assert self._check_symmetric_matrix(guess_density_matrix_path, AOs)
 
         # self
         logger.info("{header} get self density matrix".format(header=self.header))
@@ -549,27 +560,30 @@ class QcFragment(object):
             )
             self._check_path(my_density_matrix_path)
 
-            logger.debug(
-                "{} -d {} {} {}".format(
-                    self._cmds["mat-extend"],
-                    guess_density_matrix_path,
-                    my_density_matrix_path,
-                    guess_density_matrix_path,
+            if AOs != 0:
+                logger.debug(
+                    "{} -d {} {} {}".format(
+                        self._cmds["mat-extend"],
+                        guess_density_matrix_path,
+                        my_density_matrix_path,
+                        guess_density_matrix_path,
+                    )
                 )
-            )
-            pdf.run_pdf(
-                [
-                    self._cmds["mat-extend"],
-                    "-d",
-                    guess_density_matrix_path,
-                    my_density_matrix_path,
-                    guess_density_matrix_path,
-                ]
-            )
+                pdf.run_pdf(
+                    [
+                        self._cmds["mat-extend"],
+                        "-d",
+                        guess_density_matrix_path,
+                        my_density_matrix_path,
+                        guess_density_matrix_path,
+                    ]
+                )
+            else:
+                shutil.copy(my_density_matrix_path, guess_density_matrix_path)
 
         # check
         self._check_path(guess_density_matrix_path)
-        assert self._check_symmetric_matrix(guess_density_matrix_path, self.get_number_of_AOs() + 1)
+        assert self._check_symmetric_matrix(guess_density_matrix_path, self.get_number_of_AOs())
 
         logger.info("{header} prepare guess density matrix: end".format(header=self.header))
         return guess_density_matrix_path
@@ -632,17 +646,13 @@ class QcFragment(object):
 
         # 既存のデータを消去する
         if os.path.isfile(guess_QCLO_matrix_path):
-            logger.debug(
-                "{header} remove existed fragment QCLO file: {path}".format(
-                    header=self.header, path=guess_QCLO_matrix_path
-                )
-            )
+            logger.debug("{header} remove {path}".format(header=self.header, path=guess_QCLO_matrix_path))
             os.remove(guess_QCLO_matrix_path)
 
         # check the number of AOs
         logger.info("{header} #AOs: {AOs}".format(header=self.header, AOs=self.get_number_of_AOs()))
         if self.get_number_of_AOs() == 0:
-            logger.info("{header} This fragment has no AOs. Skip preparing QCLO matrix.".format(header=self.header))
+            logger.info("{header} fragment has no AOs. skip.".format(header=self.header))
             return guess_QCLO_matrix_path
 
         request_orbinfo = request_frame.get_orbital_info()
@@ -650,35 +660,45 @@ class QcFragment(object):
 
         # subgroup
         logger.info("{header} get subgroup QCLO matrix".format(header=self.header))
+        MOs = 0
         for subgrp_name, subgrp in self.groups():
-            logger.info("{header} subgroup name={subgrp_name}".format(header=self.header, subgrp_name=subgrp_name))
+            logger.info("{header} subfragment: {subgrp_name}".format(header=self.header, subgrp_name=subgrp_name))
 
             subgrp.set_command_alias(self._cmds)
             subgrp_guess_QCLO_matrix_path = subgrp.prepare_guess_QCLO_matrix(run_type, request_frame)
             if not os.path.exists(subgrp_guess_QCLO_matrix_path):
-                logger.warn("NOT found: subgrp.guess.QCLO.mat={}".format(subgrp_guess_QCLO_matrix_path))
+                logger.warn("NOT found: {}. pass.".format(subgrp_guess_QCLO_matrix_path))
                 continue
-            self._check_path(subgrp_guess_QCLO_matrix_path)
 
-            # 行数は変えずに列方向に追加("pdf-mat-extend -c")
-            logger.debug("{} -c ".format(self._cmds["mat-extend"]))
-            logger.debug("    {}".format(guess_QCLO_matrix_path))
-            logger.debug("    {}".format(subgrp_guess_QCLO_matrix_path))
-            logger.debug("    {}".format(guess_QCLO_matrix_path))
-            pdf.run_pdf(
-                [
-                    self._cmds["mat-extend"],
-                    "-c",
-                    guess_QCLO_matrix_path,
-                    subgrp_guess_QCLO_matrix_path,
-                    guess_QCLO_matrix_path,
-                ]
-            )
+            # check
+            self._check_path(subgrp_guess_QCLO_matrix_path)
+            (row, col) = pdf.Matrix.get_size(subgrp_guess_QCLO_matrix_path)
+            subgrp_MOs = col
+
+            if MOs != 0:
+                # 行数は変えずに列方向に追加("pdf-mat-extend -c")
+                logger.debug("{} -c ".format(self._cmds["mat-extend"]))
+                logger.debug("    {}".format(guess_QCLO_matrix_path))
+                logger.debug("    {}".format(subgrp_guess_QCLO_matrix_path))
+                logger.debug("    {}".format(guess_QCLO_matrix_path))
+                pdf.run_pdf(
+                    [
+                        self._cmds["mat-extend"],
+                        "-c",
+                        guess_QCLO_matrix_path,
+                        subgrp_guess_QCLO_matrix_path,
+                        guess_QCLO_matrix_path,
+                    ]
+                )
+            else:
+                pass
+
+            MOs += subgrp_MOs
             self._check_path(guess_QCLO_matrix_path)
-            assert self._check_matrix(guess_QCLO_matrix_path, request_num_of_AOs, None)
+            assert self._check_matrix(guess_QCLO_matrix_path, request_num_of_AOs, MOs)
 
         # 自分のQCLO情報
-        if len(self._atoms) > 0:
+        if self.get_number_of_AOs() > 0:
             logger.info("{header} get self QCLO matrix".format(header=self.header))
             if self.ref_fragment is None:
                 logger.critical("reference fragment is not found:")
@@ -707,6 +727,7 @@ class QcFragment(object):
             num_of_MOs = QCLO_mat.cols
             guess_QCLO_mat = pdf.Matrix(request_num_of_AOs, num_of_MOs)
 
+            # TODO: speed up
             for request_AO_index in range(request_num_of_AOs):
                 for ref_AO_index in range(ref_num_of_AOs):
                     if request_orbinfo[request_AO_index] == ref_orbinfo[ref_AO_index]:
@@ -716,20 +737,25 @@ class QcFragment(object):
             my_guess_QCLO_matrix_path = os.path.join(self.work_dir, "guess_QCLO.part.mat")
             guess_QCLO_mat.save(my_guess_QCLO_matrix_path)
 
-            # 行数は変えずに列方向に追加("pdf-mat-extend -c")
-            logger.debug("{} -c ".format("mat-extend"))
-            logger.debug("    {}".format(guess_QCLO_matrix_path))
-            logger.debug("    {}".format(my_guess_QCLO_matrix_path))
-            logger.debug("    {}".format(guess_QCLO_matrix_path))
-            pdf.run_pdf(
-                [
-                    self._cmds["mat-extend"],
-                    "-c",
-                    guess_QCLO_matrix_path,
-                    my_guess_QCLO_matrix_path,
-                    guess_QCLO_matrix_path,
-                ]
-            )
+            if MOs != 0:
+                # 行数は変えずに列方向に追加("pdf-mat-extend -c")
+                logger.debug("{} -c ".format("mat-extend"))
+                logger.debug("    {}".format(guess_QCLO_matrix_path))
+                logger.debug("    {}".format(my_guess_QCLO_matrix_path))
+                logger.debug("    {}".format(guess_QCLO_matrix_path))
+                pdf.run_pdf(
+                    [
+                        self._cmds["mat-extend"],
+                        "-c",
+                        guess_QCLO_matrix_path,
+                        my_guess_QCLO_matrix_path,
+                        guess_QCLO_matrix_path,
+                    ]
+                )
+            else:
+                shutil.copy(my_guess_QCLO_matrix_path, guess_QCLO_matrix_path)
+
+            MOs += num_of_MOs
             self._check_path(guess_QCLO_matrix_path)
         else:
             logger.info("{header} no belonging atoms found. No QCLO created.".format(header=self.header))
