@@ -365,9 +365,10 @@ class QcControl(QcControlObject):
     # ------------------------------------------------------------------
     # fragment
     # ------------------------------------------------------------------
-    def _get_fragments(self, fragments_data, default):
+    def _get_fragments(self, fragments_data, default, num_of_nest = 0):
         assert isinstance(fragments_data, list)
-        logger.info("> make list of fragments: start")
+        indent = "  " * num_of_nest 
+        logger.info("{}>>> make list of fragments: start".format(indent))
         logger.debug(str(default))
 
         # fragment = QcFragment()
@@ -383,13 +384,13 @@ class QcControl(QcControlObject):
 
             subfrg = None
             if "fragments" in frg_data:
-                logger.info("> create subfragment for {name}: start".format(name=name))
-                subfrg_list = self._get_fragments(frg_data.get("fragments"), default)
+                logger.info("{indent}>>>> collect fragments for {name}: start".format(indent=indent, name=name))
+                subfrg_list = self._get_fragments(frg_data.get("fragments"), default, num_of_nest +1)
                 subfrg = QcFragment(name=name)
                 for item in subfrg_list:
                     logger.debug("> list name: {}".format(item.name))
                     subfrg[item.name] = item
-                logger.info("> create subfragment for {name}: end".format(name=name))
+                logger.info("{indent}<<<< collect fragments for {name}: end".format(indent=indent, name=name))
             elif "add_H" in frg_data:
                 subfrg = self._get_add_H(frg_data)
             elif "add_CH3" in frg_data:
@@ -418,7 +419,8 @@ class QcControl(QcControlObject):
             assert isinstance(subfrg, QcFragment)
             subfrg_atomgroup = subfrg.get_AtomGroup()
             logger.info(
-                "subfrg append: {name} ({formula}: charge={charge})".format(
+                "{indent}subfrg append: {name} ({formula}: charge={charge})".format(
+                    indent=indent,
                     name=name,
                     formula=subfrg_atomgroup.get_formula(),
                     charge=subfrg_atomgroup.charge,
@@ -426,7 +428,7 @@ class QcControl(QcControlObject):
             )
             answer.append(subfrg)
 
-        logger.info("> make list of fragments: end")
+        logger.info("{indent}<<<< make list of fragments: end".format(indent=indent))
         return answer
 
     def _set_default(self, default_values, update_values):

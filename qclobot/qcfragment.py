@@ -244,9 +244,18 @@ class QcFragment(object):
         answer = False
         if pdf.Matrix.is_loadable(path):
             (row, col) = pdf.Matrix.get_size(path)
-            logger.warning("actual({}, {}) <> expect({}, {})".format(row, col, expect_row, expect_col))
-            if ((expect_row == None) or (expect_row == row)) and ((expect_col == None) or (expect_col == col)):
-                answer = True
+
+            answer = True
+            if expect_row is not None:
+                if expect_row != row:
+                    logger.warning("check matrix(row): actual({}) != expect({})".format(row, expect_row))
+                    answer = False
+            if expect_col is not None:
+                if expect_col != col:
+                    logger.warning("check matrix(col): actual({}) != expect({})".format(col, expect_col))
+                    answer = False
+        else:
+            logger.warning("check matrix: cannnot load; {}".format(path))
         return answer
 
     def _check_symmetric_matrix(self, path, dim):
@@ -279,20 +288,25 @@ class QcFragment(object):
     name = property(_get_name, _set_name)
 
     # number of AOs ----------------------------------------------------
+    def get_number_of_my_AOs(self):
+        AOs = 0
+        for key, atm in self.atoms():
+            AOs += atm.get_number_of_AOs()
+        return AOs
 
     def get_number_of_AOs(self):
         def get_number_of_AOs_sub(ag):
             AOs = 0
             for key, subgrp in ag.groups():
                 AOs += get_number_of_AOs_sub(subgrp)
-            for key, atm in ag.atoms():
-                AOs += atm.get_number_of_AOs()
+            AOs += ag.get_number_of_my_AOs()
+            # for key, atm in ag.atoms():
+            #     AOs += atm.get_number_of_AOs()
             return AOs
 
         return get_number_of_AOs_sub(self)
 
     # AtomGroup -------------------------------------------------------
-
     def get_AtomGroup(self):
         ag = bridge.AtomGroup()
         for subgrp_name, subgrp in self.groups():
@@ -548,9 +562,15 @@ class QcFragment(object):
 
         # self
         logger.info("{header} get self density matrix".format(header=self.header))
-        if self.get_number_of_AOs() > 0:
+        if self.get_number_of_my_AOs() > 0:
             # (計算済みの)参照元の密度行列パスを取得する
             #  parentは未計算(これから計算)なので密度行列は取得できない。
+            if self.ref_fragment is None:
+                logger.critical("ref_fragment is not found:")
+                logger.critical("{header}".format(header=self.header))
+                logger.critical("  fragment: {}".format(self.name))
+            else:
+                logger.info("ref_fragment is defined: {}".format(str(self._ref_fragment)))
             assert self.ref_fragment is not None
             my_density_matrix_path = self.ref_fragment.get_density_matrix(run_type)
             logger.info(
@@ -675,7 +695,7 @@ class QcFragment(object):
             (row, col) = pdf.Matrix.get_size(subgrp_guess_QCLO_matrix_path)
             subgrp_MOs = col
 
-            if MOs != 0:
+            if subgrp_MOs != 0:
                 # 行数は変えずに列方向に追加("pdf-mat-extend -c")
                 logger.debug("{} -c ".format(self._cmds["mat-extend"]))
                 logger.debug("    {}".format(guess_QCLO_matrix_path))
@@ -690,15 +710,16 @@ class QcFragment(object):
                         guess_QCLO_matrix_path,
                     ]
                 )
+                MOs += subgrp_MOs
             else:
                 pass
 
-            MOs += subgrp_MOs
-            self._check_path(guess_QCLO_matrix_path)
-            assert self._check_matrix(guess_QCLO_matrix_path, request_num_of_AOs, MOs)
+            if MOs != 0:
+                self._check_path(guess_QCLO_matrix_path)
+                assert self._check_matrix(guess_QCLO_matrix_path, request_num_of_AOs, MOs)
 
         # 自分のQCLO情報
-        if self.get_number_of_AOs() > 0:
+        if self.get_number_of_my_AOs() > 0:
             logger.info("{header} get self QCLO matrix".format(header=self.header))
             if self.ref_fragment is None:
                 logger.critical("reference fragment is not found:")
@@ -718,22 +739,24 @@ class QcFragment(object):
 
             QCLO_mat = pdf.Matrix()
             QCLO_mat.load(my_qclo_matrix_path)
-            if QCLO_mat.rows != request_num_of_AOs:
-                logger.info(
-                    "QCLO matrix row(= {qclo_row}) is not equal to the parent AOs(= {ao})".format(
-                        qclo_row=QCLO_mat.rows, ao=request_num_of_AOs
-                    )
-                )
+            # if QCLO_mat.rows != request_num_of_AOs:
+            #     logger.info(
+            #         "QCLO matrix row(= {qclo_row}) is not equal to the parent AOs(= {ao})".format(
+            #             qclo_row=QCLO_mat.rows, ao=request_num_of_AOs
+            #         )
+            #     )
             num_of_MOs = QCLO_mat.cols
             guess_QCLO_mat = pdf.Matrix(request_num_of_AOs, num_of_MOs)
 
             # TODO: speed up
+            logger.info("extend the QCLO matrix to the requested guess QCLO matrix")
             for request_AO_index in range(request_num_of_AOs):
                 for ref_AO_index in range(ref_num_of_AOs):
                     if request_orbinfo[request_AO_index] == ref_orbinfo[ref_AO_index]:
                         for MO_index in range(num_of_MOs):
                             v = QCLO_mat.get(ref_AO_index, MO_index)
                             guess_QCLO_mat.set(request_AO_index, MO_index, v)
+            logger.info("done.")
             my_guess_QCLO_matrix_path = os.path.join(self.work_dir, "guess_QCLO.part.mat")
             guess_QCLO_mat.save(my_guess_QCLO_matrix_path)
 
