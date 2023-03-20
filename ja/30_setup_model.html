@@ -8,7 +8,7 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -31,6 +31,7 @@
   <script src="_static/underscore.js"></script>
   <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
+  <script src="_static/sphinx_highlight.js"></script>
   <script src="_static/translations.js"></script>
   
   <script type="text/javascript" src="_static/js/theme.js"></script>
@@ -77,7 +78,7 @@
             
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -142,8 +143,8 @@
             
             <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>計算モデルの設定</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">計算モデルの設定</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/30_setup_model.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -154,9 +155,9 @@
               <div itemprop="articleBody">
                 
   <section id="setting-up-calculation-model">
-<h1>計算モデルの設定<a class="headerlink" href="#setting-up-calculation-model" title="Permalink to this heading"></a></h1>
+<h1>計算モデルの設定<a class="headerlink" href="#setting-up-calculation-model" title="この見出しへのパーマリンク"></a></h1>
 <section id="prepare-oxytocin-model">
-<h2>Oxytocinモデルの準備<a class="headerlink" href="#prepare-oxytocin-model" title="Permalink to this heading"></a></h2>
+<h2>Oxytocinモデルの準備<a class="headerlink" href="#prepare-oxytocin-model" title="この見出しへのパーマリンク"></a></h2>
 <p>以下のようなOxytocinのモデルを作成し、<code class="docutils literal notranslate"><span class="pre">1NPO_model.pdb</span></code> として保存します。</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>REMARK
 ATOM      1  N   CYS     1       9.331  11.830  15.518
@@ -300,237 +301,237 @@ END
 </div>
 </section>
 <section id="check-the-model-structure">
-<h2>Check the model structure<a class="headerlink" href="#check-the-model-structure" title="Permalink to this heading"></a></h2>
+<h2>Check the model structure<a class="headerlink" href="#check-the-model-structure" title="この見出しへのパーマリンク"></a></h2>
 <p>モデルの構造を&quot;&quot;PyMol&quot; や &quot;Chimera&quot;などのビューワーソフトで確認します。現在のモデルには&quot;CYC1&quot; と &quot;CYC6&quot;の間にジスルフィド結合があることを確認します。</p>
 </section>
 <section id="convert-pdb-file-to-bridge-format-file">
-<h2>PDBファイルをBridgeフォーマットに変換<a class="headerlink" href="#convert-pdb-file-to-bridge-format-file" title="Permalink to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/pdb2brd.py 1NPO_model.pdb 1NPO_model.brd
+<h2>PDBファイルをBridgeフォーマットに変換<a class="headerlink" href="#convert-pdb-file-to-bridge-format-file" title="この見出しへのパーマリンク"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/pdb2brd.py<span class="w"> </span>1NPO_model.pdb<span class="w"> </span>1NPO_model.brd
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">注釈</p>
 <p>次のような操作でbridgeファイルの中身を確認できます。</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/brd2txt.py 1NPO_model.brd
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/brd2txt.py<span class="w"> </span>1NPO_model.brd
 </pre></div>
 </div>
 </div>
 </section>
 <section id="create-input-file-for-qclobot">
-<h2>QCLObot入力ファイルの作成<a class="headerlink" href="#create-input-file-for-qclobot" title="Permalink to this heading"></a></h2>
+<h2>QCLObot入力ファイルの作成<a class="headerlink" href="#create-input-file-for-qclobot" title="この見出しへのパーマリンク"></a></h2>
 <p>以下のテキストを <code class="docutils literal notranslate"><span class="pre">1NPO_model.QCLO.yaml</span></code> として保存します。</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span><span class="w"></span>
-<span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span><span class="w"></span>
-<span class="w">    </span><span class="nt">brd_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1NPO.model.brd</span><span class="w"></span>
-<span class="w">    </span><span class="nt">basis_set</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DZVP2</span><span class="w"></span>
-<span class="w">    </span><span class="nt">guess</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Harris</span><span class="w"></span>
-<span class="w">    </span><span class="nt">XC_functional</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">B3LYP</span><span class="w"></span>
-<span class="w">    </span><span class="nt">J_engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CD</span><span class="w"></span>
-<span class="w">    </span><span class="nt">K_engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CD</span><span class="w"></span>
-<span class="w">    </span><span class="nt">XC_engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">grid</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="nt">tasks</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span>
+<span class="w">    </span><span class="nt">brd_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1NPO.model.brd</span>
+<span class="w">    </span><span class="nt">basis_set</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DZVP2</span>
+<span class="w">    </span><span class="nt">guess</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Harris</span>
+<span class="w">    </span><span class="nt">XC_functional</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">B3LYP</span>
+<span class="w">    </span><span class="nt">J_engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CD</span>
+<span class="w">    </span><span class="nt">K_engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CD</span>
+<span class="w">    </span><span class="nt">XC_engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">grid</span>
 
-<span class="c1"># ----------------------------------------------------------------------</span><span class="w"></span>
-<span class="c1"># STEP 1</span><span class="w"></span>
-<span class="c1"># ----------------------------------------------------------------------</span><span class="w"></span>
+<span class="c1"># ----------------------------------------------------------------------</span>
+<span class="c1"># STEP 1</span>
+<span class="c1"># ----------------------------------------------------------------------</span>
 
-<span class="w">  </span><span class="c1"># The res_1 bounds to the res_6 by the dislufide bond.</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-1</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/1/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_1</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/2/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_6</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/5/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-6</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/6/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_6</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/7/</span><span class="w"></span>
+<span class="w">  </span><span class="c1"># The res_1 bounds to the res_6 by the dislufide bond.</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-1</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/1/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_1</span>
+<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/2/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_6</span>
+<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/5/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-6</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/6/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_6</span>
+<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/7/</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_2-2</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_2</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/1/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_2-2</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/2/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_2</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_3-3</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_3</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/2/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_3-3</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_3</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/4/</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_4-4</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_4</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_4-4</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/4/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_4</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/5/</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_5-5</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_5</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/4/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_5-5</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/5/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_5</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/6/</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_7</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/6/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/7/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_7</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/8/</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_8-8</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_8</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/7/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_8-8</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/8/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_8</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/9/</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_9-9</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_9</span><span class="w"></span>
-<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/8/</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_9-9</span><span class="w"></span>
-<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/9/</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_2-2</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_2</span>
+<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/1/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_2-2</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/2/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_2</span>
+<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_3-3</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_3</span>
+<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/2/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_3-3</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_3</span>
+<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/4/</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_4-4</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_4</span>
+<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/3/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_4-4</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/4/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_4</span>
+<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/5/</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_5-5</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_5</span>
+<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/4/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_5-5</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/5/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_5</span>
+<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/6/</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_7</span>
+<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/6/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/7/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_7</span>
+<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/8/</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_8-8</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_8</span>
+<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/7/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_8-8</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/8/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_8</span>
+<span class="w">        </span><span class="nt">add_NME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/9/</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_9-9</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_9</span>
+<span class="w">        </span><span class="nt">add_ACE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/8/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_9-9</span>
+<span class="w">        </span><span class="nt">brd_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/model_1/A/9/</span>
 
-<span class="c1"># ----------------------------------------------------------------------</span><span class="w"></span>
-<span class="c1"># STEP 2</span><span class="w"></span>
-<span class="c1"># ----------------------------------------------------------------------</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-7</span><span class="w"></span>
-<span class="w">    </span><span class="nt">guess</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">QCLO</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-6</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-1</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-1</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_2-2</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_2-2</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_2-2</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_3-3</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_3-3</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_3-3</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_4-4</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_4-4</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_4-4</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_5-5</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_5-5</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_5-5</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-6</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-6</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_7</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_7</span><span class="w"></span>
+<span class="c1"># ----------------------------------------------------------------------</span>
+<span class="c1"># STEP 2</span>
+<span class="c1"># ----------------------------------------------------------------------</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-7</span>
+<span class="w">    </span><span class="nt">guess</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">QCLO</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-6</span>
+<span class="w">        </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-1</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-1</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_2-2</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_2-2</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_2-2</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_3-3</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_3-3</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_3-3</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_4-4</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_4-4</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_4-4</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_5-5</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_5-5</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_5-5</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-6</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-6</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span>
+<span class="w">        </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_7</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_7</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-9</span><span class="w"></span>
-<span class="w">    </span><span class="nt">guess</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">QCLO</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-1</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-1</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_1</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_1</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_6</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_6</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-6</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-6</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-9</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_8-8</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_8-8</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_8-8</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_9-9</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_9-9</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_9-9</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-9</span>
+<span class="w">    </span><span class="nt">guess</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">QCLO</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span>
+<span class="w">        </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-1</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-1</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_1</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NME_1</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_6</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACE_6</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-6</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1_res_6</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-6</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-9</span>
+<span class="w">        </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-7</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_8-8</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_8-8</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_8-8</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_9-9</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_9-9</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_9-9</span>
 
-<span class="c1"># ----------------------------------------------------------------------</span><span class="w"></span>
-<span class="c1"># STEP 3</span><span class="w"></span>
-<span class="c1"># ----------------------------------------------------------------------</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-9</span><span class="w"></span>
-<span class="w">    </span><span class="nt">guess</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">QCLO</span><span class="w"></span>
-<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-9</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fragments</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-6</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-7</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-6</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-9</span><span class="w"></span>
-<span class="w">            </span><span class="nt">reference</span><span class="p">:</span><span class="w"></span>
-<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-9</span><span class="w"></span>
-<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-9</span><span class="w"></span>
+<span class="c1"># ----------------------------------------------------------------------</span>
+<span class="c1"># STEP 3</span>
+<span class="c1"># ----------------------------------------------------------------------</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-9</span>
+<span class="w">    </span><span class="nt">guess</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">QCLO</span>
+<span class="w">    </span><span class="nt">sp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-9</span>
+<span class="w">        </span><span class="nt">fragments</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-6</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-7</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_1-6</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-9</span>
+<span class="w">            </span><span class="nt">reference</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_6-9</span>
+<span class="w">              </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">res_7-9</span>
 </pre></div>
 </div>
 </section>
 <section id="run-qclobot">
-<h2>QCLObotの実行<a class="headerlink" href="#run-qclobot" title="Permalink to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/QCLObot.py 1NPO_mode.QCLO.yaml
+<h2>QCLObotの実行<a class="headerlink" href="#run-qclobot" title="この見出しへのパーマリンク"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/QCLObot.py<span class="w"> </span>1NPO_mode.QCLO.yaml
 </pre></div>
 </div>
 </section>

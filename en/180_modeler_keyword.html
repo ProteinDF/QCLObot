@@ -8,7 +8,7 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -31,6 +31,7 @@
   <script src="_static/underscore.js"></script>
   <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
+  <script src="_static/sphinx_highlight.js"></script>
   
   <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -76,7 +77,7 @@
             
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -144,8 +145,8 @@
             
             <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>explanation of QCLObot-modeler YAML File</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">explanation of QCLObot-modeler YAML File</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/180_modeler_keyword.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -184,9 +185,9 @@ The declared variables can be used with “with_items” and so on.</p>
 <li><p>src</p></li>
 </ul>
 <p>Specify the PDB file.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO</span><span class="w"></span>
-<span class="w">  </span><span class="nt">protonate</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">src</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2mgo.pdb</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO</span>
+<span class="w">  </span><span class="nt">protonate</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">src</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2mgo.pdb</span>
 </pre></div>
 </div>
 </section>
@@ -194,10 +195,10 @@ The declared variables can be used with “with_items” and so on.</p>
 <h3>neutralize<a class="headerlink" href="#neutralize" title="Permalink to this heading"></a></h3>
 <p>Add ions to neutralize.
 Ignore ions on the ion-pairs.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx</span><span class="w"></span>
-<span class="w">  </span><span class="nt">neutralize</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_opt</span><span class="w"></span>
-<span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx.pdb</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx</span>
+<span class="w">  </span><span class="nt">neutralize</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_opt</span>
+<span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx.pdb</span>
 </pre></div>
 </div>
 </section>
@@ -214,13 +215,13 @@ Ignore ions on the ion-pairs.</p>
 <p>(option)</p>
 <p>Use the belly method.
 The force of a specified molecule is considered to be zero.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx_optwatx</span><span class="w"></span>
-<span class="w">  </span><span class="nt">opt</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx</span><span class="w"></span>
-<span class="w">    </span><span class="nt">belly_mask</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">water</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ions</span><span class="w"></span>
-<span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx.pdb</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx_optwatx</span>
+<span class="w">  </span><span class="nt">opt</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx</span>
+<span class="w">    </span><span class="nt">belly_mask</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">water</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ions</span>
+<span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx.pdb</span>
 </pre></div>
 </div>
 </section>
@@ -248,15 +249,15 @@ Specify the solvation model.</p>
 <p>(option)</p>
 <p>Use the belly method.
 The force of a specified molecule is considered to be zero.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx</span><span class="w"></span>
-<span class="w">  </span><span class="nt">md</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx</span><span class="w"></span>
-<span class="w">    </span><span class="nt">solvation</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cap</span><span class="w"></span>
-<span class="w">      </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TIP3PBOX</span><span class="w"></span>
-<span class="w">    </span><span class="nt">belly_mask</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">water</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ions</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx</span>
+<span class="w">  </span><span class="nt">md</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx</span>
+<span class="w">    </span><span class="nt">solvation</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cap</span>
+<span class="w">      </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TIP3PBOX</span>
+<span class="w">    </span><span class="nt">belly_mask</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">water</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ions</span>
 </pre></div>
 </div>
 </section>

@@ -284,6 +284,40 @@ The group which is indicated by the value of ``brd_select`` keyword is add as fr
 This value is specified by string as Bridge path.
 
 
+.. versionadded:: 2022.10 dict type supported.
+
+
+.. csv-table:: parameters
+   :header: "parameter", "type", "comment"
+
+   "path", "string", "Specify the group of atoms to be included."
+   "except", "string", "Specify the path to exclude from the atom group specified by ```path``` ."
+
+
+.. code-block:: yaml
+
+  - name: frame_HEM4
+    sp: true
+    fragments:
+      - name: HEM4
+        brd_select:
+          path: /model_1/A/204/
+          except: /model_1/A/204/*_FE
+      - name: S-CH3_B
+        add_CH3: true
+        root: /model_1/A/100/1476_SG
+        displacement: /model_1/A/100/1475_CB
+      - name: S-CH3_C
+        add_CH3: true
+        root: /model_1/A/105/1548_SG
+        displacement: /model_1/A/105/1547_CB
+      - name: HEM3X
+        atomlist:
+          - "X  -11.048   6.729   4.106 +1"
+          - "X   -5.968   5.999   7.701 +1"
+    charge: -2
+
+
 frame action
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

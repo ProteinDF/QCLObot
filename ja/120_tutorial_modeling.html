@@ -8,7 +8,7 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -31,6 +31,7 @@
   <script src="_static/underscore.js"></script>
   <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
+  <script src="_static/sphinx_highlight.js"></script>
   <script src="_static/translations.js"></script>
   
   <script type="text/javascript" src="_static/js/theme.js"></script>
@@ -77,7 +78,7 @@
             
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -141,8 +142,8 @@
             
             <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Setting up modeling proteins</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Setting up modeling proteins</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/120_tutorial_modeling.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -153,14 +154,14 @@
               <div itemprop="articleBody">
                 
   <section id="setting-up-modeling-proteins">
-<h1>Setting up modeling proteins<a class="headerlink" href="#setting-up-modeling-proteins" title="Permalink to this heading"></a></h1>
+<h1>Setting up modeling proteins<a class="headerlink" href="#setting-up-modeling-proteins" title="この見出しへのパーマリンク"></a></h1>
 <section id="prepare-applications">
-<h2>Prepare Applications<a class="headerlink" href="#prepare-applications" title="Permalink to this heading"></a></h2>
+<h2>Prepare Applications<a class="headerlink" href="#prepare-applications" title="この見出しへのパーマリンク"></a></h2>
 <p>Before running QCLObot-modeler, AmberTools is required.
 Please set the environment variable, <cite>AMBERHOME</cite>.</p>
 </section>
 <section id="prepare-oxytocin-model">
-<h2>Prepare Oxytocin model<a class="headerlink" href="#prepare-oxytocin-model" title="Permalink to this heading"></a></h2>
+<h2>Prepare Oxytocin model<a class="headerlink" href="#prepare-oxytocin-model" title="この見出しへのパーマリンク"></a></h2>
 <p>You can get Oxytocin model (2MGO.pdb) from PDB or <a class="reference download internal" download="" href="_downloads/475c8d2b7fcb3097d73d78804653dd77/2MGO.pdb"><code class="xref download docutils literal notranslate"><span class="pre">here</span></code></a>.</p>
 <p>Or you save the following text as 2MGO.pdb.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>HEADER    HORMONE                                 01-NOV-13   2MGO              
@@ -3042,42 +3043,42 @@ END
 </div>
 </section>
 <section id="create-input-file-for-qclobot-modeler">
-<h2>Create input file for QCLObot-modeler<a class="headerlink" href="#create-input-file-for-qclobot-modeler" title="Permalink to this heading"></a></h2>
+<h2>Create input file for QCLObot-modeler<a class="headerlink" href="#create-input-file-for-qclobot-modeler" title="この見出しへのパーマリンク"></a></h2>
 <p>You save the following text as <a class="reference download internal" download="" href="_downloads/f2dbe15ee307f2549cedc06931168314/2MGO_modeling.yaml"><code class="xref download docutils literal notranslate"><span class="pre">2MGO_modeling.yaml</span></code></a>.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO</span><span class="w"></span>
-<span class="w">    </span><span class="nt">protonate</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">src</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2mgo.pdb</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_opt</span><span class="w"></span>
-<span class="w">    </span><span class="nt">opt</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx</span><span class="w"></span>
-<span class="w">    </span><span class="nt">neutralize</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_opt</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx.pdb</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx</span><span class="w"></span>
-<span class="w">    </span><span class="nt">md</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx</span><span class="w"></span>
-<span class="w">      </span><span class="nt">solvation</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cap</span><span class="w"></span>
-<span class="w">        </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TIP3PBOX</span><span class="w"></span>
-<span class="w">      </span><span class="nt">belly_mask</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">water</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ions</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx_optwatx</span><span class="w"></span>
-<span class="w">    </span><span class="nt">opt</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx</span><span class="w"></span>
-<span class="w">      </span><span class="nt">belly_mask</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">water</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ions</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx.pdb</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO</span>
+<span class="w">    </span><span class="nt">protonate</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">src</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2mgo.pdb</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_opt</span>
+<span class="w">    </span><span class="nt">opt</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx</span>
+<span class="w">    </span><span class="nt">neutralize</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_opt</span>
+<span class="w">      </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx.pdb</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx</span>
+<span class="w">    </span><span class="nt">md</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx</span>
+<span class="w">      </span><span class="nt">solvation</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cap</span>
+<span class="w">        </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TIP3PBOX</span>
+<span class="w">      </span><span class="nt">belly_mask</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">water</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ions</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx_optwatx</span>
+<span class="w">    </span><span class="nt">opt</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx</span>
+<span class="w">      </span><span class="nt">belly_mask</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">water</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ions</span>
+<span class="w">      </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2MGO_optx_mdwatx.pdb</span>
 <span class="w">     </span>
 </pre></div>
 </div>
 </section>
 <section id="run-qclobot-modeler">
-<h2>Run QCLObot-modeler<a class="headerlink" href="#run-qclobot-modeler" title="Permalink to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/QCLObot-modeler.py 2MGO_modeling.yaml
+<h2>Run QCLObot-modeler<a class="headerlink" href="#run-qclobot-modeler" title="この見出しへのパーマリンク"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="si">${</span><span class="nv">PDF_HOME</span><span class="si">}</span>/bin/QCLObot-modeler.py<span class="w"> </span>2MGO_modeling.yaml
 </pre></div>
 </div>
 </section>
