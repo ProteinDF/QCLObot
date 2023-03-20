@@ -24,7 +24,7 @@ import pprint
 
 import proteindf_bridge as bridge
 
-from . import __version__
+from .__version__ import __version__
 from .qcframe import QcFrame
 from .qcfragment import QcFragment
 from .qccontrolobject import QcControlObject
@@ -365,9 +365,10 @@ class QcControl(QcControlObject):
     # ------------------------------------------------------------------
     # fragment
     # ------------------------------------------------------------------
-    def _get_fragments(self, fragments_data, default):
+    def _get_fragments(self, fragments_data, default, num_of_nest = 0):
         assert isinstance(fragments_data, list)
-        logger.info("> make list of fragments: start")
+        indent = "  " * num_of_nest 
+        logger.info("{}>>> make list of fragments: start".format(indent))
         logger.debug(str(default))
 
         # fragment = QcFragment()
@@ -383,13 +384,13 @@ class QcControl(QcControlObject):
 
             subfrg = None
             if "fragments" in frg_data:
-                logger.info("> create subfragment for {name}: start".format(name=name))
-                subfrg_list = self._get_fragments(frg_data.get("fragments"), default)
+                logger.info("{indent}>>>> collect fragments for {name}: start".format(indent=indent, name=name))
+                subfrg_list = self._get_fragments(frg_data.get("fragments"), default, num_of_nest +1)
                 subfrg = QcFragment(name=name)
                 for item in subfrg_list:
                     logger.debug("> list name: {}".format(item.name))
                     subfrg[item.name] = item
-                logger.info("> create subfragment for {name}: end".format(name=name))
+                logger.info("{indent}<<<< collect fragments for {name}: end".format(indent=indent, name=name))
             elif "add_H" in frg_data:
                 subfrg = self._get_add_H(frg_data)
             elif "add_CH3" in frg_data:
@@ -418,7 +419,8 @@ class QcControl(QcControlObject):
             assert isinstance(subfrg, QcFragment)
             subfrg_atomgroup = subfrg.get_AtomGroup()
             logger.info(
-                "subfrg append: {name} ({formula}: charge={charge})".format(
+                "{indent}subfrg append: {name} ({formula}: charge={charge})".format(
+                    indent=indent,
                     name=name,
                     formula=subfrg_atomgroup.get_formula(),
                     charge=subfrg_atomgroup.charge,
@@ -426,7 +428,7 @@ class QcControl(QcControlObject):
             )
             answer.append(subfrg)
 
-        logger.info("> make list of fragments: end")
+        logger.info("{indent}<<<< make list of fragments: end".format(indent=indent))
         return answer
 
     def _set_default(self, default_values, update_values):
@@ -467,10 +469,34 @@ class QcControl(QcControlObject):
     def _get_default_fragment(self, frg_data):
         assert isinstance(frg_data, dict)
 
-        atomgroup = None
-        brd_select = frg_data.get("brd_select")
         brd_file_path = frg_data.get("brd_file")
-        atomgroup = self._select_atomgroup(brd_file_path, brd_select)
+
+        brd_select = frg_data.get("brd_select")
+
+        select_path = ""
+        except_path = ""
+        if isinstance(brd_select, str):
+            select_path = brd_select
+        elif isinstance(brd_select, dict):
+            # key: path
+            if "path" in brd_select:
+                select_path = brd_select.get("path", "")
+            else:
+                raise QcControlError(frg_data, "not found path key in brd_select.")
+
+            # key: except
+            except_path = brd_select.get("except", "")
+
+        else:
+            raise QcControlError(frg_data, "unknown brd_select type.")
+
+        # select atomgroup
+        atomgroup = self._select_atomgroup(brd_file_path, select_path)
+        if len(except_path) > 0:
+            except_atomgroup = self._select_atomgroup(brd_file_path, except_path)
+
+            except_atomgroup = atomgroup & except_atomgroup
+            atomgroup = atomgroup ^ except_atomgroup
 
         frg = QcFragment(atomgroup)
         frg.margin = False
