@@ -233,14 +233,14 @@ class QcControl(QcControlObject):
         )
 
         frame.pdfparam.scf_acceleration = frame_data.get("scf_acceleration", None)
-        frame.pdfparam.scf_acceleration_damping_start_number = frame_data.get(
-            "scf_acceleration/damping/start_number", None
+        frame.pdfparam.scf_acceleration_damping_start = frame_data.get(
+            "scf_acceleration/damping/start", None
         )
         frame.pdfparam.scf_acceleration_damping_damping_factor = frame_data.get(
             "scf_acceleration/damping/damping_factor", None
         )
-        frame.pdfparam.scf_acceleration_anderson_start_number = frame_data.get(
-            "scf_acceleration/anderson/start_number", None
+        frame.pdfparam.scf_acceleration_anderson_start = frame_data.get(
+            "scf_acceleration/anderson/start", None
         )
         frame.pdfparam.scf_acceleration_anderson_damping_factor = frame_data.get(
             "scf_acceleration/anderson/damping_factor", None
@@ -453,7 +453,7 @@ class QcControl(QcControlObject):
             "gridfree/CD_epsilon",
             "scf_acceleration",
             "scf_acceleration/damping/damping_factor",
-            "scf_acceleration/anderson/start_number",
+            "scf_acceleration/anderson/start",
             "scf_acceleration/anderson/damping_factor",
             "convergence/threshold_energy",
             "convergence/threshold",

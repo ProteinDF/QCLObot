@@ -88,7 +88,7 @@ class QcFrame(object):
         cmds["mat-symmetrize"] = "mat-symmetrize"
         cmds["mat-transpose"] = "mat-transpose"
         cmds["mat-diagonal"] = "mat-diagonal"
-        cmds["archive"] = "archive-h5"
+        cmds["archive"] = ["archive-h5", "-f"]
 
         return cmds
 

@@ -21,6 +21,10 @@
 
 import sys
 import argparse
+import yaml
+import rich.logging
+import rich.progress
+
 
 import proteindf_bridge as bridge
 import proteindf_tools as pdf
@@ -28,7 +32,7 @@ import qclobot as qclo
 
 import logging
 import logging.config
-from rainbow_logging_handler import RainbowLoggingHandler
+logger = logging.getLogger(__name__)
 
 
 def main():
@@ -42,65 +46,64 @@ def main():
         "-o", "--output", nargs=1, action="store", help="output log file"
     )
     parser.add_argument(
-        "-L", "--logconfig", nargs=1, action="store", help="logconfig file"
+        "--logconfig", nargs=1, action="store", help="logconfig YAML file"
     )
-    parser.add_argument("-v", "--verbose", action="store_true", default=False)
-    parser.add_argument("-d", "--debug", action="store_true", default=False)
+    # parser.add_argument("-v", "--verbose", action="store_true", default=False)
+    parser.add_argument("--debug", action="store_true", default=False)
     args = parser.parse_args()
 
     # setting
-    verbose = args.verbose
+    # verbose = args.verbose
     is_debug = args.debug
 
     scenario_file_path = args.scenario_file_path[0]
 
+    # setup logger
+    config_path = ""
     if args.logconfig:
-        # logging module setup by config-file
-        logconfig_path = args.logconfig[0]
-        logging.config.fileConfig(logconfig_path, disable_existing_loggers=False)
-    else:
-        # logging module setup
-        logfile_path = ""
-        if args.output:
-            logfile_path = args.output[0]
-        setup_logging(logfile_path, is_debug)
+        config_path = args.logconfig[0]
 
-    app_logger = logging.getLogger(__name__)
+    logfile_path = "qclobot.log"
+    if args.output:
+        logfile_path = args.output[0]
 
-    app_logger.info("loading scenario: {}".format(scenario_file_path))
+    setup_logger(is_debug, logfile_path, config_path=config_path)
+
+
+    # main
+    logger.info("loading scenario: {}".format(scenario_file_path))
 
     qcctrl = qclo.QcControl()
     qcctrl.run(scenario_file_path)
 
-    app_logger.info("QCLObot done.")
+    logger.info("QCLObot done.")
 
 
-def setup_logging(logfile_path="", is_debug=False):
-    if len(logfile_path) == 0:
-        logfile_path = "qclobot.log"
+def setup_logger(is_debug=False, logfile_path="", config_path=""):
+    if len(config_path) > 0:
+        # setup logger by config file
+        with open(config_path, 'r') as yml:
+            logging_dict = yaml.load(yml, Loader=yaml.SafeLoader)
+            logging.config.dictConfig(logging_dict)
+    else:
+        # setup default logger 
+        handlers = []
+        level = logging.INFO
+        if is_debug:
+            level = logging.DEBUG
 
-    logging_level = logging.INFO
-    format_str = "%(asctime)s [%(levelname)s] %(message)s"
-    date_format = "%Y-%m-%d %H:%M:%S"
-    if is_debug:
-        logging_level = logging.DEBUG
-        format_str = "%(asctime)s [%(levelname)s] [%(name)s] %(message)s"
+        rich_handler = rich.logging.RichHandler(rich_tracebacks=True)
+        rich_handler.setLevel(level)
+        rich_handler.setFormatter(logging.Formatter(fmt="%(message)s", datefmt="%Y-%m-%d %H:%M:%S"))
+        handlers.append(rich_handler)
 
-    logging.basicConfig(
-        filename=logfile_path,
-        level=logging_level,
-        format=format_str,
-        datefmt=date_format,
-    )
+        if len(logfile_path) > 0:
+            file_handler = logging.FileHandler(logfile_path)
+            file_handler.setLevel(level)
+            file_handler.setFormatter(logging.Formatter(fmt="%(asctime)s@%(name)s[%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"))
+            handlers.append(file_handler)
 
-    formatter = logging.Formatter(format_str, date_format)
-
-    # console = logging.StreamHandler()
-    console = RainbowLoggingHandler(sys.stdout)
-
-    console.setLevel(logging.WARNING)
-    console.setFormatter(formatter)
-    logging.getLogger().addHandler(console)
+        logging.basicConfig(level=logging.NOTSET, handlers=handlers)
 
 
 def load_brdfile(brdfile_path):
