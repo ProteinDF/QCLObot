@@ -76,7 +76,11 @@ latexpdf_en:
 
 latexpdf_ja:
 	$(SPHINXBUILD) -b latex -D language=ja -D latex_engine=uplatex $(ALLSPHINXOPTS) $(BUILDDIR)/latex/ja
-	$(MAKE) -C $(BUILDDIR)/latex/ja all-pdf-ja
+	cd $(BUILDDIR)/latex/ja && \
+	  uplatex -interaction=nonstopmode QCLObotusermanual.tex && \
+	  uplatex -interaction=nonstopmode QCLObotusermanual.tex && \
+	  uplatex -interaction=nonstopmode QCLObotusermanual.tex && \
+	  dvipdfmx QCLObotusermanual.dvi
 	@echo
 	@echo "Build finished. The PDF file is in $(BUILDDIR)/latex/ja."
 
