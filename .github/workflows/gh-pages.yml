@@ -68,12 +68,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             latexmk texlive-latex-extra texlive-fonts-recommended \
-            texlive-lang-japanese fonts-ipaexfont
+            texlive-fonts-extra texlive-lang-japanese fonts-ipaexfont
 
       - name: Build PDFs
         run: |
           cd doc
           make latexpdf_en
+      - name: Build Japanese PDF
+        run: |
+          cd doc
           make latexpdf_ja
 
       - uses: actions/upload-artifact@v4
