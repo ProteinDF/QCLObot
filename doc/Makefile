@@ -75,7 +75,7 @@ latexpdf_en:
 	@echo "Build finished. The PDF file is in $(BUILDDIR)/latex/en."
 
 latexpdf_ja:
-	$(SPHINXBUILD) -b latex -D language=ja $(ALLSPHINXOPTS) $(BUILDDIR)/latex/ja
+	$(SPHINXBUILD) -b latex -D language=ja -D latex_engine=uplatex $(ALLSPHINXOPTS) $(BUILDDIR)/latex/ja
 	$(MAKE) -C $(BUILDDIR)/latex/ja all-pdf-ja
 	@echo
 	@echo "Build finished. The PDF file is in $(BUILDDIR)/latex/ja."
