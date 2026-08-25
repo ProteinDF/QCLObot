@@ -68,6 +68,18 @@ html_ja:
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html/ja."
 
+latexpdf_en:
+	$(SPHINXBUILD) -b latex -D language=en $(ALLSPHINXOPTS) $(BUILDDIR)/latex/en
+	$(MAKE) -C $(BUILDDIR)/latex/en all-pdf
+	@echo
+	@echo "Build finished. The PDF file is in $(BUILDDIR)/latex/en."
+
+latexpdf_ja:
+	$(SPHINXBUILD) -b latex -D language=ja $(ALLSPHINXOPTS) $(BUILDDIR)/latex/ja
+	$(MAKE) -C $(BUILDDIR)/latex/ja all-pdf-ja
+	@echo
+	@echo "Build finished. The PDF file is in $(BUILDDIR)/latex/ja."
+
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 	@echo
