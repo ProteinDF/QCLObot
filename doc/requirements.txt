@@ -1,4 +1,4 @@
-Sphinx
-sphinx_rtd_theme
+Sphinx>=4,<7
+sphinx_rtd_theme>=1.0,<2
 sphinx-intl
 
