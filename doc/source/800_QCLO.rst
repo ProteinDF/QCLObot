@@ -27,14 +27,16 @@ The QCLO method is a method to calculate canonical molecular orbitals of large s
 This method enables us to perform precise quantum chemical calculations of functionally rich proteins in an easy and safe manner.
 
 
-タンパク質全電子計算の収束過程
-------------------------------
+Convergence process of the protein all-electron calculation
+-------------------------------------------------------------
 
-一般に、タンパク質やペプチド鎖のような大きな分子の電子状態は、
-はじめから一点計算を行うことが困難です。
-タンパク質をアミノ酸残基のような小さな分子片に分割して、
-それらの計算で求められた解を基に徐々に大きなペプチド鎖を計算していくといった手法を用います。
-本手法の概要を :num:`Fig. #qclosteps` に示します。
+In general, it is difficult to perform a single-point calculation from the
+outset on the electronic states of large molecules such as proteins or
+peptide chains. Instead, we use a method in which the protein is divided
+into small molecular fragments, such as amino acid residues, and the
+peptide chain is gradually built up to its full size based on the
+solutions obtained from the calculations of these fragments. An overview
+of this method is shown in :num:`Fig. #qclosteps`.
 
 .. _qclosteps:
 
@@ -43,21 +45,28 @@ This method enables us to perform precise quantum chemical calculations of funct
    :align: center
    :width: 8cm
 
-   タンパク質全電子計算収束過程の概要
+   Overview of the convergence process of the protein all-electron calculation
 
-ステップ1 ではタンパク質やペプチド鎖をアミノ酸残基1 残基ずつに分割し、これらの計算を行います。
-ステップ2 ではステップ1 で計算された1 残基の結果をもとに、3 残基ずつの計算を実行します。
-このようにステップ2 以降では重なりを持って切り出します。
-同様にステップ3 ではステップ2 の3 残基の結果をもとに数残基のペプチド鎖の計算を実行します。
-このとき、ペプチド鎖の両端は対応する2 残基、間は真ん中の1 残基の結果をつなげて、初期値を作成します。
-このような操作を繰り返すことにより、次第にペプチド鎖の長さを延長して、
-最終的に全タンパク質の計算を実行します。
-この収束過程で作成される分子をフレーム分子とよびます。
-なお、ステップ1ではHarrisの初期値、ステップ2ではステップ1で計算された電子密度を合成して初期値を作ります。
-しかし、つなげる分子の数が多いほど誤差が蓄積しますし、
-重なりを持たせているとはいえ、結合部分では比較的大きな誤差が生じます。
-このような誤差は大きな分子の分子軌道計算には致命的な欠陥を生じることがあります。
-そこで、ステップ3 以降では、新しい局在化軌道をベースにした初期値合成方法を使用します。
+In Step 1, the protein or peptide chain is divided into single amino acid
+residues, and a calculation is performed for each residue. In Step 2,
+based on the single-residue results obtained in Step 1, calculations are
+performed for windows of three residues. From Step 2 onward, the windows
+are cut out with overlap in this way. Similarly, in Step 3, calculations
+are performed for a peptide chain of several residues based on the
+three-residue results of Step 2. Here, the initial guess is constructed
+by joining the results of the two corresponding residues at each end of
+the peptide chain with the result of the single residue in between. By
+repeating this operation, the peptide chain is gradually extended in
+length until, finally, the calculation of the entire protein is
+performed. The molecules created during this convergence process are
+called frame molecules. Note that in Step 1 the Harris guess is used as
+the initial guess, while in Step 2 the initial guess is constructed by
+combining the electron densities calculated in Step 1. However, the more
+molecules that are joined together, the more the error accumulates, and
+even though overlap is used, a relatively large error occurs at the
+junctions. Such errors can be fatal to molecular orbital calculations of
+large molecules. For this reason, from Step 3 onward, an initial-guess
+construction method based on a new set of localized orbitals is used.
 
 
 Canonical and Localized orbitals
@@ -78,22 +87,36 @@ the valence electrons involved in the bond are localized around the bond,
 and the valence electrons not involved in the bond are localized in the form of so-called isolated electron pair orbitals.
 This is why it is well known for its ability to match the chemist's intuition.
 
-本システムでは、Edmiston-Rüdenberg法よりも高速な、Population 法とRMO法を採用しました。
-ペプチド鎖の良い初期値を合成するために、ステップ3 以降では局在化軌道を用います。
-分子軌道を局在した形で表現すれば、分子軌道を化学的によい近似で個別に取り扱うことができます。
-つまり煩雑な手続きが必要ですが、局在化軌道が作られれば安全かつ自由に分子軌道を分離結合することが可能になります。
-これにより精度の良い初期値を作成することができます。
-この切り貼りに便利な軌道をその性質から、先に擬カノニカル局在化軌道(QCLO)と名付けました。
-RMO法はまったく異なる計算方法ですが、特定の領域に局在化させた軌道を作成する方法で、基本的に取り扱い方は変わりません。
-一般に、分子サイズが大きくなるほど、RMO法の方が高速に計算できます。
-これらを用いて初期値を作成する方法は :num:`Fig. #qclofragment` に示すように、
-ペプチド鎖をアミノ酸残基の側鎖やアミノ酸をつなぐペプチド結合などの部分（これらをフラグメントと呼ぶ）に分割し、
-フラグメントのみに広がり、かつフラグメントのカノニカル分子軌道に似た軌道を求め、
-これらを組み合わせてペプチド鎖全体の分子軌道計算の初期値とする方法です。
-局在化軌道を求めるには、計算目的となる分子の周辺の影響を取り込むため、
-またペプチド結合の部分を厳密に表現するために3 残基以上のフレーム分子から出発します。
-このフレーム分子においてペプチド鎖の場合のフラグメントは主鎖と側鎖の2 パターンに分類します。
-こう分類することで本システムでは自動的にフラグメントに分けることができます。
+In this system, we adopted the Population method and the RMO method,
+both of which are faster than the Edmiston-Rüdenberg method. To
+construct a good initial guess for the peptide chain, localized orbitals
+are used from Step 3 onward. By representing molecular orbitals in a
+localized form, the molecular orbitals can be treated individually with
+good chemical approximation. In other words, although a somewhat
+elaborate procedure is required, once the localized orbitals have been
+constructed it becomes possible to safely and freely separate and
+combine molecular orbitals. This makes it possible to construct an
+accurate initial guess. Because of their usefulness for this kind of
+cut-and-paste construction, we named these orbitals quasi-canonical
+localized orbitals (QCLO). The RMO method is a completely different
+calculation method, but it likewise produces orbitals localized in a
+specific region, and the way it is handled is essentially the same. In
+general, the larger the molecule, the faster the RMO method can be
+computed. As shown in :num:`Fig. #qclofragment`, the method for
+constructing the initial guess using these orbitals divides the peptide
+chain into parts such as the side chains of amino acid residues and the
+peptide bonds connecting amino acids (these parts are called fragments),
+obtains orbitals that are spread only over each fragment and resemble
+the canonical molecular orbitals of that fragment, and then combines
+these to form the initial guess for the molecular orbital calculation of
+the entire peptide chain. To obtain the localized orbitals, the
+calculation starts from a frame molecule of three or more residues, in
+order to incorporate the influence of the surroundings of the molecule
+of interest and to accurately represent the peptide bond regions. In
+this frame molecule, the fragments of the peptide chain are classified
+into two patterns: the main chain and the side chains. This
+classification allows the system to automatically divide the molecule
+into fragments.
 
 .. _qclofragment:
 
@@ -102,41 +125,55 @@ RMO法はまったく異なる計算方法ですが、特定の領域に局在�
    :align: center
    :width: 8cm
 
-   フレーム分子THR-VAL-GLUとフラグメント
+   Frame molecule THR-VAL-GLU and its fragments
 
 
-QCLOおよびRMO作成の手順は以下の通りです。
+The procedure for constructing QCLO and RMO is as follows.
 
-* 手順1 : フレーム分子毎の分子軌道計算
+* Step 1: Molecular orbital calculation for each frame molecule
 
-フレーム分子の分子軌道計算を実行します。
-フレーム分子の構造はペプチド鎖の相当部分と同じものを用い、
-切断されたＮ末、C 末にそれぞれH、OH を付加します。ここで得られる軌道はフレーム分子全体に広がったカノニカル軌道です。
+A molecular orbital calculation is performed for the frame molecule. The
+structure of the frame molecule is taken to be identical to the
+corresponding part of the peptide chain, with H and OH added to the
+cleaved N-terminus and C-terminus, respectively. The orbitals obtained
+here are canonical orbitals spread over the entire frame molecule.
 
-* 手順2 : フレーム分子毎の局在化軌道計算
+* Step 2: Localized orbital calculation for each frame molecule
 
-手順1 で得られた分子軌道を個々の化学結合や孤立電子対に局在する分子軌道に変換します。QCLOとRMOではこの計算方法が異なります。
+The molecular orbitals obtained in Step 1 are converted into molecular
+orbitals localized on individual chemical bonds and lone electron pairs.
+This conversion is computed differently for QCLO and for RMO.
 
-* 手順3 : フラグメント毎の擬カノニカル局在化軌道計算
+* Step 3: Quasi-canonical localized orbital calculation for each fragment
 
-手順2 で得られた軌道の中から各フラグメントに属す局在化軌道を選び出し、
-それらの係数行列を使用してフレーム分子のKohn-Sham 行列（ab initio HF 法ならばFock行列）を
-原子軌道ベースから局在化軌道ベースに変換します。
-そうして作られたフラグメントのKohn-Sham 行列の固有値方程式を解くことで
-フラグメントに局在しつつ、フラグメント全体に広がった軌道が求められます。
-以上の手順1～3 でQCLOまたはRMOが得られます。
-手順1～3 をすべてのフレーム分子とそのフラグメントで実行し、初期値は手順4 で作成します。
+The localized orbitals belonging to each fragment are selected from
+among the orbitals obtained in Step 2, and their coefficient matrices
+are used to transform the Kohn-Sham matrix of the frame molecule (or the
+Fock matrix, in the case of the ab initio HF method) from the
+atomic-orbital basis to the localized-orbital basis. By solving the
+eigenvalue equation of the Kohn-Sham matrix of the fragment constructed
+in this way, orbitals are obtained that are localized on the fragment
+while being spread over the fragment as a whole. QCLO or RMO is obtained
+through Steps 1 to 3 above. Steps 1 to 3 are carried out for every frame
+molecule and its fragments, and the initial guess is then constructed in
+Step 4.
 
-* 手順4 :局在化軌道の結合
+* Step 4: Combination of the localized orbitals
 
-手順3 で計算されたQCLOやRMOはフレーム分子毎に計算されています。
-まず、手順1 で付加した原子H、OH の軌道成分は本来のペプチド鎖には存在しないため、取り除きます。
-すべてのフラグメントのQCLOまたはRMOを組み合わせてペプチド鎖全体の軌道セットを作成します。
-この軌道セットは規格直交化されていないため、ここでLöwdinの直交化を実行します。
-Löwdin の直交化はもとの軌道をなるべく変えないように規格直交化を達成しますので、
-得られた軌道は手順3 の軌道とほとんど変わりません。これによりペプチド鎖全体で規格直交したLCAO 行列が得られます。
+The QCLO or RMO computed in Step 3 is calculated separately for each
+frame molecule. First, the orbital components of the H and OH atoms
+added in Step 1 are removed, since they do not exist in the original
+peptide chain. The QCLO or RMO of all fragments are then combined to
+construct the orbital set for the entire peptide chain. Because this
+orbital set is not orthonormalized, Löwdin orthogonalization is
+performed at this point. Since Löwdin orthogonalization achieves
+orthonormalization while changing the original orbitals as little as
+possible, the resulting orbitals are almost identical to the orbitals
+from Step 3. This yields an orthonormalized LCAO matrix for the entire
+peptide chain.
 
-手順1～4 の手順を組み合わせた方法を、タンパク質全電子計算の収束過程と呼びます。
+The method combining Steps 1 through 4 is called the convergence process
+of the protein all-electron calculation.
 
 
 automatic calculation program based on the QCLO method
@@ -157,19 +194,19 @@ by using the converting matrix :math:`X=U s^{-1/2}`.
    
    F'=X^{t}FXC
 
-2. KS 行列に対するレベルシフト  
+2. Apply a level shift to the KS matrix
 
 .. math::
-   
+
    F'=F'+C'(C'*\beta)^{\dagger}
 
-3. KS 行列の対角化し、直交化基底での係数行列を得る
+3. Diagonalize the KS matrix to obtain the coefficient matrix in the orthogonalized basis
 
 .. math::
-   
+
    F'C'=C'\epsilon'
 
-4. 係数行列を AO 基底に変換
+4. Transform the coefficient matrix to the AO basis
 
 .. math::
    
@@ -177,48 +214,54 @@ by using the converting matrix :math:`X=U s^{-1/2}`.
 
 
 
-QCLO 法の計算方法の概要を以下に示します。
+An overview of the QCLO method calculation procedure is given below.
 
 
-* 第1ステップ：
+* Step 1:
 
-普通の SCF MO 計算を全アミノ酸に対して行います。初期電子密度は、原子の電子密度から作成します。
+A conventional SCF MO calculation is performed for all amino acids. The
+initial electron density is constructed from the atomic electron
+densities.
 
-* 第2ステップ：
+* Step 2:
 
-初期電子密度は、第１ステップで得られたモノマーの電子密度を切り貼りする。
-局在化軌道（LO）をフラグメントに振り分けた後、フラグメントの QCLO は、次の式によって求められます。
-この固有方程式の解が QCLO です。
+The initial electron density is constructed by cutting and pasting the
+monomer electron densities obtained in Step 1. After the localized
+orbitals (LO) are assigned to the fragments, the QCLO of each fragment
+is obtained from the following equation. The solution of this
+eigenvalue equation is the QCLO.
 
 .. math::
-   
+
    F'=C_{LO}^{t}FC_{LO}
-   
+
    F'C'=C'\epsilon'
 
 
-| :math:`F` フレーム分子の Fock or Kohn-Sham 行列
-| :math:`C_LO` フラグメントに割り振られた LO の係数行列
-| :math:`F'` フラグメントの Fock or Kohn-Sham 行列（LO 基底）
+| :math:`F` Fock or Kohn-Sham matrix of the frame molecule
+| :math:`C_LO` coefficient matrix of the LO assigned to the fragment
+| :math:`F'` Fock or Kohn-Sham matrix of the fragment (in the LO basis)
 
 
-* 第3ステップ以降：
+* Step 3 and beyond:
 
-第2ステップの QCLO を集めて初期値を作成する。
-集められた QCLO は Löwdin変換によって直交化しなければなりませんが、
-変換しても元の QCLO からはほとんど変化しません。
-直交化された QCLO から、フラグメントに対する初期値が作成される。
-フラグメントに対する Fock もしくは Kohn-Sham 行列は、以下の式で求められます。
+The initial guess is constructed by collecting the QCLO from Step 2. The
+collected QCLO must be orthogonalized by the Löwdin transformation, but
+this transformation changes the original QCLO very little. From the
+orthogonalized QCLO, the initial guess for each fragment is constructed.
+The Fock or Kohn-Sham matrix for the fragment is obtained by the
+following equation.
 
 .. math::
-   
+
    F'=C_{QCLO}^{t}FC_{QCLO}
 
 
-| :math:`C_{QCLO}` QCLO の係数行列（原子軌道基底）
+| :math:`C_{QCLO}` coefficient matrix of the QCLO (in the atomic-orbital basis)
 
-この解は、前のステップの QCLO で張られた空間における、第3ステップの QCLO です。
-QCLO 法の処理フローを :num:`Fig. #qcloflow`  に示します。
+This solution is the QCLO of Step 3 within the space spanned by the QCLO
+of the previous step. The processing flow of the QCLO method is shown in
+:num:`Fig. #qcloflow`.
 
 .. _qcloflow:
 
@@ -226,4 +269,4 @@ QCLO 法の処理フローを :num:`Fig. #qcloflow`  に示します。
    :alt: QCLO_flow.png
    :align: center
 
-   QCLO法の処理フロー
+   Processing flow of the QCLO method
