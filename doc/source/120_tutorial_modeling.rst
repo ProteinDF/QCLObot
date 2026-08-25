@@ -13,11 +13,12 @@ Prepare Oxytocin model
 
 You can get Oxytocin model (2MGO.pdb) from PDB or :download:`here <_static/2MGO.pdb>`.
 
-Or you save the following text as 2MGO.pdb.
+The file (2,875 lines) begins as follows; download the full file via the link above.
 
 .. literalinclude:: _static/2MGO.pdb
    :language: none
    :encoding: utf-8
+   :lines: 1-20
 
 Create input file for QCLObot-modeler
 -------------------------------------
