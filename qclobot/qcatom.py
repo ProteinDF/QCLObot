@@ -27,7 +27,8 @@ logger = logging.getLogger(__name__)
 
 class QcAtom(bridge.Atom):
     def __init__(self, *args, **kwargs):
-        super(QcAtom, self).__init__(*args, **kwargs)
+        # The arguments are consumed by bridge.Atom.__new__; object.__init__ rejects them.
+        super(QcAtom, self).__init__()
 
         suffix = "." + self.symbol
         self.basisset = kwargs.get('basisset', 'O-DZVP2' + suffix)
