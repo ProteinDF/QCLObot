@@ -43,3 +43,6 @@ doc/**/*.mo
 # working directory for unit test 
 test_*/
 
+
+# Private notes (symlink to ProteinDF_private/qclobot, see CONTRIBUTING.md)
+/private
