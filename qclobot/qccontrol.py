@@ -337,7 +337,7 @@ class QcControl(QcControlObject):
             format_str = summary_act.get("format", None)
             filepath = summary_act.get("filepath", None)
             frame.summary(format_str=format_str, filepath=filepath)
-        elif isinstance(summary_act, bridge.basestring):
+        elif isinstance(summary_act, str):
             frame.summary(format_str=summary_act)
         elif isinstance(summary_act, bool):
             if summary_act:
@@ -658,7 +658,7 @@ class QcControl(QcControlObject):
         index = 1
         if isinstance(atomlist, list):
             for line in atomlist:
-                if isinstance(line, bridge.basestring):
+                if isinstance(line, str):
                     if line[0] == "/":
                         # case '/model/...'
                         brd_select = line
@@ -758,7 +758,7 @@ class QcControl(QcControlObject):
         """
         assert isinstance(atom, bridge.Atom)
         ans = ""
-        if isinstance(input_obj, bridge.basestring):
+        if isinstance(input_obj, str):
             ans = bridge.StrUtils.to_unicode(input_obj)
         elif isinstance(input_obj, dict):
             if atom.name in input_obj:
